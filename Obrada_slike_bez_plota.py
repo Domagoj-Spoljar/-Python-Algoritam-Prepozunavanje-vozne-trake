@@ -237,27 +237,26 @@ def main():
         out_image = np.uint8(np.dstack((histogram_image, histogram_image, histogram_image))*255)
         i=1
         while i <= len(histogram)-1:
-
-            if histogram[i]>0:
-                #histogram_image[histogram_image.shape[0]-int(histogram[i]),i]=0
-                cv2.line(out_image,(i-1,histogram_image.shape[0]-int(histogram[i-1])),(i,histogram_image.shape[0]-int(histogram[i])),(255,255,255),2)
+            #histogram_image[histogram_image.shape[0]-int(histogram[i]),i]=0
+            cv2.line(out_image,(i-1,histogram_image.shape[0]-int(histogram[i-1])),(i,histogram_image.shape[0]-int(histogram[i])),(255,255,255),5)
             i+=1
 
-        resizzeed=np.resize(out_image,(int(rows/3),int(cols/3)))
+        resizzeed=np.copy(out_image)
+        resizzeed=cv2.resize(resizzeed,(int(cols/3),int(rows/3)))
 
         # resized_histogram=np.zeros_like(resized_warped_lines)
-        # resized_histogram[:,:,0]=resizzeed
-        # resized_histogram[:,:,1]=resizzeed
-        # resized_histogram[:,:,2]=resizzeed
+        # resized_histogram=resizzeed
+        # resized_histogram=resizzeed
+        # resized_histogram=resizzeed
 
         #print(resized_histogram.shape)
-        #red2,stup2, kanal5 = resized_histogram.shape
-        #veca_slika[0:red,stup+stup2:cols-2]=resized_histogram
+        red2,stup2, kanal5 = resizzeed.shape
+        veca_slika[red:red+red2,stup+stup2:cols-2]=resizzeed
 
 
 
         #cv2.imshow('histogram', out_image)
-        cv2.imshow('histogram', resizzeed)
+        #cv2.imshow('histogram',resized_histogram)
 
         cv2.imshow(img_arg+str(count)+".jpg", veca_slika)
 
