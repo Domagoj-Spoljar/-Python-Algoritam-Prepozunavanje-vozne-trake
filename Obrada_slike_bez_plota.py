@@ -160,20 +160,9 @@ def main():
         out_img[nonzeroy[left_lane_inds], nonzerox[left_lane_inds]] = [255, 0, 0]
         out_img[nonzeroy[right_lane_inds], nonzerox[right_lane_inds]] = [100, 200, 255]
 
-        # ploty = np.linspace(0, binary_image.shape[0]-1, binary_image.shape[0] )
-        # left_fitx = left_fit[0]*ploty**2 + left_fit[1]*ploty + left_fit[2]
-        # right_fitx = right_fit[0]*ploty**2 + right_fit[1]*ploty + right_fit[2]
 
-        # np.polyfit(left_fitx,,2)
-        #print(left_fitx.shape)
-        #print(left_fitx.dtype)
-        # i=0
-        # while i <= left_fitx.shape[0]-1:
-        #     out_img[i,int(left_fitx[i]),0]=255
-        #     out_img[i,int(left_fitx[i]),1]=255
-        #     out_img[i,int(left_fitx[i]),2]=255
-        #     #cv2.line(out_image,(int(left_fitx[i-1]),i-1),(int(left_fitx[i],i)),(255,255,0),2)
-        #     i+=1
+        out_img=Lff.plot_fit_onto_img(out_img,left_fit,(255,0,255))
+        out_img=Lff.plot_fit_onto_img(out_img,right_fit,(255,0,255))
 
         windows_image=cv2.resize(out_img,(int(cols/3),int(rows/3)))
         red6,stup6,kanal6 = windows_image.shape

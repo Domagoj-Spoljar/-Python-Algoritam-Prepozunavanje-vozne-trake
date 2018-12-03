@@ -222,3 +222,14 @@ def sliding_window_polyfit(img):
     visualization_data = (rectangle_data, histogram)
 
     return left_fit, right_fit, left_lane_inds, right_lane_inds, visualization_data
+
+def plot_fit_onto_img(img, fit, plot_color):
+    if fit is None:
+        return img
+    new_img = np.copy(img)
+    h = new_img.shape[0]
+    ploty = np.linspace(0, h-1, h)
+    plotx = fit[0]*ploty**2 + fit[1]*ploty + fit[2]
+    pts = np.array([np.transpose(np.vstack([plotx, ploty]))])
+    cv2.polylines(new_img, np.int32([pts]), isClosed=False, color=plot_color, thickness=8)
+    return new_img
