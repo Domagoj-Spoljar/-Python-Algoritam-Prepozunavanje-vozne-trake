@@ -20,7 +20,11 @@ Slike ispod prikazuju rezultate pokretanja pograma
 
 Obrada_slike.py
 
+![alt text](https://github.com/Domagoj-Spoljar/-Python-Algoritam-Prepozunavanje-vozne-trake/blob/master/Output_images/Figure_1.png)
 
+![alt text](https://github.com/Domagoj-Spoljar/-Python-Algoritam-Prepozunavanje-vozne-trake/blob/master/Output_images/Figure_2.png)
+
+![alt text](https://github.com/Domagoj-Spoljar/-Python-Algoritam-Prepozunavanje-vozne-trake/blob/master/Output_images/Figure_3.png)
 
 Obrada_slike_bez_plota2.py
 
