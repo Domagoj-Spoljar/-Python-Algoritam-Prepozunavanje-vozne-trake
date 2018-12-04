@@ -24,6 +24,7 @@ Obrada_slike.py
 
 Obrada_slike_bez_plota2.py
 
+![alt text](https://github.com/Domagoj-Spoljar/-Python-Algoritam-Prepozunavanje-vozne-trake/blob/master/Output_images/Output_frame202.jpg)
 
 
 ## Deployment
