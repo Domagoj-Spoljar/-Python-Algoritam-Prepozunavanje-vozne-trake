@@ -9,14 +9,15 @@ Korisne datoteke za korištenje
 * [Jupyter Notebook file](https://github.com/Domagoj-Spoljar/-Python-Algoritam-Prepozunavanje-vozne-trake/blob/master/Prepoznavanje_vozne_trake.ipynb) - bilježnica sa postupcima izrade algoritma
 * [Lane_find_functions](https://github.com/Domagoj-Spoljar/-Python-Algoritam-Prepozunavanje-vozne-trake/blob/master/Lane_find_functions.py) - Sve funkcije potrebne za rad algoritma
 * [Obrada_slike](https://github.com/Domagoj-Spoljar/-Python-Algoritam-Prepozunavanje-vozne-trake/blob/master/Obrada_slike.py) - Datoteka koja za ulaznu sliku daje obrađene slike na razne načine nacrtane pomoću plot funkcije
-* [Obrada_slike_bez_plota2](https://github.com/Domagoj-Spoljar/-Python-Algoritam-Prepozunavanje-vozne-trake/blob/master/Obrada_slike_bez_plota2.py) - Datoteka koja za ulaznu sliku daje sliku na kojoj se nalazi proces obrade slike od početka do kraja.
+* [Obrada_slike_bez_plota2](https://github.com/Domagoj-Spoljar/-Python-Algoritam-Prepozunavanje-vozne-trake/blob/master/Obrada_slike_bez_plota2.py) - Datoteka koja za ulaznu sliku daje sliku na kojoj se nalazi proces obrade slike od početka do kraja. Moguće je sa stijelicama lijevo, desno gledati rezultat algoritma frame po frame.
+
 
 
 
 
 ## Pokretanje datoteka
 
-Slike ispod prikazuju rezultate pokretanja pograma
+Slike ispod prikazuju rezultate pokretanja programa
 
 Obrada_slike.py
 
