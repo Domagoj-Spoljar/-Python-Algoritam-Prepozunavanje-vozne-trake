@@ -463,9 +463,6 @@ axx[1,2].imshow(combined_HLSl_HLSs,cmap='gray')
 axx[1,2].axis('off')
 axx[1,2].set_title('HLS-L + HLS-s', fontsize=15)
 #------------------------------------------------------
-#sliding window part
-
-left_fit, right_fit, left_lane_inds, right_lane_inds, visualization_data = sliding_window_polyfit(exampleImg_RRGBThresh)
 
 #------------------------------------------------------
 plt.show()
