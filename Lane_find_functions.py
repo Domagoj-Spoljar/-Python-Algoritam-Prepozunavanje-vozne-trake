@@ -418,8 +418,13 @@ def pipeline(img, diagnostic_images=False):
         return combined, Minv
 
 def process_image(img, diagnostic_output=False):
+    #copy input image
     new_img = np.copy(img)
-    img_bin, Minv, img_unwarp = pipeline(new_img, diagnostic_output)
+    #get binary image
+    if diagnostic_output is True:
+        img_bin, Minv, img_unwarp = pipeline(new_img, diagnostic_output)
+    else:
+        img_bin, Minv = pipeline(new_img, diagnostic_output)
 
     height,width,_ = new_img.shape
 
@@ -456,12 +461,10 @@ def process_image(img, diagnostic_output=False):
     else:
         img_out = new_img
 
+#---------------------------------------------------------------------------------------
     #diagnostic_output = True
     if diagnostic_output:
 
-
-
-#---------------------------------------------------------------------------------------
 
         # put together multi-view output
         diag_img = np.zeros((720,1280,3), dtype=np.uint8)
@@ -534,59 +537,10 @@ def process_image(img, diagnostic_output=False):
         img_bin_fit = plot_fit_onto_img(img_bin_fit, l_line.best_fit, (255,255,0))
         img_bin_fit = plot_fit_onto_img(img_bin_fit, r_line.best_fit, (255,255,0))
         diag_img[int(height/3)*2:height,int(width/3)*2:width-2,:] = cv2.resize(img_bin_fit,(int(width/3),int(height/3)))
-        #
-        # # diagnostic data (bottom left)
-        # color_ok = (200,255,155)
-        # color_bad = (255,155,155)
-        # font = cv2.FONT_HERSHEY_DUPLEX
-        # if l_fit is not None:
-        #     text = 'This fit L: ' + ' {:0.6f}'.format(l_fit[0]) + \
-        #                             ' {:0.6f}'.format(l_fit[1]) + \
-        #                             ' {:0.6f}'.format(l_fit[2])
-        # else:
-        #     text = 'This fit L: None'
-        # cv2.putText(diag_img, text, (40,380), font, .5, color_ok, 1, cv2.LINE_AA)
-        # if r_fit is not None:
-        #     text = 'This fit R: ' + ' {:0.6f}'.format(r_fit[0]) + \
-        #                             ' {:0.6f}'.format(r_fit[1]) + \
-        #                             ' {:0.6f}'.format(r_fit[2])
-        # else:
-        #     text = 'This fit R: None'
-        # cv2.putText(diag_img, text, (40,400), font, .5, color_ok, 1, cv2.LINE_AA)
-        # text = 'Best fit L: ' + ' {:0.6f}'.format(l_line.best_fit[0]) + \
-        #                         ' {:0.6f}'.format(l_line.best_fit[1]) + \
-        #                         ' {:0.6f}'.format(l_line.best_fit[2])
-        # cv2.putText(diag_img, text, (40,440), font, .5, color_ok, 1, cv2.LINE_AA)
-        # text = 'Best fit R: ' + ' {:0.6f}'.format(r_line.best_fit[0]) + \
-        #                         ' {:0.6f}'.format(r_line.best_fit[1]) + \
-        #                         ' {:0.6f}'.format(r_line.best_fit[2])
-        # cv2.putText(diag_img, text, (40,460), font, .5, color_ok, 1, cv2.LINE_AA)
-        # text = 'Diffs L: ' + ' {:0.6f}'.format(l_line.diffs[0]) + \
-        #                      ' {:0.6f}'.format(l_line.diffs[1]) + \
-        #                      ' {:0.6f}'.format(l_line.diffs[2])
-        # if l_line.diffs[0] > 0.001 or \
-        #    l_line.diffs[1] > 1.0 or \
-        #    l_line.diffs[2] > 100.:
-        #     diffs_color = color_bad
-        # else:
-        #     diffs_color = color_ok
-        # cv2.putText(diag_img, text, (40,500), font, .5, diffs_color, 1, cv2.LINE_AA)
-        # text = 'Diffs R: ' + ' {:0.6f}'.format(r_line.diffs[0]) + \
-        #                      ' {:0.6f}'.format(r_line.diffs[1]) + \
-        #                      ' {:0.6f}'.format(r_line.diffs[2])
-        # if r_line.diffs[0] > 0.001 or \
-        #    r_line.diffs[1] > 1.0 or \
-        #    r_line.diffs[2] > 100.:
-        #     diffs_color = color_bad
-        # else:
-        #     diffs_color = color_ok
-        # cv2.putText(diag_img, text, (40,520), font, .5, diffs_color, 1, cv2.LINE_AA)
-        # text = 'Good fit count L:' + str(len(l_line.current_fit))
-        # cv2.putText(diag_img, text, (40,560), font, .5, color_ok, 1, cv2.LINE_AA)
-        # text = 'Good fit count R:' + str(len(r_line.current_fit))
-        # cv2.putText(diag_img, text, (40,580), font, .5, color_ok, 1, cv2.LINE_AA)
+#------------------------------------------------------------------------------------------------------
 
         img_out = diag_img
+
     return img_out
 
 
@@ -644,3 +598,87 @@ class Line():
 
 l_line = Line()
 r_line = Line()
+
+def combine_images(img_original,img_unwarp,img_bin,processed_img):
+    combined_image = np.zeros((960,1280,3), dtype=np.uint8)
+    height,width,_=combined_image.shape
+
+#---------------------------------------------------------------------------------------
+    # original output (top left)
+    cv2.putText(img_original, "1. Original image ->", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_AA)
+    smaller_img_out2=  cv2.resize(img_original,(int(width/3),int(height/4)))
+    combined_image[0:int(height/4),0:int(width/3)] =smaller_img_out2
+
+#---------------------------------------------------------------------------------------
+
+    # warped imapge (top middle)
+    cv2.putText(img_unwarp, "2. Warped image ->", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_AA)
+    smaller_warped_img=  cv2.resize(img_unwarp,(int(width/3),int(height/4)))
+    combined_image[0:int(height/4),int(width/3):2*int(width/3)] =smaller_warped_img
+#---------------------------------------------------------------------------------------
+
+    # binary overhead view (top right)
+    img_bin2=np.copy(img_bin)
+    img_bin2 = np.dstack((img_bin*255, img_bin*255, img_bin*255))
+    cv2.putText(img_bin2, "3. Binary image v", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_AA)
+    resized_img_bin = cv2.resize(img_bin2,(int(width/3),int(height/4)))
+    r_height, r_width, _ = resized_img_bin.shape
+    cv2.line(resized_img_bin,(0,r_height//2),(r_width,r_height//2),(0,0,255),1)
+    combined_image[0:int(height/4),2*int(width/3):width-2] = resized_img_bin
+#--------------------------------------------------------------------------------------------------------
+    #histogram image (middle right)
+    histogram = np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)
+    histogram_image=np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)
+    #histogram_image=np.ones((binary_image.shape[0]//2,binary_image.shape[1]),dtype=int)
+    out_image = np.uint8(np.dstack((histogram_image, histogram_image, histogram_image))*255)
+    i=1
+    while i <= len(histogram)-1:
+        #histogram_image[histogram_image.shape[0]-int(histogram[i]),i]=0
+        cv2.line(out_image,(i-1,histogram_image.shape[0]-int(histogram[i-1])),(i,histogram_image.shape[0]-int(histogram[i])),(255,255,255),2)
+        i+=1
+    cv2.putText(out_image, "4. Histogram image", (40,40), cv2.FONT_HERSHEY_DUPLEX, 1.5, (0,255,0), 2, cv2.LINE_AA)
+    combined_image[int(height/4):int(height/4)*2,int(width/3)*2:int(width/3)*3,:]=cv2.resize(out_image,(int(width/3),int(height/4)))
+
+#---------------------------------------------------------------------------------------
+    # #lane finding method (middle middle)
+    # rectangle_img = np.uint8(np.dstack((img_bin, img_bin, img_bin))*255)
+    # rectangle_img = plot_fit_onto_img(rectangle_img,l_fit,(0,255,255))
+    # rectangle_img = plot_fit_onto_img(rectangle_img,r_fit,(0,255,255))
+    #
+    # nonzero = img_bin.nonzero()
+    # nonzeroy = np.array(nonzero[0])
+    # nonzerox = np.array(nonzero[1])
+    #
+    # rectangle_img[nonzeroy[l_lane_inds], nonzerox[l_lane_inds]] = [255, 0, 0]
+    # rectangle_img[nonzeroy[r_lane_inds], nonzerox[r_lane_inds]] = [0, 0, 255]
+    #
+    # cv2.putText(rectangle_img, "polyfit_using_prev_fit", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,0,255), 2, cv2.LINE_AA)
+    # for rect in rectangles:
+    #     # Draw the windows on the visualization image
+    #     cv2.rectangle(rectangle_img,(rect[2],rect[0]),(rect[3],rect[1]),(0,255,0), 2)
+    #     cv2.rectangle(rectangle_img,(rect[4],rect[0]),(rect[5],rect[1]),(0,255,0), 2)
+    #
+    #
+    # smaller_window_img=  cv2.resize(rectangle_img,(int(width/3),int(height/3)))
+    # combined_image[int(height/3):int(height/3)*2,int(width/3)*2:width-2] =smaller_window_img
+#------------------------------------------------------------------------------------------
+    # overhead with all fits added (middle left)
+    img_bin_fit = np.copy(img_bin)
+    img_bin_fit = np.dstack((img_bin*255, img_bin*255, img_bin*255))
+    for i, fit in enumerate(l_line.current_fit):
+        img_bin_fit = plot_fit_onto_img(img_bin_fit, fit, (20*i+100,0,20*i+100))
+    for i, fit in enumerate(r_line.current_fit):
+        img_bin_fit = plot_fit_onto_img(img_bin_fit, fit, (0,20*i+100,20*i+100))
+    cv2.putText(img_bin_fit, "6. Overhead with all fits added", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_AA)
+    img_bin_fit = plot_fit_onto_img(img_bin_fit, l_line.best_fit, (255,255,0))
+    img_bin_fit = plot_fit_onto_img(img_bin_fit, r_line.best_fit, (255,255,0))
+    combined_image[int(height/4):int(height/4)*2,0:int(width/3),:] = cv2.resize(img_bin_fit,(int(width/3),int(height/4)))
+#------------------------------------------------------------------------------------------------------
+
+    # original processed output
+    processed_image=  cv2.resize(processed_img,(width,int(height/2)))
+    combined_image[int(height/2):height,0:width] =processed_image
+
+
+#----------------------------------------------------------------------------------------------------------
+    return combined_image

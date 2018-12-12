@@ -12,7 +12,7 @@ dist = np.array([-2.37636612e-01, -8.54129776e-02, -7.90955950e-04, -1.15908700e
 def main():
     dashcam_image_path = '/home/profesor/Documents/[ADAS]_Finding_Lanes/dashcam_driving/'
     img_arg="frame"
-    count = 100
+    count = 150
     k=0
     #cv2.namedWindow('prikaz', cv2.WINDOW_NORMAL)
     while k is not 27:
@@ -148,10 +148,10 @@ def main():
         left_fit, right_fit, left_lane_inds, right_lane_inds, visualization_data = Lff.sliding_window_polyfit(binary_image)
         rectangles = visualization_data[0]
         out_img = np.uint8(np.dstack((binary_image, binary_image, binary_image))*255)
-        for rect in rectangles:
+        #for rect in rectangles:
             # Draw the windows on the visualization image
-            cv2.rectangle(out_img,(rect[2],rect[0]),(rect[3],rect[1]),(0,255,0), 2)
-            cv2.rectangle(out_img,(rect[4],rect[0]),(rect[5],rect[1]),(0,255,0), 2)
+            #cv2.rectangle(out_img,(rect[2],rect[0]),(rect[3],rect[1]),(0,255,0), 2)
+            #cv2.rectangle(out_img,(rect[4],rect[0]),(rect[5],rect[1]),(0,255,0), 2)
 
         # Identify the x and y positions of all nonzero pixels in the image
         nonzero = binary_image.nonzero()
