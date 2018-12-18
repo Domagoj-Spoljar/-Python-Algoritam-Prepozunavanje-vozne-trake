@@ -7,11 +7,13 @@ import os
 import Lane_find_functions as Lff
 import Obrada_slike_za_video as oszv
 
-video_name = 'bezveze_video25.mp4'
+video_name = 'test_video02.mp4'
 image_folder = './Test_images/dashcam_driving/'
 
 frame = cv2.imread(image_folder+"frame1.jpg")
 height, width, layers = frame.shape
+height,width=960,1280
+
 print(frame.shape)
 #video = cv2.VideoWriter(video_name, -1, 1, (width,height))
 video = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'XVID'), 30, (width,height))
@@ -20,12 +22,14 @@ count = 0
 
 while success:
     image = cv2.imread(image_folder+"frame%d.jpg" % count)     # save frame as JPEG file
-    if image is None and count < 150:                             # if image was not read successfully
+    #if image is None or count > 300:                             # if image was not read successfully
+    if image is None:                             # if image was not read successfully
         print ("error: image not read from file \n\n")        # print error message to std out
         success = 0                                 # pause so user can see error message
   #success,image = vidcap.read()
     #imgOriginal=oszv.pipeline(image)
-    processed_image =Lff.process_image(image, diagnostic_output=True)
+    processed_image =Lff.process_image(image)
+    #processed_image = cv2.resize(processed_image,width,height)
     video.write(processed_image)
     print('wrote a new frame: ', success)
     count += 1

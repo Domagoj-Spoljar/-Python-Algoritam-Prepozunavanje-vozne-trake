@@ -111,8 +111,24 @@ def rgb_thresh(img, thresh=(200, 255), color = 0):
     # 3) Return a binary image of threshold result
     return binary_output
 
+def lab_threshold(img, thresh=(190,255), color='l'):
+    # 1) Convert to LAB color space
+    lab = cv2.cvtColor(img, cv2.COLOR_RGB2Lab)
+    if color == 'l':
+        lab_b = lab[:,:,0]
+    elif color == 'b':
+        lab_b = lab[:,:,2]
+    # don't normalize if there are no yellows in the image
+    if np.max(lab_b) > 175:
+        lab_b = lab_b*(255/np.max(lab_b))
+    # 2) Apply a threshold to the L channel
+    binary_output = np.zeros_like(lab_b)
+    binary_output[((lab_b > thresh[0]) & (lab_b <= thresh[1]))] = 1
+    # 3) Return a binary image of threshold result
+    return binary_output
+
 #Function that thresholds one HLS channel and returns binary image
-def hls_threshold(img, thresh=(125, 255), color='h'):
+def hls_threshold(img, thresh=(125, 255), color='s'):
     # 1) Convert to HLS color space
     hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)
     # 2) Apply a threshold to the S channel
@@ -124,9 +140,63 @@ def hls_threshold(img, thresh=(125, 255), color='h'):
         hls_l = hls_l*(255/np.max(hls_l))
         binary_output = np.zeros_like(hls_l)
         binary_output[(hls_l > thresh[0]) & (hls_l <= thresh[1])] = 1
-    elif color == 'h':
-        
+    #elif color == 'h':
+
     else:
         return None
     # 3) Return a binary image of threshold result
     return binary_output
+
+def pipeline(img):
+
+    h,w = img.shape[:2]
+
+    src = np.float32([(575,464),
+                      (707,464),
+                      (258,682),
+                      (1049,682)])
+    # src = np.float32([(550,430),
+    #                   (730,430),
+    #                   (200,622),
+    #                   (1080,622)])
+    dst = np.float32([(450,0),
+                      (w-450,0),
+                      (450,h),
+                      (w-450,h)])
+
+    # Undistort
+    img_undistort = undistort(img)
+
+    # Perspective Transform
+    img_unwarp, M, Minv = unwarp(img_undistort, src, dst)
+
+    # Sobel Absolute (using default parameters)
+    #img_sobelAbs = abs_sobel_thresh(img_unwarp)
+
+    # Sobel Magnitude (using default parameters)
+    #img_sobelMag = mag_thresh(img_unwarp)
+
+    # Sobel Direction (using default parameters)
+    #img_sobelDir = dir_thresh(img_unwarp)
+
+    # HLS S-channel Threshold (using default parameters)
+    #img_SThresh = hls_sthresh(img_unwarp)
+    img_SThresh = hls_threshold(img_unwarp, thresh=(125, 255), color='s')
+
+    # HLS L-channel Threshold (using default parameters)
+    #img_LThresh = hls_lthresh(img_unwarp)
+    img_LThresh = hls_threshold(img_unwarp, thresh=(125, 255), color='l')
+
+    # Lab L-channel Threshold (using default parameters)
+    #img_LLThresh = lab_lthresh(img_unwarp)
+    img_LLThresh = lab_threshold(img_unwarp, thresh=(190,255), color='l')
+
+    # Lab B-channel Threshold (using default parameters)
+    img_BThresh = lab_threshold(img_unwarp, thresh=(190,255), color='b')
+
+    # Combine HLS and Lab B channel thresholds
+    combined = np.zeros_like(img_BThresh)
+    #combined[(img_LThresh == 1) | (img_BThresh == 1)] = 1
+    combined[(img_SThresh == 1) | (img_LLThresh == 1)] = 1
+
+    return combined, Minv, img_unwarp
