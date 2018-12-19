@@ -6,8 +6,60 @@ import matplotlib.pyplot as plt
 import os
 import Image_processing_functions as IPF
 
-mtx = np.array([[1.15694035e+03, 0.00000000e+00, 6.65948597e+02],[0.00000000e+00, 1.15213869e+03, 3.88785178e+02],[0.00000000e+00, 0.00000000e+00, 1.00000000e+00]],np.float64)
-dist = np.array([-2.37636612e-01, -8.54129776e-02, -7.90955950e-04, -1.15908700e-04, 1.05741395e-01],np.float64)
+
+# Define a class to receive the characteristics of each line detection
+class Line():
+    def __init__(self):
+        # was the line detected in the last iteration?
+        self.detected = False
+        # x values of the last n fits of the line
+        self.recent_xfitted = []
+        #average x values of the fitted line over the last n iterations
+        self.bestx = None
+        #polynomial coefficients averaged over the last n iterations
+        self.best_fit = None
+        #polynomial coefficients for the most recent fit
+        self.current_fit = []
+        #radius of curvature of the line in some units
+        self.radius_of_curvature = None
+        #distance in meters of vehicle center from the line
+        self.line_base_pos = None
+        #difference in fit coefficients between last and new fits
+        self.diffs = np.array([0,0,0], dtype='float')
+        #number of detected pixels
+        self.px_count = None
+    def add_fit(self, fit, inds):
+        # add a found fit to the line, up to n
+        if fit is not None:
+            if self.best_fit is not None:
+                # if we have a best fit, see how this new fit compares
+                self.diffs = abs(fit-self.best_fit)
+            if (self.diffs[0] > 0.001 or \
+               self.diffs[1] > 1.0 or \
+               self.diffs[2] > 100.) and \
+               len(self.current_fit) > 0:
+                # bad fit! abort! abort! ... well, unless there are no fits in the current_fit queue, then we'll take it
+                self.detected = False
+            else:
+                self.detected = True
+                self.px_count = np.count_nonzero(inds)
+                self.current_fit.append(fit)
+                if len(self.current_fit) > 5:
+                    # throw out old fits, keep newest n
+                    self.current_fit = self.current_fit[len(self.current_fit)-5:]
+                self.best_fit = np.average(self.current_fit, axis=0)
+        # or remove one from the history, if not found
+        else:
+            self.detected = False
+            if len(self.current_fit) > 0:
+                # throw out oldest fit
+                self.current_fit = self.current_fit[:len(self.current_fit)-1]
+            if len(self.current_fit) > 0:
+                # if there are still any fits in the queue, best_fit is their average
+                self.best_fit = np.average(self.current_fit, axis=0)
+
+l_line = Line()
+r_line = Line()
 
 def plot_fit_onto_img(img, fit, plot_color):
     if fit is None:
@@ -19,6 +71,82 @@ def plot_fit_onto_img(img, fit, plot_color):
     pts = np.array([np.transpose(np.vstack([plotx, ploty]))])
     cv2.polylines(new_img, np.int32([pts]), isClosed=False, color=plot_color, thickness=8)
     return new_img
+
+def find_histogram_peaks(histogram,histogram_image, image=False):
+
+    out_image = np.uint8(np.dstack((histogram_image, histogram_image, histogram_image))*255)
+    cv2.putText(out_image, "Histogram image with peaks", (40,40), cv2.FONT_HERSHEY_DUPLEX, 1.5, (0,255,0), 2, cv2.LINE_AA)
+
+    peak_indices=[]
+    i=1
+    while i <= len(histogram)-2:
+
+        cv2.line(out_image,(i-1,histogram_image.shape[0]-int(histogram[i-1])),(i,histogram_image.shape[0]-int(histogram[i])),(255,255,255),2)
+
+        if(histogram[i]>=histogram[i-1] and histogram[i]>histogram[i+1]):
+
+            peak_indices.append(i)
+            #draw all found peaks
+            #cv2.circle(out_image,(i,histogram_image.shape[0]-int(histogram[i])),2,(255,0,255),2)
+        i+=1
+
+    # print('before: ')
+    # print(peak_indices)
+    # print(histogram[peak_indices])
+
+    index = 0
+    while index <= len(peak_indices)-1:
+        if index is 0:
+            if (histogram[peak_indices[index]]<20):
+                del peak_indices[index]
+                index-=1
+
+        elif (histogram[peak_indices[index]]>20):
+            if (peak_indices[index]-peak_indices[index-1]<20):
+                if(histogram[peak_indices[index-1]]<histogram[peak_indices[index]]):
+                    keep_ind = index
+                    del_ind=index-1
+                else:
+                    keep_ind = index-1
+                    del_ind=index
+                del peak_indices[del_ind]
+                index-=1
+        else:
+            del peak_indices[index]
+            index-=1
+        index+=1
+
+    #peak_count = len(peak_indices) # the number of peaks in the array
+    i=0
+    while i <= len(peak_indices)-1:
+        cv2.circle(out_image,(peak_indices[i],histogram_image.shape[0]-int(histogram[peak_indices[i]])),2,(0,0,255),2)
+        i+=1
+
+
+    # print('after: ')
+    # print(peak_indices)
+    # print(histogram[peak_indices])
+    if image is True:
+        return peak_indices, out_image
+    else:
+        return peak_indices
+
+
+def draw_histogram(img_bin):
+    #histogram image (middle right)
+    histogram = np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)
+    histogram_image=np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)
+    #histogram_image=np.ones((binary_image.shape[0]//2,binary_image.shape[1]),dtype=int)
+    out_image = np.uint8(np.dstack((histogram_image, histogram_image, histogram_image))*255)
+    i=1
+    while i <= len(histogram)-1:
+        #histogram_image[histogram_image.shape[0]-int(histogram[i]),i]=0
+        cv2.line(out_image,(i-1,histogram_image.shape[0]-int(histogram[i-1])),(i,histogram_image.shape[0]-int(histogram[i])),(255,255,255),2)
+        i+=1
+    cv2.putText(out_image, "4. Histogram image", (40,40), cv2.FONT_HERSHEY_DUPLEX, 1.5, (0,255,0), 2, cv2.LINE_AA)
+    return out_image
+
+
 
 def sliding_window_polyfit(img):
     # Take a histogram of the bottom half of the image
@@ -108,6 +236,8 @@ def sliding_window_polyfit(img):
 
 
     return left_fit, right_fit, left_lane_inds, right_lane_inds, visualization_data[0]
+
+
 
 
 def polyfit_using_prev_fit(binary_warped, left_fit_prev, right_fit_prev):
@@ -355,6 +485,8 @@ def process_image(imgOriginal):
 
     #img_bin, Minv, img_unwarped = Lff.pipeline(new_img, diagnostic_images=True)
     img_bin, Minv, img_unwarped = IPF.pipeline(new_img)
+    peaks,histogram_image=find_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
+
 #--------------------------------------------------------------------------------
     #processing binary image to find lanes as curves
     height,width,_ = new_img.shape
@@ -398,7 +530,7 @@ def process_image(imgOriginal):
 
 #-------------------------------------------------------------------------------------
     #processed_image=np.copy(imgOriginal)
-    final_image = combine_images(imgOriginal,img_unwarped,img_bin,curves_image,img_all_fits,processed_image)
+    final_image = combine_images(imgOriginal,img_unwarped,img_bin,histogram_image,curves_image,img_all_fits,processed_image)
 
     return final_image
 
@@ -410,7 +542,7 @@ def draw_all_curves(img_bin, l_line, r_line):
         img_bin_fit = plot_fit_onto_img(img_bin_fit, fit, (20*i+100,0,20*i+100))
     for i, fit in enumerate(r_line.current_fit):
         img_bin_fit = plot_fit_onto_img(img_bin_fit, fit, (0,20*i+100,20*i+100))
-    cv2.putText(img_bin_fit, "Overhead with all fits added", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_AA)
+    cv2.putText(img_bin_fit, "6. Overhead with all fits added", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_AA)
     img_bin_fit = plot_fit_onto_img(img_bin_fit, l_line.best_fit, (255,255,0))
     img_bin_fit = plot_fit_onto_img(img_bin_fit, r_line.best_fit, (255,255,0))
     #diag_img[int(height/3)*2:height,int(width/3)*2:width-2,:] = cv2.resize(img_bin_fit,(int(width/3),int(height/3)))
@@ -432,7 +564,7 @@ def create_image_of_sliding_windows_polyfit(img_bin,l_fit,r_fit,l_lane_inds,r_la
 
 
 
-    cv2.putText(rectangle_img, "sliding_window_polyfit", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,0,255), 2, cv2.LINE_AA)
+    cv2.putText(rectangle_img, "5. sliding_window_polyfit", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,0,255), 2, cv2.LINE_AA)
 
     for rect in rectangles:
         # Draw the windows on the visualization image
@@ -453,66 +585,14 @@ def create_image_of_polyfit_using_prev_fit(img_bin, l_fit, r_fit, l_lane_inds, r
     rectangle_img[nonzeroy[l_lane_inds], nonzerox[l_lane_inds]] = [255, 0, 0]
     rectangle_img[nonzeroy[r_lane_inds], nonzerox[r_lane_inds]] = [0, 0, 255]
 
-    cv2.putText(rectangle_img, "polyfit_using_prev_fit", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_AA)
+    cv2.putText(rectangle_img, "5. polyfit_using_prev_fit", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_AA)
 
     return rectangle_img
 
 
-# Define a class to receive the characteristics of each line detection
-class Line():
-    def __init__(self):
-        # was the line detected in the last iteration?
-        self.detected = False
-        # x values of the last n fits of the line
-        self.recent_xfitted = []
-        #average x values of the fitted line over the last n iterations
-        self.bestx = None
-        #polynomial coefficients averaged over the last n iterations
-        self.best_fit = None
-        #polynomial coefficients for the most recent fit
-        self.current_fit = []
-        #radius of curvature of the line in some units
-        self.radius_of_curvature = None
-        #distance in meters of vehicle center from the line
-        self.line_base_pos = None
-        #difference in fit coefficients between last and new fits
-        self.diffs = np.array([0,0,0], dtype='float')
-        #number of detected pixels
-        self.px_count = None
-    def add_fit(self, fit, inds):
-        # add a found fit to the line, up to n
-        if fit is not None:
-            if self.best_fit is not None:
-                # if we have a best fit, see how this new fit compares
-                self.diffs = abs(fit-self.best_fit)
-            if (self.diffs[0] > 0.001 or \
-               self.diffs[1] > 1.0 or \
-               self.diffs[2] > 100.) and \
-               len(self.current_fit) > 0:
-                # bad fit! abort! abort! ... well, unless there are no fits in the current_fit queue, then we'll take it
-                self.detected = False
-            else:
-                self.detected = True
-                self.px_count = np.count_nonzero(inds)
-                self.current_fit.append(fit)
-                if len(self.current_fit) > 5:
-                    # throw out old fits, keep newest n
-                    self.current_fit = self.current_fit[len(self.current_fit)-5:]
-                self.best_fit = np.average(self.current_fit, axis=0)
-        # or remove one from the history, if not found
-        else:
-            self.detected = False
-            if len(self.current_fit) > 0:
-                # throw out oldest fit
-                self.current_fit = self.current_fit[:len(self.current_fit)-1]
-            if len(self.current_fit) > 0:
-                # if there are still any fits in the queue, best_fit is their average
-                self.best_fit = np.average(self.current_fit, axis=0)
 
-l_line = Line()
-r_line = Line()
 
-def combine_images(img_original,img_unwarp,img_bin,curves_images,img_bin_fit,processed_img):
+def combine_images(img_original,img_unwarp,img_bin,histogram_image,curves_images,img_bin_fit,processed_img):
     combined_image = np.zeros((960,1280,3), dtype=np.uint8)
     height,width,_=combined_image.shape
 
@@ -540,17 +620,17 @@ def combine_images(img_original,img_unwarp,img_bin,curves_images,img_bin_fit,pro
     combined_image[0:int(height/4),2*int(width/3):width-2] = resized_img_bin
 #--------------------------------------------------------------------------------------------------------
     #histogram image (middle right)
-    histogram = np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)
-    histogram_image=np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)
-    #histogram_image=np.ones((binary_image.shape[0]//2,binary_image.shape[1]),dtype=int)
-    out_image = np.uint8(np.dstack((histogram_image, histogram_image, histogram_image))*255)
-    i=1
-    while i <= len(histogram)-1:
-        #histogram_image[histogram_image.shape[0]-int(histogram[i]),i]=0
-        cv2.line(out_image,(i-1,histogram_image.shape[0]-int(histogram[i-1])),(i,histogram_image.shape[0]-int(histogram[i])),(255,255,255),2)
-        i+=1
-    cv2.putText(out_image, "4. Histogram image", (40,40), cv2.FONT_HERSHEY_DUPLEX, 1.5, (0,255,0), 2, cv2.LINE_AA)
-    combined_image[int(height/4):int(height/4)*2,int(width/3)*2:int(width/3)*3,:]=cv2.resize(out_image,(int(width/3),int(height/4)))
+    # histogram = np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)
+    # histogram_image=np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)
+    # #histogram_image=np.ones((binary_image.shape[0]//2,binary_image.shape[1]),dtype=int)
+    # out_image = np.uint8(np.dstack((histogram_image, histogram_image, histogram_image))*255)
+    # i=1
+    # while i <= len(histogram)-1:
+    #     #histogram_image[histogram_image.shape[0]-int(histogram[i]),i]=0
+    #     cv2.line(out_image,(i-1,histogram_image.shape[0]-int(histogram[i-1])),(i,histogram_image.shape[0]-int(histogram[i])),(255,255,255),2)
+    #     i+=1
+    # cv2.putText(out_image, "4. Histogram image", (40,40), cv2.FONT_HERSHEY_DUPLEX, 1.5, (0,255,0), 2, cv2.LINE_AA)
+    combined_image[int(height/4):int(height/4)*2,int(width/3)*2:int(width/3)*3,:]=cv2.resize(histogram_image,(int(width/3),int(height/4)))
 
 #---------------------------------------------------------------------------------------
     #image of curves (middle middle)

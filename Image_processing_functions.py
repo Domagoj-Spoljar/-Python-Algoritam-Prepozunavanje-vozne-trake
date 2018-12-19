@@ -147,25 +147,30 @@ def hls_threshold(img, thresh=(125, 255), color='s'):
     # 3) Return a binary image of threshold result
     return binary_output
 
-def pipeline(img):
-
-    h,w = img.shape[:2]
-
-    src = np.float32([(575,464),
-                      (707,464),
-                      (258,682),
-                      (1049,682)])
-    # src = np.float32([(550,430),
-    #                   (730,430),
-    #                   (200,622),
-    #                   (1080,622)])
+def unwarp_points(h,w):
+    src = np.float32([(550,430),
+                          (730,430),
+                          (200,622),
+                          (1080,622)])
+    # src = np.float32([(575,464),
+    #                   (707,464),
+    #                   (258,682),
+    #                   (1049,682)])
     dst = np.float32([(450,0),
-                      (w-450,0),
-                      (450,h),
-                      (w-450,h)])
+                          (w-450,0),
+                          (450,h),
+                          (w-450,h)])
+    return src,dst
+
+
+def pipeline(img):
 
     # Undistort
     img_undistort = undistort(img)
+
+    #get points on image for perspective transform
+    h,w = img.shape[:2]
+    src,dst = unwarp_points(h,w)
 
     # Perspective Transform
     img_unwarp, M, Minv = unwarp(img_undistort, src, dst)

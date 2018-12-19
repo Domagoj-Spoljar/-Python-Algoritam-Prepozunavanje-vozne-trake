@@ -5,9 +5,8 @@ import glob
 import matplotlib.pyplot as plt
 import os
 import Lane_find_functions as Lff
-import Obrada_slike_za_video as oszv
 
-video_name = 'test_video02.mp4'
+video_name = 'test_video04.mp4'
 image_folder = './Test_images/dashcam_driving/'
 
 frame = cv2.imread(image_folder+"frame1.jpg")
