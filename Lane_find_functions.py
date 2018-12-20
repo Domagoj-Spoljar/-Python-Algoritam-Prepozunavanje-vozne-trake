@@ -95,8 +95,8 @@ def find_histogram_peaks(histogram,histogram_image, image=False):
     # print(histogram[peak_indices])
 
     index = 0
-    width=50
-    range=20
+    width=100
+    range=25
     while index <= len(peak_indices)-1:
         if index is 0:
             if (histogram[peak_indices[index]]<range):
@@ -356,13 +356,14 @@ def draw_lane_custom(original_img, binary_img, l_fit, Minv):
 
     # Draw the lane onto the warped blank image
     #cv2.fillPoly(color_warp, np.int_([pts]), (0,255, 0))
-    cv2.polylines(color_warp, np.int32([pts_left]), isClosed=False, color=(255,0,255), thickness=15)
+    cv2.polylines(color_warp, np.int32([pts_left]), isClosed=False, color=(0,0,255), thickness=15)
 
 
     # Warp the blank back to original image space using inverse perspective matrix (Minv)
     newwarp = cv2.warpPerspective(color_warp, Minv, (w, h))
     # Combine the result with the original image
-    result = cv2.addWeighted(new_img, 1, newwarp, 0.5, 0)
+    result = cv2.addWeighted(new_img, 1, newwarp, 2, 0)
+    #result = cv2.add(new_img,newwarp)
     return result
 
 def draw_data(original_img, curv_rad, center_dist):
@@ -581,8 +582,15 @@ def process_image_smaller(imgOriginal):
     for peak in peaks:
 
         l_fit, l_lane_inds, rectangles = sliding_window_polyfit_all(img_bin,peak)
-        lista.append(l_fit)
-        rectangle_img = create_image_of_sliding_windows_polyfit(rectangle_img,img_bin, l_fit, l_lane_inds, rectangles,colour=(255,255,0))
+        #print(l_fit)
+        #print(l_fit.shape)
+        #if l_fit[0] < 0 :
+        if l_fit[2] >= 0 and -1 <= l_fit[1] <= 1:
+            #print('added')
+            #print(' ')
+            lista.append(l_fit)
+            rectangle_img = create_image_of_sliding_windows_polyfit(rectangle_img,img_bin, l_fit, l_lane_inds, rectangles,colour=(255,255,0))
+    #print('_____________________________________________________')
     img_out1=np.copy(imgOriginal)
     for elements in lista:
         img_out1 = draw_lane_custom(img_out1, img_bin, elements, Minv)
@@ -656,11 +664,6 @@ def sliding_window_polyfit_all(img,peak):
     #for using middle quarters
     leftx_base = peak
 
-    #leftx_base = np.argmax(histogram[:midpoint])
-    #rightx_base = np.argmax(histogram[midpoint:]) + midpoint
-
-    #print('base pts:', leftx_base, rightx_base)
-
     # Choose the number of sliding windows
     nwindows = 10
     # Set height of windows
@@ -672,7 +675,8 @@ def sliding_window_polyfit_all(img,peak):
     # Current positions to be updated for each window
     leftx_current = leftx_base
     # Set the width of the windows +/- margin
-    margin = 100
+    #margin = 100
+    margin = 60
     # Set minimum number of pixels found to recenter window
     minpix = 40
     # Create empty lists to receive left and right lane pixel indices

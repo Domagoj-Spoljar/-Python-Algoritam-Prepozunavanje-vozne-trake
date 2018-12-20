@@ -143,7 +143,7 @@ def create_image_of_sliding_windows_polyfit(rectangle_img,img_bin,fit,lane_inds,
 def main():
     dashcam_image_path = '/home/profesor/Documents/[ADAS]_Finding_Lanes/dashcam_driving/'
     img_arg="frame"
-    count = 110
+    count = 0
     k=0
     #cv2.namedWindow('prikaz', cv2.WINDOW_NORMAL)
     while k is not 27:
