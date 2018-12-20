@@ -61,24 +61,10 @@ l_line = Line()
 r_line = Line()
 
 
-def sliding_window_polyfit_all(img):
-    # Take a histogram of the bottom half of the image
-    #histogram = np.sum(img[img.shape[0]//2:,:], axis=0)
-    histogram = np.sum(img[img.shape[0]//2:,:], axis=0)
-    # Find the peak of the left and right halves of the histogram
-    # These will be the starting point for the left and right lines
-    midpoint = np.int(histogram.shape[0]//2)
-    quarter_point = np.int(midpoint//2)
-    # Previously the left/right base was the max of the left/right half of the histogram
-    # this changes it so that only a quarter of the histogram (directly to the left/right) is considered
-
-    #for using halves
-    # leftx_base = np.argmax(histogram[:midpoint])
-    # rightx_base = np.argmax(histogram[midpoint:]) + midpoint
+def sliding_window_polyfit_all(img,peak):
 
     #for using middle quarters
-    leftx_base = np.argmax(histogram[quarter_point:midpoint]) + quarter_point
-    rightx_base = np.argmax(histogram[midpoint:(midpoint+quarter_point)]) + midpoint
+    leftx_base = peak
 
     #leftx_base = np.argmax(histogram[:midpoint])
     #rightx_base = np.argmax(histogram[midpoint:]) + midpoint
@@ -95,14 +81,12 @@ def sliding_window_polyfit_all(img):
     nonzerox = np.array(nonzero[1])
     # Current positions to be updated for each window
     leftx_current = leftx_base
-    rightx_current = rightx_base
     # Set the width of the windows +/- margin
     margin = 100
     # Set minimum number of pixels found to recenter window
     minpix = 40
     # Create empty lists to receive left and right lane pixel indices
     left_lane_inds = []
-    right_lane_inds = []
     # Rectangle data for visualization
     rectangle_data = []
 
@@ -113,43 +97,48 @@ def sliding_window_polyfit_all(img):
         win_y_high = img.shape[0] - window*window_height
         win_xleft_low = leftx_current - margin
         win_xleft_high = leftx_current + margin
-        win_xright_low = rightx_current - margin
-        win_xright_high = rightx_current + margin
-        rectangle_data.append((win_y_low, win_y_high, win_xleft_low, win_xleft_high, win_xright_low, win_xright_high))
+
+        rectangle_data.append((win_y_low, win_y_high, win_xleft_low, win_xleft_high))
         # Identify the nonzero pixels in x and y within the window
         good_left_inds = ((nonzeroy >= win_y_low) & (nonzeroy < win_y_high) & (nonzerox >= win_xleft_low) & (nonzerox < win_xleft_high)).nonzero()[0]
-        good_right_inds = ((nonzeroy >= win_y_low) & (nonzeroy < win_y_high) & (nonzerox >= win_xright_low) & (nonzerox < win_xright_high)).nonzero()[0]
         # Append these indices to the lists
         left_lane_inds.append(good_left_inds)
-        right_lane_inds.append(good_right_inds)
         # If you found > minpix pixels, recenter next window on their mean position
         if len(good_left_inds) > minpix:
             leftx_current = np.int(np.mean(nonzerox[good_left_inds]))
-        if len(good_right_inds) > minpix:
-            rightx_current = np.int(np.mean(nonzerox[good_right_inds]))
 
     # Concatenate the arrays of indices
     left_lane_inds = np.concatenate(left_lane_inds)
-    right_lane_inds = np.concatenate(right_lane_inds)
+
 
     # Extract left and right line pixel positions
     leftx = nonzerox[left_lane_inds]
     lefty = nonzeroy[left_lane_inds]
-    rightx = nonzerox[right_lane_inds]
-    righty = nonzeroy[right_lane_inds]
-
-    left_fit, right_fit = (None, None)
+    left_fit  = None
     # Fit a second order polynomial to each
     if len(leftx) != 0:
         left_fit = np.polyfit(lefty, leftx, 2)
-    if len(rightx) != 0:
-        right_fit = np.polyfit(righty, rightx, 2)
 
-    visualization_data = (rectangle_data, histogram)
+    return left_fit, left_lane_inds, rectangle_data
 
+def create_image_of_sliding_windows_polyfit(rectangle_img,img_bin,fit,lane_inds, rectangles,colour=(0,0,255)):
+    #rectangle_img = np.uint8(np.dstack((img_bin, img_bin, img_bin))*255)
+    rectangle_img = Lff.plot_fit_onto_img(rectangle_img,fit,(0,255,255))
+    #rectangle_img = plot_fit_onto_img(rectangle_img,r_fit,(0,255,255))
 
-    return left_fit, right_fit, left_lane_inds, right_lane_inds, visualization_data[0]
+    nonzero = img_bin.nonzero()
+    nonzeroy = np.array(nonzero[0])
+    nonzerox = np.array(nonzero[1])
 
+    rectangle_img[nonzeroy[lane_inds], nonzerox[lane_inds]] = [colour[0], colour[1], colour[2]]
+    #rectangle_img[nonzeroy[r_lane_inds], nonzerox[r_lane_inds]] = [0, 0, 255]
+    cv2.putText(rectangle_img, "5. sliding_window_polyfit", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,0,255), 2, cv2.LINE_AA)
+
+    for rect in rectangles:
+        # Draw the windows on the visualization image
+        cv2.rectangle(rectangle_img,(rect[2],rect[0]),(rect[3],rect[1]),(0,255,0), 2)
+        #cv2.rectangle(rectangle_img,(rect[4],rect[0]),(rect[5],rect[1]),(0,255,0), 2)
+    return rectangle_img
 
 def main():
     dashcam_image_path = '/home/profesor/Documents/[ADAS]_Finding_Lanes/dashcam_driving/'
@@ -178,17 +167,20 @@ def main():
         #processing binary image to find lanes as curves
         #height,width,_ = new_img.shape
 
-        # if both left and right lines were detected last frame, use polyfit_using_prev_fit, otherwise use sliding window
-        l_fit, r_fit, l_lane_inds, r_lane_inds, rectangles = Lff.sliding_window_polyfit(img_bin)
-        curves_image = Lff.create_image_of_sliding_windows_polyfit(img_bin, l_fit, r_fit, l_lane_inds, r_lane_inds, rectangles)
+        peaks,histogram_image=Lff.find_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
+        rectangle_img = np.uint8(np.dstack((img_bin, img_bin, img_bin))*255)
+
+        for peak in peaks:
+
+            l_fit, l_lane_inds, rectangles = sliding_window_polyfit_all(img_bin,peak)
+            rectangle_img = create_image_of_sliding_windows_polyfit(rectangle_img,img_bin, l_fit, l_lane_inds, rectangles,colour=(255,255,0))
 
 #----------------------------------------------------------------------------------------
         #histogram image (middle right)
         height,width=960,1280
-                
+
         #choose between two types of histograms
         #histogram_image=Lff.draw_histogram(img_bin)
-        peaks,histogram_image=Lff.find_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
 
         img_all_fits=cv2.resize(histogram_image,(int(width/3),int(height/4)))
 #--------------------------------------------------------------------------------------------------------
@@ -199,12 +191,12 @@ def main():
 
 #-------------------------------------------------------------------------------------
         #processed_image=np.copy(imgOriginal)
-        final_image = Lff.combine_images(imgOriginal,img_unwarped,img_bin,histogram_image,curves_image,img_all_fits,processed_image)
+        #final_image = Lff.combine_images(imgOriginal,img_unwarped,img_bin,histogram_image,curves_image,img_all_fits,processed_image)
 #----------------------------------------------------------------------------------------------------------------------
         #final_image = Lff.process_image(imgOriginal)
 
 #--------------------------------------------------------------------------------------------------------------------
-        cv2.imshow(img_arg+str(count)+".jpg", final_image)
+        cv2.imshow(img_arg+str(count)+".jpg", rectangle_img)
         #print(final_image.shape)
         #cv2.imwrite('Output_'+img_arg+str(count)+".jpg",processed_image)
         k = cv2.waitKey()

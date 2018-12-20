@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import os
 import Lane_find_functions as Lff
 
-video_name = 'test_video04.mp4'
+video_name = 'test_video05.mp4'
 image_folder = './Test_images/dashcam_driving/'
 
 frame = cv2.imread(image_folder+"frame1.jpg")
@@ -27,7 +27,7 @@ while success:
         success = 0                                 # pause so user can see error message
   #success,image = vidcap.read()
     #imgOriginal=oszv.pipeline(image)
-    processed_image =Lff.process_image(image)
+    processed_image =Lff.process_image_smaller(image)
     #processed_image = cv2.resize(processed_image,width,height)
     video.write(processed_image)
     print('wrote a new frame: ', success)

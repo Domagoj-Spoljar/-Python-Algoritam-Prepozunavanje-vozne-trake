@@ -173,10 +173,13 @@ def sliding_window_polyfit_all(img):
     return left_fit, right_fit, left_lane_inds, right_lane_inds, visualization_data[0]
 
 
+
+
+
 def main():
     dashcam_image_path = '/home/profesor/Documents/[ADAS]_Finding_Lanes/dashcam_driving/'
     img_arg="frame"
-    count = 500
+    count = 0
     k=0
     #cv2.namedWindow('prikaz', cv2.WINDOW_NORMAL)
     while k is not 27:
@@ -202,11 +205,15 @@ def main():
         #histogram image (middle right)
         #height,width=960,1280
 
-        out_image=draw_histogram(img_bin)
+
+        #out_image=draw_histogram(img_bin)
+
         # histogram = np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)
         # histogram_image=np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)
-        # peaks,out_image=find_histogram_peaks(histogram,histogram_image,image=True)
-        # print(peaks)
+        #peaks,out_image=find_histogram_peaks(histogram,histogram_image,image=True)
+        peaks,histogram_image=Lff.find_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
+
+        print(peaks)
 #------------------------------------------------------------------------------------------------------------------------------
 
         # histogram = np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)
@@ -296,7 +303,7 @@ def main():
         #final_image = Lff.process_image(imgOriginal)
 
 #--------------------------------------------------------------------------------------------------------------------
-        cv2.imshow(img_arg+str(count)+".jpg", out_image)
+        cv2.imshow(img_arg+str(count)+".jpg", histogram_image)
         #print(final_image.shape)
         #cv2.imwrite('Output_'+img_arg+str(count)+".jpg",processed_image)
         k = cv2.waitKey()

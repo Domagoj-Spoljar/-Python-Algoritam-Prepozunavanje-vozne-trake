@@ -95,14 +95,16 @@ def find_histogram_peaks(histogram,histogram_image, image=False):
     # print(histogram[peak_indices])
 
     index = 0
+    width=50
+    range=20
     while index <= len(peak_indices)-1:
         if index is 0:
-            if (histogram[peak_indices[index]]<20):
+            if (histogram[peak_indices[index]]<range):
                 del peak_indices[index]
                 index-=1
 
-        elif (histogram[peak_indices[index]]>20):
-            if (peak_indices[index]-peak_indices[index-1]<20):
+        elif (histogram[peak_indices[index]]>range):
+            if (peak_indices[index]-peak_indices[index-1]<width):
                 if(histogram[peak_indices[index-1]]<histogram[peak_indices[index]]):
                     keep_ind = index
                     del_ind=index-1
@@ -335,6 +337,34 @@ def draw_lane(original_img, binary_img, l_fit, r_fit, Minv):
     result = cv2.addWeighted(new_img, 1, newwarp, 0.5, 0)
     return result
 
+
+def draw_lane_custom(original_img, binary_img, l_fit, Minv):
+    new_img = np.copy(original_img)
+    if l_fit is None:
+        return original_img
+    # Create an image to draw the lines on
+    warp_zero = np.zeros_like(binary_img).astype(np.uint8)
+    color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
+
+    h,w = binary_img.shape
+    ploty = np.linspace(0, h-1, num=h)# to cover same y-range as image
+    left_fitx = l_fit[0]*ploty**2 + l_fit[1]*ploty + l_fit[2]
+
+    # Recast the x and y points into usable format for cv2.fillPoly()
+    pts_left = np.array([np.transpose(np.vstack([left_fitx, ploty]))])
+    #pts = np.hstack((pts_left, pts_right))
+
+    # Draw the lane onto the warped blank image
+    #cv2.fillPoly(color_warp, np.int_([pts]), (0,255, 0))
+    cv2.polylines(color_warp, np.int32([pts_left]), isClosed=False, color=(255,0,255), thickness=15)
+
+
+    # Warp the blank back to original image space using inverse perspective matrix (Minv)
+    newwarp = cv2.warpPerspective(color_warp, Minv, (w, h))
+    # Combine the result with the original image
+    result = cv2.addWeighted(new_img, 1, newwarp, 0.5, 0)
+    return result
+
 def draw_data(original_img, curv_rad, center_dist):
     new_img = np.copy(original_img)
     h = new_img.shape[0]
@@ -534,6 +564,37 @@ def process_image(imgOriginal):
 
     return final_image
 
+
+def process_image_smaller(imgOriginal):
+
+    #processing image and returning binary image
+
+    new_img = np.copy(imgOriginal)
+
+    #img_bin, Minv, img_unwarped = Lff.pipeline(new_img, diagnostic_images=True)
+    img_bin, Minv, img_unwarped = IPF.pipeline(new_img)
+    peaks,histogram_image=find_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
+
+#--------------------------------------------------------------------------------
+    rectangle_img = np.uint8(np.dstack((img_bin, img_bin, img_bin))*255)
+    lista=[]
+    for peak in peaks:
+
+        l_fit, l_lane_inds, rectangles = sliding_window_polyfit_all(img_bin,peak)
+        lista.append(l_fit)
+        rectangle_img = create_image_of_sliding_windows_polyfit(rectangle_img,img_bin, l_fit, l_lane_inds, rectangles,colour=(255,255,0))
+    img_out1=np.copy(imgOriginal)
+    for elements in lista:
+        img_out1 = draw_lane_custom(img_out1, img_bin, elements, Minv)
+#-------------------------------------------------------------------------------------
+    #processed_image=np.copy(imgOriginal)
+    final_image = combine_images_smaller(img_out1,img_unwarped,img_bin,histogram_image,rectangle_img)
+
+    return final_image
+
+
+
+
 def draw_all_curves(img_bin, l_line, r_line):
     img_bin_fit = np.copy(img_bin)
     img_bin_fit = np.dstack((img_bin*255, img_bin*255, img_bin*255))
@@ -590,7 +651,84 @@ def create_image_of_polyfit_using_prev_fit(img_bin, l_fit, r_fit, l_lane_inds, r
     return rectangle_img
 
 
+def sliding_window_polyfit_all(img,peak):
 
+    #for using middle quarters
+    leftx_base = peak
+
+    #leftx_base = np.argmax(histogram[:midpoint])
+    #rightx_base = np.argmax(histogram[midpoint:]) + midpoint
+
+    #print('base pts:', leftx_base, rightx_base)
+
+    # Choose the number of sliding windows
+    nwindows = 10
+    # Set height of windows
+    window_height = np.int(img.shape[0]/nwindows)
+    # Identify the x and y positions of all nonzero pixels in the image
+    nonzero = img.nonzero()
+    nonzeroy = np.array(nonzero[0])
+    nonzerox = np.array(nonzero[1])
+    # Current positions to be updated for each window
+    leftx_current = leftx_base
+    # Set the width of the windows +/- margin
+    margin = 100
+    # Set minimum number of pixels found to recenter window
+    minpix = 40
+    # Create empty lists to receive left and right lane pixel indices
+    left_lane_inds = []
+    # Rectangle data for visualization
+    rectangle_data = []
+
+    # Step through the windows one by one
+    for window in range(nwindows):
+        # Identify window boundaries in x and y (and right and left)
+        win_y_low = img.shape[0] - (window+1)*window_height
+        win_y_high = img.shape[0] - window*window_height
+        win_xleft_low = leftx_current - margin
+        win_xleft_high = leftx_current + margin
+
+        rectangle_data.append((win_y_low, win_y_high, win_xleft_low, win_xleft_high))
+        # Identify the nonzero pixels in x and y within the window
+        good_left_inds = ((nonzeroy >= win_y_low) & (nonzeroy < win_y_high) & (nonzerox >= win_xleft_low) & (nonzerox < win_xleft_high)).nonzero()[0]
+        # Append these indices to the lists
+        left_lane_inds.append(good_left_inds)
+        # If you found > minpix pixels, recenter next window on their mean position
+        if len(good_left_inds) > minpix:
+            leftx_current = np.int(np.mean(nonzerox[good_left_inds]))
+
+    # Concatenate the arrays of indices
+    left_lane_inds = np.concatenate(left_lane_inds)
+
+
+    # Extract left and right line pixel positions
+    leftx = nonzerox[left_lane_inds]
+    lefty = nonzeroy[left_lane_inds]
+    left_fit  = None
+    # Fit a second order polynomial to each
+    if len(leftx) != 0:
+        left_fit = np.polyfit(lefty, leftx, 2)
+
+    return left_fit, left_lane_inds, rectangle_data
+
+def create_image_of_sliding_windows_polyfit(rectangle_img,img_bin,fit,lane_inds, rectangles,colour=(0,0,255)):
+    #rectangle_img = np.uint8(np.dstack((img_bin, img_bin, img_bin))*255)
+    rectangle_img =plot_fit_onto_img(rectangle_img,fit,(0,255,255))
+    #rectangle_img = plot_fit_onto_img(rectangle_img,r_fit,(0,255,255))
+
+    nonzero = img_bin.nonzero()
+    nonzeroy = np.array(nonzero[0])
+    nonzerox = np.array(nonzero[1])
+
+    rectangle_img[nonzeroy[lane_inds], nonzerox[lane_inds]] = [colour[0], colour[1], colour[2]]
+    #rectangle_img[nonzeroy[r_lane_inds], nonzerox[r_lane_inds]] = [0, 0, 255]
+    cv2.putText(rectangle_img, "5. sliding_window_polyfit", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,0,255), 2, cv2.LINE_AA)
+
+    for rect in rectangles:
+        # Draw the windows on the visualization image
+        cv2.rectangle(rectangle_img,(rect[2],rect[0]),(rect[3],rect[1]),(0,255,0), 2)
+        #cv2.rectangle(rectangle_img,(rect[4],rect[0]),(rect[5],rect[1]),(0,255,0), 2)
+    return rectangle_img
 
 def combine_images(img_original,img_unwarp,img_bin,histogram_image,curves_images,img_bin_fit,processed_img):
     combined_image = np.zeros((960,1280,3), dtype=np.uint8)
@@ -646,6 +784,62 @@ def combine_images(img_original,img_unwarp,img_bin,histogram_image,curves_images
     # original processed output
     processed_image=  cv2.resize(processed_img,(width,int(height/2)))
     combined_image[int(height/2):height,0:width] =processed_image
+
+
+#----------------------------------------------------------------------------------------------------------
+    return combined_image
+
+
+def combine_images_smaller(img_original,img_unwarp,img_bin,histogram_image,curves_images):
+    combined_image = np.zeros((960,1280,3), dtype=np.uint8)
+    height,width,_=combined_image.shape
+
+#---------------------------------------------------------------------------------------
+    # original output (top left)
+    cv2.putText(img_original, "Original image ->", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_AA)
+    combined_image[0:int(height/3),0:int(width/2)] =cv2.resize(img_original,(int(width/2),int(height/3)))
+
+
+#---------------------------------------------------------------------------------------
+
+    # warped imapge (top middle)
+    cv2.putText(img_unwarp, "Warped image ->", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_AA)
+    combined_image[0:int(height/3),int(width/2):int(width/2)*2] = cv2.resize(img_unwarp,(int(width/2),int(height/3)))
+
+#---------------------------------------------------------------------------------------
+
+    # binary overhead view (top right)
+    img_bin2=np.copy(img_bin)
+    img_bin2 = np.dstack((img_bin*255, img_bin*255, img_bin*255))
+    cv2.putText(img_bin2, "Binary image v", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_AA)
+    resized_img_bin = cv2.resize(img_bin2,(int(width/2),int(height/3)))
+    r_height, r_width, _ = resized_img_bin.shape
+    cv2.line(resized_img_bin,(0,r_height//2),(r_width,r_height//2),(0,0,255),1)
+    combined_image[int(height/3):int(height/3)*2,0:int(width/2)] = resized_img_bin
+#--------------------------------------------------------------------------------------------------------
+    #histogram image (middle right)
+    # histogram = np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)
+    # histogram_image=np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)
+    # #histogram_image=np.ones((binary_image.shape[0]//2,binary_image.shape[1]),dtype=int)
+    # out_image = np.uint8(np.dstack((histogram_image, histogram_image, histogram_image))*255)
+    # i=1
+    # while i <= len(histogram)-1:
+    #     #histogram_image[histogram_image.shape[0]-int(histogram[i]),i]=0
+    #     cv2.line(out_image,(i-1,histogram_image.shape[0]-int(histogram[i-1])),(i,histogram_image.shape[0]-int(histogram[i])),(255,255,255),2)
+    #     i+=1
+    # cv2.putText(out_image, "4. Histogram image", (40,40), cv2.FONT_HERSHEY_DUPLEX, 1.5, (0,255,0), 2, cv2.LINE_AA)
+    combined_image[int(height/3)*2:int(height/3)*3,0:int(width/2)]=cv2.resize(histogram_image,(int(width/2),int(height/3)))
+
+#---------------------------------------------------------------------------------------
+    #image of curves (middle middle)
+    #cv2.putText(curves_images, "<- lane find", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_AA)
+    combined_image[int(height/3):int(height/3)*2,int(width/2):int(width)] =cv2.resize(curves_images,(int(width/2),int(height/3)))
+
+#------------------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------------------------------
+
+
 
 
 #----------------------------------------------------------------------------------------------------------
