@@ -8,7 +8,7 @@ import Lane_find_functions as Lff
 import Image_processing_functions as IPF
 
 def main():
-    dashcam_image_path = '/home/profesor/Documents/[ADAS]_Finding_Lanes/dashcam_driving/'
+    dashcam_image_path = './Test_images/dashcam_driving/'
     img_arg="frame"
     count = 0
     k=0
