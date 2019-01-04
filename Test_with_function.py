@@ -10,6 +10,7 @@ import sys
 
 def main():
     dashcam_image_path = '/home/profesor/Documents/[ADAS]_Finding_Lanes/dashcam_driving/'
+    dashcam_image_path = './Test_images/dashcam_driving/'
     img_arg="frame"
     count = 135
     #count = 139
