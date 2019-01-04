@@ -6,11 +6,16 @@ import matplotlib.pyplot as plt
 import os
 import Lane_find_functions as Lff
 import Image_processing_functions as IPF
+import sys
 
 def main():
     dashcam_image_path = '/home/profesor/Documents/[ADAS]_Finding_Lanes/dashcam_driving/'
     img_arg="frame"
-    count = 0
+    count = 135
+    #count = 139
+    #count = 170
+    #count = 60
+
     k=0
     #cv2.namedWindow('prikaz', cv2.WINDOW_NORMAL)
     while k is not 27:
@@ -24,7 +29,8 @@ def main():
             os.system("pause")                                  # pause so user can see error message
             return
 
-        processed_image =Lff.process_image_smaller(imgOriginal)
+        processed_image =Lff.process_image_4lanes(imgOriginal,fullscreen=False)
+
 #--------------------------------------------------------------------------------------------------------------------
         cv2.imshow(img_arg+str(count)+".jpg", processed_image)
         #print(final_image.shape)

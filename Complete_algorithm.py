@@ -57,6 +57,8 @@ class Line():
                 # if there are still any fits in the queue, best_fit is their average
                 self.best_fit = np.average(self.current_fit, axis=0)
 
+
+
 l_line = Line()
 r_line = Line()
 

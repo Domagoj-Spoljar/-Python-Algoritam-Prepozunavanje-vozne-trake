@@ -6,18 +6,24 @@ import matplotlib.pyplot as plt
 import os
 import Lane_find_functions as Lff
 
-video_name = 'test_video077.mp4'
+video_name = 'test_video_4lanes_1.5.mp4'
 image_folder = './Test_images/dashcam_driving/'
 
 frame = cv2.imread(image_folder+"frame1.jpg")
 height, width, layers = frame.shape
-height,width=960,1280
+
+fullscreen=False
+if fullscreen is False:
+    height,width=960,1280
+else:
+    height,width=720,1280
+
 
 print(frame.shape)
 #video = cv2.VideoWriter(video_name, -1, 1, (width,height))
 video = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'XVID'), 30, (width,height))
 success=1
-count = 500
+count = 215
 
 while success:
     image = cv2.imread(image_folder+"frame%d.jpg" % count)     # save frame as JPEG file
@@ -27,7 +33,8 @@ while success:
         success = 0                                 # pause so user can see error message
   #success,image = vidcap.read()
     #imgOriginal=oszv.pipeline(image)
-    processed_image =Lff.process_image_smaller(image)
+    processed_image =Lff.process_image_4lanes(image, fullscreen)
+    cv2.putText(processed_image, 'frame ' + str(count), (40,80), cv2.FONT_HERSHEY_DUPLEX, 1, (255,0,0), 1, cv2.LINE_AA)
     #processed_image = cv2.resize(processed_image,width,height)
     video.write(processed_image)
     print('wrote a new frame: ', count)

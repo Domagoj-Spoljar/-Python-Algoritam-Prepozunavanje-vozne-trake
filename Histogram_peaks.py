@@ -11,7 +11,7 @@ from scipy import signal
 def main():
     dashcam_image_path = '/home/profesor/Documents/[ADAS]_Finding_Lanes/dashcam_driving/'
     img_arg="frame"
-    count = 0
+    count = 60
     k=0
     #cv2.namedWindow('prikaz', cv2.WINDOW_NORMAL)
     while k is not 27:
@@ -43,7 +43,9 @@ def main():
         # histogram = np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)
         # histogram_image=np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)
         #peaks,out_image=find_histogram_peaks(histogram,histogram_image,image=True)
-        peaks,histogram_image=Lff.find_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
+
+        #peaks,histogram_image=Lff.find_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
+        peaks,histogram_image=Lff.find_4_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
 
         print(peaks)
 #------------------------------------------------------------------------------------------------------------------------------
