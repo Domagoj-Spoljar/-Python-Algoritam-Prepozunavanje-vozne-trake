@@ -5,7 +5,7 @@ import glob
 import matplotlib.pyplot as plt
 import os
 import Image_processing_functions as IPF
-
+import copy
 
 # Define a class to receive the characteristics of each line detection
 class Line():
@@ -39,18 +39,19 @@ class Line():
         # add a found fit to the line, up to n
 
         if fit is not None:
+
+            # if self.peak is 0:
+            #     self.peak=peak_count
             if self.best_fit is not None:
                 # if we have a best fit, see how this new fit compares
                 self.diffs = abs(fit-self.best_fit)
                 self.peakdiffs=abs(peak_count-self.peak)
-            if ((self.diffs[0] > 0.001 or \
-               self.diffs[1] > 1.0 or \
-               self.diffs[2] > 100.) and \
-               len(self.current_fit) > 0):
+            if ((self.diffs[0] > 0.001 or self.diffs[1] > 1.0 or self.diffs[2] > 100.) and len(self.current_fit) > 0) or not (fit[2]>=0 and -1<=fit[1]<=1): #or not (self.peak-30<=peak_count<=self.peak+30)
                # bad fit! abort! abort! ... well, unless there are no fits in the current_fit queue, then we'll take it
                     #if  ((self.peak-30) <= peak_count <= (self.peak+30)):
                     self.detected = False
                     self.peak=0
+            #good fit.
             else:
                 self.peak=peak_count
                 self.detected = True
@@ -80,9 +81,9 @@ class Line():
         self.line_base_pos = None
         self.diffs = np.array([0,0,0], dtype='float')
         self.px_count = None
-        self.current_lane_number = None
-        self.prev_lane_number = None
-        self.peak=None
+        #self.current_lane_number = None
+        #self.prev_lane_number = None
+        self.peak=0
 
 
 
@@ -107,7 +108,7 @@ def plot_fit_onto_img(img, fit, plot_color):
 def find_histogram_peaks(histogram,histogram_image, image=False):
 
     out_image = np.uint8(np.dstack((histogram_image, histogram_image, histogram_image))*255)
-    cv2.putText(out_image, "Histogram image with peaks", (40,40), cv2.FONT_HERSHEY_DUPLEX, 1.5, (0,255,0), 2, cv2.LINE_AA)
+    cv2.putText(out_image, "4. Histogram image with peaks", (40,40), cv2.FONT_HERSHEY_DUPLEX, 1.5, (0,255,0), 2, cv2.LINE_AA)
 
     peak_indices=[]
     i=1
@@ -867,9 +868,75 @@ def allocate_peaks_to_4lanes(peaks):
         lane_change=None
     return four_lanes, lane_change
 
-def update_lanes(img_bin,rectangle_img,four_lanes):
+def switch_lanes(four_lanes):
     for i, peak in enumerate(four_lanes):
         if peak is not None:
+            if i==0:
+                if lane_list[1].peak-20<=peak<=lane_list[1].peak+20:
+                    lane_list[0]=copy.deepcopy(lane_list[1])
+                    lane_list[1]=copy.deepcopy(lane_list[2])
+                    lane_list[2]=copy.deepcopy(lane_list[3])
+                    lane_list[3].reset_lane()
+                    print('lanes changed:0')
+                    break
+            elif i==1:
+                if (lane_list[0].peak-20<=peak<=lane_list[0].peak+20):
+                    lane_list[3]=copy.deepcopy(lane_list[2])
+                    lane_list[2]=copy.deepcopy(lane_list[1])
+                    lane_list[1]=copy.deepcopy(lane_list[0])
+                    lane_list[0].reset_lane()
+                    print('lanes changed:11')
+                    break
+                elif (lane_list[2].peak-20<=peak<=lane_list[2].peak+20):
+                    lane_list[0]=copy.deepcopy(lane_list[1])
+                    lane_list[1]=copy.deepcopy(lane_list[2])
+                    lane_list[2]=copy.deepcopy(lane_list[3])
+                    lane_list[3].reset_lane()
+                    print('lanes changed:12')
+                    break
+            elif i==2:
+                if (lane_list[1].peak-20<=peak<=lane_list[1].peak+20):
+                    lane_list[3]=copy.deepcopy(lane_list[2])
+                    lane_list[2]=copy.deepcopy(lane_list[1])
+                    lane_list[1]=copy.deepcopy(lane_list[0])
+                    lane_list[0].reset_lane()
+                    print('lanes changed:21')
+                    break
+                elif (lane_list[3].peak-20<=peak<=lane_list[3].peak+20):
+                    lane_list[0]=copy.deepcopy(lane_list[1])
+                    lane_list[1]=copy.deepcopy(lane_list[2])
+                    lane_list[2]=copy.deepcopy(lane_list[3])
+                    lane_list[3].reset_lane()
+                    print('lanes changed:22')
+                    break
+            elif i==3:
+                if (lane_list[2].peak-20<=peak<=lane_list[2].peak+20):
+                    lane_list[3]=copy.deepcopy(lane_list[2])
+                    lane_list[2]=copy.deepcopy(lane_list[1])
+                    lane_list[1]=copy.deepcopy(lane_list[0])
+                    lane_list[0].reset_lane()
+                    print('lanes changed:3')
+                    break
+
+def update_lanes(img_bin,rectangle_img,four_lanes):
+    print('********************************************')
+    print('self.peaks=['+str(lane_list[0].peak)+' '+str(lane_list[1].peak)+' '+str(lane_list[2].peak)+' '+str(lane_list[3].peak)+']')
+    print('********************************************')
+
+    switch_lanes(four_lanes)
+
+    print('********************************************')
+    print('after switching lanes -> self.peaks=['+str(lane_list[0].peak)+' '+str(lane_list[1].peak)+' '+str(lane_list[2].peak)+' '+str(lane_list[3].peak)+']')
+    print('********************************************')
+    print('adding new peaks: ['+str(four_lanes[0])+' '+str(four_lanes[1])+' '+str(four_lanes[2])+' '+str(four_lanes[3])+']')
+    print('********************************************')
+
+    for i, peak in enumerate(four_lanes):
+        print('current self.peak['+str(i)+']='+str(lane_list[i].peak))
+        if peak is not None:
+            print('adding peak= '+str(peak))
+
+
 
             if not lane_list[i].detected:
                 temp_fit, temp_lane_inds, rectangles = sliding_window_polyfit_all(img_bin,peak)
@@ -878,12 +945,18 @@ def update_lanes(img_bin,rectangle_img,four_lanes):
                 temp_fit, temp_lane_inds=polyfit_using_prev_fit_all(img_bin,lane_list[i].best_fit)
                 rectangle_img= create_image_of_polyfit_using_prev_fit(rectangle_img,img_bin,temp_fit,temp_lane_inds)
 
-            lane_list[i].add_fit(temp_fit, temp_lane_inds,i,peak)
-        else:
-            if lane_list[i].peak is not None:
-                lane_list[i].reset_lane()
-            #lane_list[i].detected = False
 
+            lane_list[i].add_fit(temp_fit, temp_lane_inds,i,peak)
+            print('peak after adding= '+ str(lane_list[i].peak))
+            print('___________________________________________')
+        else:
+            #if lane_list[i].peak is not None:
+            lane_list[i].reset_lane()
+                #lane_list[i].detected=False
+            #lane_list[i].detected = False
+    print('********************************************')
+    print('peaks after adding: self.peaks=['+str(lane_list[0].peak)+' '+str(lane_list[1].peak)+' '+str(lane_list[2].peak)+' '+str(lane_list[3].peak)+']')
+    print('********************************************')
     return rectangle_img
 
 # def update_lanes(img_bin,rectangle_img,four_lanes):
@@ -935,8 +1008,8 @@ def process_image_4lanes(imgOriginal,fullscreen=False):
     #peaks,histogram_image=find_4_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
 
     peaks,histogram_image=find_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
-    print('calculated peaks')
-    print(peaks)
+    #print('calculated peaks')
+    #print(peaks)
 
     cv2.line(histogram_image,(320,0),(320,720),(255,255,0),2)
     cv2.line(histogram_image,(640,0),(640,720),(255,255,0),2)
@@ -1018,8 +1091,8 @@ def process_image_4lanes(imgOriginal,fullscreen=False):
 
     four_lanes, lane_change = allocate_peaks_to_4lanes(peaks)
 
-    print('sorted peaks')
-    print(four_lanes)
+    #print('sorted peaks')
+    #print(four_lanes)
     print('___________________________________')
 
     cv2.putText(histogram_image, 'Calculated peaks: '+str(peaks), (40,80), cv2.FONT_HERSHEY_DUPLEX, 1, (0,0,255), 2, cv2.LINE_AA)
@@ -1041,7 +1114,7 @@ def process_image_4lanes(imgOriginal,fullscreen=False):
         if lane_list[i].best_fit is not None:
             img_out1 = draw_lane_custom(img_out1, img_bin, lane_list[i].best_fit, Minv)
             img_out2 = draw_all_curves_custom(img_out2, lane_list[i])
-
+            cv2.putText(img_out2, str(lane_list[i].best_fit[0])+' '+str(lane_list[i].best_fit[1])+' '+str(lane_list[i].best_fit[2])+' ', (40,160+i*80), cv2.FONT_HERSHEY_DUPLEX, 1, (0,0,255), 2, cv2.LINE_AA)
 #-------------------------------------------------------------------------------------
     #processed_image=np.copy(imgOriginal)
     if fullscreen is False:
@@ -1207,7 +1280,7 @@ def create_image_of_sliding_windows_polyfit(rectangle_img,img_bin,fit,lane_inds,
 
     rectangle_img[nonzeroy[lane_inds], nonzerox[lane_inds]] = [colour[0], colour[1], colour[2]]
     #rectangle_img[nonzeroy[r_lane_inds], nonzerox[r_lane_inds]] = [0, 0, 255]
-    cv2.putText(rectangle_img, "5. sliding_window_polyfit", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,0,255), 2, cv2.LINE_AA)
+    cv2.putText(rectangle_img, "5. sliding_window_polyfit", (40,160), cv2.FONT_HERSHEY_DUPLEX, 2, (0,0,255), 2, cv2.LINE_AA)
 
     for rect in rectangles:
         # Draw the windows on the visualization image
@@ -1281,14 +1354,14 @@ def combine_images_smaller(img_original,img_unwarp,img_bin,histogram_image,curve
 
 #---------------------------------------------------------------------------------------
     # original output (top left)
-    cv2.putText(img_original, "Original image ->", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_AA)
+    cv2.putText(img_original, "1. Original image", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_AA)
     combined_image[0:int(height/3),0:int(width/2)] =cv2.resize(img_original,(int(width/2),int(height/3)))
 
 
 #---------------------------------------------------------------------------------------
 
     # warped imapge (top middle)
-    cv2.putText(img_unwarp, "Warped image ->", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_AA)
+    cv2.putText(img_unwarp, "2. Warped image", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_AA)
     combined_image[0:int(height/3),int(width/2):int(width/2)*2] = cv2.resize(img_unwarp,(int(width/2),int(height/3)))
 
 #---------------------------------------------------------------------------------------
@@ -1296,7 +1369,7 @@ def combine_images_smaller(img_original,img_unwarp,img_bin,histogram_image,curve
     # binary overhead view (top right)
     img_bin2=np.copy(img_bin)
     img_bin2 = np.dstack((img_bin*255, img_bin*255, img_bin*255))
-    cv2.putText(img_bin2, "Binary image v", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_AA)
+    cv2.putText(img_bin2, "3. Binary image", (40,80), cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_AA)
     resized_img_bin = cv2.resize(img_bin2,(int(width/2),int(height/3)))
     r_height, r_width, _ = resized_img_bin.shape
     cv2.line(resized_img_bin,(0,r_height//2),(r_width,r_height//2),(0,0,255),1)

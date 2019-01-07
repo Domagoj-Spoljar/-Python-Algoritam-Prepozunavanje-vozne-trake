@@ -6,8 +6,17 @@ import matplotlib.pyplot as plt
 import os
 import Lane_find_functions as Lff
 
-video_name = 'test_video_4lanes_1.5.mp4'
-image_folder = './Test_images/dashcam_driving/'
+# video_name = 'test_video_4lanes_1.6.mp4'
+# image_folder = './Test_images/dashcam_driving/'
+
+video_name = 'challenge_video_4lanes_1.6.mp4'
+image_folder = './Test_images/challenge_video/'
+
+# video_name = 'harder_challenge_video_4lanes_1.6.mp4'
+# image_folder = './Test_images/harder_challenge_video/'
+#
+# video_name = 'project_video_4lanes_1.6.mp4'
+# image_folder = './Test_images/project_video/'
 
 frame = cv2.imread(image_folder+"frame1.jpg")
 height, width, layers = frame.shape

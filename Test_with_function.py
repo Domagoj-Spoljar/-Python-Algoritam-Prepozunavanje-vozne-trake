@@ -9,13 +9,19 @@ import Image_processing_functions as IPF
 import sys
 
 def main():
-    dashcam_image_path = '/home/profesor/Documents/[ADAS]_Finding_Lanes/dashcam_driving/'
-    dashcam_image_path = './Test_images/dashcam_driving/'
+
+    #dashcam_image_path = './Test_images/dashcam_driving/'
+    dashcam_image_path = './Test_images/challnege_video/'
+    #dashcam_image_path = './Test_images/harder_challenge_video/'
+    #dashcam_image_path = './Test_images/project_video/'
     img_arg="frame"
-    count = 135
+    #count = 138
     #count = 139
     #count = 170
     #count = 60
+    #count = 290
+    count = 0
+    #count = 822
 
     k=0
     #cv2.namedWindow('prikaz', cv2.WINDOW_NORMAL)

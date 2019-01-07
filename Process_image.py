@@ -12,7 +12,11 @@ if len(sys.argv) == 2:
 else:
     img_arg='frame100'
     print('Processing default image: '+img_arg)
-dashcam_image_path = '/home/profesor/Documents/[ADAS]_Finding_Lanes/dashcam_driving/'
+
+#dashcam_image_path = './Test_images/dashcam_driving/'
+dashcam_image_path = './Test_images/challnege_video/'
+#dashcam_image_path = './Test_images/harder_challenge_video/'
+#dashcam_image_path = './Test_images/project_video/'
 
 #exampleImg = cv2.imread('./test_images/frame2.jpg')
 #exampleImg = cv2.imread('/home/profesor/Documents/[ADAS]_Finding_Lanes/dashcam_driving/frame501.jpg')
@@ -67,11 +71,17 @@ sobelMag_sobelAbs[((exampleImg_sobelMag == 1) & (exampleImg_sobelAbs == 1))] = 1
 
 exampleImg_SThresh = IPF.hls_threshold(exampleImg_unwarp,thresh=(125,255),color='s')
 exampleImg_LThresh = IPF.hls_threshold(exampleImg_unwarp,thresh=(220,255),color='l')
-exampleImg_LBThresh = IPF.lab_threshold(exampleImg_unwarp,thresh=(0,255),color='b')
+exampleImg_LBThresh = IPF.lab_threshold(exampleImg_unwarp,thresh=(190,255),color='b')
 exampleImg_LLBThresh = IPF.lab_threshold(exampleImg_unwarp,thresh=(190,255),color='l')
 exampleImg_RRGBThresh = IPF.rgb_thresh(exampleImg_unwarp,color=0)
 exampleImg_GRGBThresh = IPF.rgb_thresh(exampleImg_unwarp,color=1)
 exampleImg_BRGBThresh = IPF.rgb_thresh(exampleImg_unwarp,color=2)
+
+
+#delete plot
+added_binary_images=np.zeros_like(exampleImg_unwarp)
+print(added_binary_images.dtype)
+added_binary_images=sobelMag_sobelAbs+sobelAbs_sobelDir+sobelMag_sobelDir+exampleImg_BRGBThresh+exampleImg_GRGBThresh+exampleImg_RRGBThresh+exampleImg_LLBThresh+exampleImg_LBThresh+exampleImg_LThresh+exampleImg_SThresh
 
 # Visualize undistortion
 f, ax = plt.subplots(4, 4, figsize=(20,10))
@@ -193,6 +203,10 @@ axy[2,3].imshow(sobelAbs_sobelDir,cmap='gray')
 axy[2,3].axis('off')
 axy[2,3].set_title('Sobel abs+dir', fontsize=15)
 #-------------------------------------------------------------------
+axy[1,2].imshow(added_binary_images,cmap='gray')
+axy[1,2].axis('off')
+axy[1,2].set_title('added all binary images', fontsize=15)
+#-------------------------------------------------------------------
 
 #-------------------------------------------------------------------
 combined_HLSl_LABb = np.zeros_like(exampleImg_LBThresh)
@@ -239,6 +253,8 @@ axx[1,2].imshow(combined_HLSl_HLSs,cmap='gray')
 axx[1,2].axis('off')
 axx[1,2].set_title('HLS-L + HLS-s', fontsize=15)
 #------------------------------------------------------
-
+axx[2,0].imshow(added_binary_images,cmap='gray')
+axx[2,0].axis('off')
+axx[2,0].set_title('added all binary images', fontsize=15)
 #------------------------------------------------------
 plt.show()
