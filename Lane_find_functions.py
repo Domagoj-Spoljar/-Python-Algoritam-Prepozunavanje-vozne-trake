@@ -33,6 +33,8 @@ class Line():
         #self.prev_lane_number= None
         self.peak=0
         self.peakdiffs=0
+        #self.keep_lines=5
+        self.keep_lines=10
 
 
     def add_fit(self, fit, inds,lane_number, peak_count):
@@ -57,9 +59,9 @@ class Line():
                 self.detected = True
                 self.px_count = np.count_nonzero(inds)
                 self.current_fit.append(fit)
-                if len(self.current_fit) > 5:
+                if len(self.current_fit) > self.keep_lines:
                     # throw out old fits, keep newest n
-                    self.current_fit = self.current_fit[len(self.current_fit)-5:]
+                    self.current_fit = self.current_fit[len(self.current_fit)-self.keep_lines:]
                 self.best_fit = np.average(self.current_fit, axis=0)
         # or remove one from the history, if not found
         else:
@@ -919,22 +921,22 @@ def switch_lanes(four_lanes):
                     break
 
 def update_lanes(img_bin,rectangle_img,four_lanes):
-    print('********************************************')
-    print('self.peaks=['+str(lane_list[0].peak)+' '+str(lane_list[1].peak)+' '+str(lane_list[2].peak)+' '+str(lane_list[3].peak)+']')
-    print('********************************************')
+    # print('********************************************')
+    # print('self.peaks=['+str(lane_list[0].peak)+' '+str(lane_list[1].peak)+' '+str(lane_list[2].peak)+' '+str(lane_list[3].peak)+']')
+    # print('********************************************')
 
     switch_lanes(four_lanes)
 
-    print('********************************************')
-    print('after switching lanes -> self.peaks=['+str(lane_list[0].peak)+' '+str(lane_list[1].peak)+' '+str(lane_list[2].peak)+' '+str(lane_list[3].peak)+']')
-    print('********************************************')
-    print('adding new peaks: ['+str(four_lanes[0])+' '+str(four_lanes[1])+' '+str(four_lanes[2])+' '+str(four_lanes[3])+']')
-    print('********************************************')
+    # print('********************************************')
+    # print('after switching lanes -> self.peaks=['+str(lane_list[0].peak)+' '+str(lane_list[1].peak)+' '+str(lane_list[2].peak)+' '+str(lane_list[3].peak)+']')
+    # print('********************************************')
+    # print('adding new peaks: ['+str(four_lanes[0])+' '+str(four_lanes[1])+' '+str(four_lanes[2])+' '+str(four_lanes[3])+']')
+    # print('********************************************')
 
     for i, peak in enumerate(four_lanes):
-        print('current self.peak['+str(i)+']='+str(lane_list[i].peak))
+        #print('current self.peak['+str(i)+']='+str(lane_list[i].peak))
         if peak is not None:
-            print('adding peak= '+str(peak))
+            #print('adding peak= '+str(peak))
 
 
 
@@ -947,16 +949,16 @@ def update_lanes(img_bin,rectangle_img,four_lanes):
 
 
             lane_list[i].add_fit(temp_fit, temp_lane_inds,i,peak)
-            print('peak after adding= '+ str(lane_list[i].peak))
-            print('___________________________________________')
+            #print('peak after adding= '+ str(lane_list[i].peak))
+            #print('___________________________________________')
         else:
             #if lane_list[i].peak is not None:
             lane_list[i].reset_lane()
                 #lane_list[i].detected=False
             #lane_list[i].detected = False
-    print('********************************************')
-    print('peaks after adding: self.peaks=['+str(lane_list[0].peak)+' '+str(lane_list[1].peak)+' '+str(lane_list[2].peak)+' '+str(lane_list[3].peak)+']')
-    print('********************************************')
+    # print('********************************************')
+    # print('peaks after adding: self.peaks=['+str(lane_list[0].peak)+' '+str(lane_list[1].peak)+' '+str(lane_list[2].peak)+' '+str(lane_list[3].peak)+']')
+    # print('********************************************')
     return rectangle_img
 
 # def update_lanes(img_bin,rectangle_img,four_lanes):
@@ -1008,6 +1010,7 @@ def process_image_4lanes(imgOriginal,fullscreen=False):
     #peaks,histogram_image=find_4_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
 
     peaks,histogram_image=find_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
+    #peaks,histogram_image=find_histogram_peaks((np.sum(img_bin[:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
     #print('calculated peaks')
     #print(peaks)
 
@@ -1021,90 +1024,17 @@ def process_image_4lanes(imgOriginal,fullscreen=False):
     # print('')
 #--------------------------------------------------------------------------------
     rectangle_img = np.uint8(np.dstack((img_bin, img_bin, img_bin))*255)
-    #print('length of peaks: '+ str(len(peaks)))
-    # if len(peaks)<5:
-    #     four_lanes=[None,None,None,None]
-    #     lane_change=False
-    #
-    #     for peak in peaks:
-    #
-    #         if peak < 320:
-    #             if four_lanes[0] is not None:
-    #                 if four_lanes[1] is not None:
-    #                     four_lanes[2]=peak
-    #                 else:
-    #                     four_lanes[1]=peak
-    #                 lane_change=True
-    #             else:
-    #                 four_lanes[0] = peak
-    #
-    #         elif  320 <= peak < 640:
-    #             if four_lanes[1] is not None:
-    #                 if four_lanes[2] is not None:
-    #                     four_lanes[3]=peak
-    #                 else:
-    #                     four_lanes[2]=peak
-    #                 lane_change=True
-    #             else:
-    #                 four_lanes[1] = peak
-    #
-    #         elif  640<= peak < 930:
-    #             if four_lanes[2] is not None:
-    #                 if four_lanes[1] is None:
-    #                     four_lanes[1]=four_lanes[2]
-    #                     four_lanes[2]=peak
-    #                     lane_change=True
-    #
-    #                 elif four_lanes[0] is None:
-    #                     four_lanes[0]=four_lanes[1]
-    #                     four_lanes[1]=four_lanes[2]
-    #                     four_lanes[2]=peak
-    #                     lane_change=True
-    #                 else:
-    #                     four_lanes[3]=peak
-    #                 #lane_change=True
-    #             else:
-    #                 four_lanes[2] = peak
-    #
-    #         elif 930 <= peak < 1280:
-    #             if four_lanes[3] is not None:
-    #                 if four_lanes[2] is None:
-    #                     four_lanes[2]=four_lanes[3]
-    #                     four_lanes[3]=peak
-    #                     lane_change=True
-    #                 elif four_lanes[1] is None:
-    #                     four_lanes[1]=four_lanes[2]
-    #                     four_lanes[2]=four_lanes[3]
-    #                     four_lanes[3]=peak
-    #                     lane_change=True
-    #                 elif four_lanes[0] is None:
-    #                     four_lanes[0]=four_lanes[1]
-    #                     four_lanes[1]=four_lanes[2]
-    #                     four_lanes[2]=four_lanes[3]
-    #                     four_lanes[3]=peak
-    #                     lane_change=True
-    #                 #lane_change=True
-    #                 # else:
-    #                 #     four_lanes[3]=peak
-    #             else:
-    #                 four_lanes[3] = peak
 
     four_lanes, lane_change = allocate_peaks_to_4lanes(peaks)
 
     #print('sorted peaks')
     #print(four_lanes)
-    print('___________________________________')
+    #print('___________________________________')
 
     cv2.putText(histogram_image, 'Calculated peaks: '+str(peaks), (40,80), cv2.FONT_HERSHEY_DUPLEX, 1, (0,0,255), 2, cv2.LINE_AA)
     cv2.putText(histogram_image, 'Sorted peaks: '+str(four_lanes), (40,115), cv2.FONT_HERSHEY_DUPLEX, 1, (0,0,255), 2, cv2.LINE_AA)
 
     rectangle_img=update_lanes(img_bin,rectangle_img,four_lanes)
-    # if lane_change is True:
-    #     lane_list[0].reset_lane()
-    #     lane_list[1].reset_lane()
-    #     lane_list[2].reset_lane()
-    #     lane_list[3].reset_lane()
-
 
     #print('_____________________________________________________')
     img_out1=np.copy(imgOriginal)
@@ -1125,9 +1055,6 @@ def process_image_4lanes(imgOriginal,fullscreen=False):
         final_image=img_out1
 
     return final_image
-
-
-
 
 def draw_all_curves(img_bin, l_line, r_line):
     img_bin_fit = np.copy(img_bin)
@@ -1230,7 +1157,8 @@ def sliding_window_polyfit_all(img,peak):
     leftx_current = leftx_base
     # Set the width of the windows +/- margin
     #margin = 100
-    margin = 60
+    #margin = 60
+    margin = 40
     # Set minimum number of pixels found to recenter window
     minpix = 40
     # Create empty lists to receive left and right lane pixel indices

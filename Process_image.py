@@ -10,11 +10,11 @@ if len(sys.argv) == 2:
     img_arg=sys.argv[1]
     print('Processing image: '+img_arg)
 else:
-    img_arg='frame100'
+    img_arg='frame9'
     print('Processing default image: '+img_arg)
 
-#dashcam_image_path = './Test_images/dashcam_driving/'
-dashcam_image_path = './Test_images/challnege_video/'
+dashcam_image_path = './Test_images/dashcam_driving/'
+#dashcam_image_path = './Test_images/challnege_video/'
 #dashcam_image_path = './Test_images/harder_challenge_video/'
 #dashcam_image_path = './Test_images/project_video/'
 
@@ -79,9 +79,26 @@ exampleImg_BRGBThresh = IPF.rgb_thresh(exampleImg_unwarp,color=2)
 
 
 #delete plot
-added_binary_images=np.zeros_like(exampleImg_unwarp)
-print(added_binary_images.dtype)
+#added_binary_images=np.zeros_like(exampleImg_unwarp)
+added_binary_images=np.zeros_like(exampleImg_unwarp[:,:,0])
+#print(added_binary_images.dtype)
 added_binary_images=sobelMag_sobelAbs+sobelAbs_sobelDir+sobelMag_sobelDir+exampleImg_BRGBThresh+exampleImg_GRGBThresh+exampleImg_RRGBThresh+exampleImg_LLBThresh+exampleImg_LBThresh+exampleImg_LThresh+exampleImg_SThresh
+
+
+# thresh_binary_images=np.zeros_like(exampleImg_unwarp[:,:,0])
+# thresh_binary_images[(added_binary_images[:,:] > 3)] = 1
+
+#thresh_binary_images3=IPF.binary_threshold(added_binary_images,3)
+thresh_binary_images2=IPF.make_binary_stack(exampleImg_unwarp,2)
+thresh_binary_images3=IPF.make_binary_stack(exampleImg_unwarp,3)
+thresh_binary_images4=IPF.make_binary_stack(exampleImg_unwarp,4)
+thresh_binary_images5=IPF.make_binary_stack(exampleImg_unwarp,5)
+thresh_binary_images6=IPF.make_binary_stack(exampleImg_unwarp,6)
+thresh_binary_images7=IPF.make_binary_stack(exampleImg_unwarp,7)
+# thresh_binary_images4=IPF.binary_threshold(added_binary_images,4)
+# thresh_binary_images5=IPF.binary_threshold(added_binary_images,5)
+# thresh_binary_images6=IPF.binary_threshold(added_binary_images,6)
+# thresh_binary_images7=IPF.binary_threshold(added_binary_images,7)
 
 # Visualize undistortion
 f, ax = plt.subplots(4, 4, figsize=(20,10))
@@ -152,60 +169,80 @@ ax[3,3].axis('off')
 ax[3,3].set_title('Sobel Direction', fontsize=15)
 #--------------------------------------------------------------
 
-ffx, axy = plt.subplots(3, 4, figsize=(20,10))
+ffx, axy = plt.subplots(4, 4, figsize=(20,10))
 ffx.subplots_adjust(hspace = .1, wspace=0.01)
 
 #-------------------------------------------------------------
 axy[1,1].imshow(exampleImg_SThresh,cmap='gray')
 axy[1,1].axis('off')
-axy[1,1].set_title('HLS S-channel thresholded', fontsize=15)
+axy[1,1].set_title('HLS S-channel thresholded', fontsize=12)
 
 #------------------------------------------------------------------
 
 axy[1,0].imshow(exampleImg_LThresh,cmap='gray')
 axy[1,0].axis('off')
-axy[1,0].set_title('HLS L-channel thresholded', fontsize=15)
+axy[1,0].set_title('HLS L-channel thresholded', fontsize=12)
 
 #------------------------------------------------------------------
 
 axy[2,1].imshow(exampleImg_LBThresh,cmap='gray')
 axy[2,1].axis('off')
-axy[2,1].set_title('LAB B-channel thresholded', fontsize=15)
+axy[2,1].set_title('LAB B-channel thresholded', fontsize=12)
 
 #------------------------------------------------------------------
 axy[2,0].imshow(exampleImg_LLBThresh,cmap='gray')
 axy[2,0].axis('off')
-axy[2,0].set_title('LAB L-channel thresholded', fontsize=15)
+axy[2,0].set_title('LAB L-channel thresholded', fontsize=12)
 
 #------------------------------------------------------------------
 
 axy[0,3].imshow(sobelMag_sobelDir,cmap='gray')
 axy[0,3].axis('off')
-axy[0,3].set_title('Sobel Direction+Sobel magnitude', fontsize=15)
+axy[0,3].set_title('Sobel Direction+Sobel magnitude', fontsize=12)
 #-------------------------------------------------------------------
 axy[0,0].imshow(exampleImg_RRGBThresh,cmap='gray')
 axy[0,0].axis('off')
-axy[0,0].set_title('RGB r thresholded', fontsize=15)
+axy[0,0].set_title('RGB r thresholded', fontsize=12)
 #-------------------------------------------------------------------
 axy[0,1].imshow(exampleImg_GRGBThresh,cmap='gray')
 axy[0,1].axis('off')
-axy[0,1].set_title('RGB g thresholded', fontsize=15)
+axy[0,1].set_title('RGB g thresholded', fontsize=12)
 #-------------------------------------------------------------------
 axy[0,2].imshow(exampleImg_BRGBThresh,cmap='gray')
 axy[0,2].axis('off')
-axy[0,2].set_title('RGB b thresholded', fontsize=15)
+axy[0,2].set_title('RGB b thresholded', fontsize=12)
 #-------------------------------------------------------------------
-axy[1,3].imshow(sobelMag_sobelAbs,cmap='gray')
-axy[1,3].axis('off')
-axy[1,3].set_title('Sobel mag+abs', fontsize=15)
-#-------------------------------------------------------------------
-axy[2,3].imshow(sobelAbs_sobelDir,cmap='gray')
-axy[2,3].axis('off')
-axy[2,3].set_title('Sobel abs+dir', fontsize=15)
-#-------------------------------------------------------------------
-axy[1,2].imshow(added_binary_images,cmap='gray')
+axy[1,2].imshow(sobelMag_sobelAbs,cmap='gray')
 axy[1,2].axis('off')
-axy[1,2].set_title('added all binary images', fontsize=15)
+axy[1,2].set_title('Sobel mag+abs', fontsize=12)
+#-------------------------------------------------------------------
+axy[1,3].imshow(sobelAbs_sobelDir,cmap='gray')
+axy[1,3].axis('off')
+axy[1,3].set_title('Sobel abs+dir', fontsize=12)
+#-------------------------------------------------------------------
+axy[2,2].imshow(added_binary_images,cmap='gray')
+axy[2,2].axis('off')
+axy[2,2].set_title('added all binary images', fontsize=12)
+#-------------------------------------------------------------------
+axy[2,3].imshow(thresh_binary_images2,cmap='gray')
+axy[2,3].axis('off')
+axy[2,3].set_title('thresholded all binary images 2', fontsize=12)
+#-------------------------------------------------------------------
+axy[3,0].imshow(thresh_binary_images3,cmap='gray')
+axy[3,0].axis('off')
+axy[3,0].set_title('thresholded all binary images 3', fontsize=12)
+#-------------------------------------------------------------------
+axy[3,1].imshow(thresh_binary_images4,cmap='gray')
+axy[3,1].axis('off')
+axy[3,1].set_title('thresholded all binary images 4', fontsize=12)
+#-------------------------------------------------------------------
+axy[3,2].imshow(thresh_binary_images5,cmap='gray')
+axy[3,2].axis('off')
+axy[3,2].set_title('thresholded all binary images 5', fontsize=12)
+#-------------------------------------------------------------------
+axy[3,3].imshow(thresh_binary_images6,cmap='gray')
+axy[3,3].axis('off')
+axy[3,3].set_title('thresholded all binary images 6', fontsize=12)
 #-------------------------------------------------------------------
 
 #-------------------------------------------------------------------
@@ -254,7 +291,10 @@ axx[1,2].axis('off')
 axx[1,2].set_title('HLS-L + HLS-s', fontsize=15)
 #------------------------------------------------------
 axx[2,0].imshow(added_binary_images,cmap='gray')
+#print('added all shape:'+str(added_binary_images.shape)+' '+str(added_binary_images.dtype))
 axx[2,0].axis('off')
 axx[2,0].set_title('added all binary images', fontsize=15)
+#------------------------------------------------------
+
 #------------------------------------------------------
 plt.show()

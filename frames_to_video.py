@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 import os
 import Lane_find_functions as Lff
 
-# video_name = 'test_video_4lanes_1.6.mp4'
-# image_folder = './Test_images/dashcam_driving/'
+video_name = 'test_video_4lanes_1.8.mp4'
+image_folder = './Test_images/dashcam_driving/'
 
-video_name = 'challenge_video_4lanes_1.6.mp4'
-image_folder = './Test_images/challenge_video/'
+# video_name = 'challenge_video_4lanes_1.6.mp4'
+# image_folder = './Test_images/challenge_video/'
 
 # video_name = 'harder_challenge_video_4lanes_1.6.mp4'
 # image_folder = './Test_images/harder_challenge_video/'
@@ -32,7 +32,8 @@ print(frame.shape)
 #video = cv2.VideoWriter(video_name, -1, 1, (width,height))
 video = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'XVID'), 30, (width,height))
 success=1
-count = 215
+# count = 215
+count = 0
 
 while success:
     image = cv2.imread(image_folder+"frame%d.jpg" % count)     # save frame as JPEG file

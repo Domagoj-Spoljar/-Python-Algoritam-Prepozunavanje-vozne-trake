@@ -10,8 +10,8 @@ import sys
 
 def main():
 
-    #dashcam_image_path = './Test_images/dashcam_driving/'
-    dashcam_image_path = './Test_images/challnege_video/'
+    dashcam_image_path = './Test_images/dashcam_driving/'
+    #dashcam_image_path = './Test_images/challnege_video/'
     #dashcam_image_path = './Test_images/harder_challenge_video/'
     #dashcam_image_path = './Test_images/project_video/'
     img_arg="frame"
@@ -20,7 +20,7 @@ def main():
     #count = 170
     #count = 60
     #count = 290
-    count = 0
+    count = 680
     #count = 822
 
     k=0
