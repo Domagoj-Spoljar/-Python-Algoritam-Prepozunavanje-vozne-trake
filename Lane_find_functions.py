@@ -48,11 +48,12 @@ class Line():
                 # if we have a best fit, see how this new fit compares
                 self.diffs = abs(fit-self.best_fit)
                 self.peakdiffs=abs(peak_count-self.peak)
-            if ((self.diffs[0] > 0.001 or self.diffs[1] > 1.0 or self.diffs[2] > 100.) and len(self.current_fit) > 0) or not (fit[2]>=0 and -1<=fit[1]<=1): #or not (self.peak-30<=peak_count<=self.peak+30)
+            if ((self.diffs[0] > 0.001 or self.diffs[1] > 1.0 or self.diffs[2] > 100.) and len(self.current_fit) > 0) or not (fit[2]>=0 and -0.2<=fit[1]<=0.2): #or not (self.peak-30<=peak_count<=self.peak+30)
+                #(fit[2]>=0 and -1<=fit[1]<=1)
                # bad fit! abort! abort! ... well, unless there are no fits in the current_fit queue, then we'll take it
                     #if  ((self.peak-30) <= peak_count <= (self.peak+30)):
                     self.detected = False
-                    self.peak=0
+                    #self.peak=0
             #good fit.
             else:
                 self.peak=peak_count
@@ -871,10 +872,13 @@ def allocate_peaks_to_4lanes(peaks):
     return four_lanes, lane_change
 
 def switch_lanes(four_lanes):
+    margin=60
     for i, peak in enumerate(four_lanes):
         if peak is not None:
+            #print('lane_list['+str(i)+']='+str(lane_list[i].peak))
+            #print('peak: '+str(peak))
             if i==0:
-                if lane_list[1].peak-20<=peak<=lane_list[1].peak+20:
+                if lane_list[1].peak-margin<=peak<=lane_list[1].peak+margin:
                     lane_list[0]=copy.deepcopy(lane_list[1])
                     lane_list[1]=copy.deepcopy(lane_list[2])
                     lane_list[2]=copy.deepcopy(lane_list[3])
@@ -882,14 +886,14 @@ def switch_lanes(four_lanes):
                     print('lanes changed:0')
                     break
             elif i==1:
-                if (lane_list[0].peak-20<=peak<=lane_list[0].peak+20):
+                if (lane_list[0].peak-margin<=peak<=lane_list[0].peak+margin):
                     lane_list[3]=copy.deepcopy(lane_list[2])
                     lane_list[2]=copy.deepcopy(lane_list[1])
                     lane_list[1]=copy.deepcopy(lane_list[0])
                     lane_list[0].reset_lane()
                     print('lanes changed:11')
                     break
-                elif (lane_list[2].peak-20<=peak<=lane_list[2].peak+20):
+                elif (lane_list[2].peak-margin<=peak<=lane_list[2].peak+margin):
                     lane_list[0]=copy.deepcopy(lane_list[1])
                     lane_list[1]=copy.deepcopy(lane_list[2])
                     lane_list[2]=copy.deepcopy(lane_list[3])
@@ -897,14 +901,14 @@ def switch_lanes(four_lanes):
                     print('lanes changed:12')
                     break
             elif i==2:
-                if (lane_list[1].peak-20<=peak<=lane_list[1].peak+20):
+                if (lane_list[1].peak-margin<=peak<=lane_list[1].peak+margin):
                     lane_list[3]=copy.deepcopy(lane_list[2])
                     lane_list[2]=copy.deepcopy(lane_list[1])
                     lane_list[1]=copy.deepcopy(lane_list[0])
                     lane_list[0].reset_lane()
                     print('lanes changed:21')
                     break
-                elif (lane_list[3].peak-20<=peak<=lane_list[3].peak+20):
+                elif (lane_list[3].peak-margin<=peak<=lane_list[3].peak+margin):
                     lane_list[0]=copy.deepcopy(lane_list[1])
                     lane_list[1]=copy.deepcopy(lane_list[2])
                     lane_list[2]=copy.deepcopy(lane_list[3])
@@ -912,7 +916,7 @@ def switch_lanes(four_lanes):
                     print('lanes changed:22')
                     break
             elif i==3:
-                if (lane_list[2].peak-20<=peak<=lane_list[2].peak+20):
+                if (lane_list[2].peak-margin<=peak<=lane_list[2].peak+margin):
                     lane_list[3]=copy.deepcopy(lane_list[2])
                     lane_list[2]=copy.deepcopy(lane_list[1])
                     lane_list[1]=copy.deepcopy(lane_list[0])
@@ -949,8 +953,8 @@ def update_lanes(img_bin,rectangle_img,four_lanes):
 
 
             lane_list[i].add_fit(temp_fit, temp_lane_inds,i,peak)
-            #print('peak after adding= '+ str(lane_list[i].peak))
-            #print('___________________________________________')
+            # print('peak after adding= '+ str(lane_list[i].peak))
+            # print('___________________________________________')
         else:
             #if lane_list[i].peak is not None:
             lane_list[i].reset_lane()
@@ -1036,7 +1040,7 @@ def process_image_4lanes(imgOriginal,fullscreen=False):
 
     rectangle_img=update_lanes(img_bin,rectangle_img,four_lanes)
 
-    #print('_____________________________________________________')
+    #print('_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*')
     img_out1=np.copy(imgOriginal)
     img_out2=np.copy(img_bin)
     img_out2= np.dstack((img_bin*255, img_bin*255, img_bin*255))
