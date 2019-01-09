@@ -212,22 +212,22 @@ def unwarp_points(h,w):
     #                       (1130,720)])
 
     #ispravan!
+    src = np.float32([(550,430),
+                          (730,430),
+                          (200,622),
+                          (1080,622)])
     # src = np.float32([(550,430),
     #                       (730,430),
     #                       (200,622),
     #                       (1080,622)])
-    # src = np.float32([(550,430),
-    #                       (730,430),
-    #                       (200,622),
-    #                       (1080,622)])
 
 
 
 
-    src = np.float32([(575,464),
-                      (707,464),
-                      (258,682),
-                      (1049,682)])
+    # src = np.float32([(575,464),
+    #                   (707,464),
+    #                   (258,682),
+    #                   (1049,682)])
     dst = np.float32([(450,0),
                           (w-450,0),
                           (450,h),
@@ -257,9 +257,8 @@ def pipeline(img):
     #img_sobelDir = dir_thresh(img_unwarp)
 
     # HLS S-channel Threshold (using default parameters)
-    #img_SThresh = hls_sthresh(img_unwarp)
-    #img_SThresh = hls_threshold(img_unwarp, thresh=(125, 255), color='s')
-    img_HLS_s_thresh = hls_threshold(img_unwarp, thresh=(220, 255), color='s')
+    #img_HLS_s_thresh = hls_threshold(img_unwarp, thresh=(220, 255), color='s')
+    img_HLS_s_thresh = hls_threshold(img_unwarp, thresh=(125, 255), color='s')
 
     # HLS L-channel Threshold (using default parameters)
     #img_LThresh = hls_lthresh(img_unwarp)

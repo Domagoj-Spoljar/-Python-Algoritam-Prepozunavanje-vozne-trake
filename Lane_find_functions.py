@@ -53,10 +53,12 @@ class Line():
                # bad fit! abort! abort! ... well, unless there are no fits in the current_fit queue, then we'll take it
                     #if  ((self.peak-30) <= peak_count <= (self.peak+30)):
                     self.detected = False
+                    # print('peak ignored!')
                     #self.peak=0
             #good fit.
             else:
                 self.peak=peak_count
+                # print('peak added!')
                 self.detected = True
                 self.px_count = np.count_nonzero(inds)
                 self.current_fit.append(fit)
@@ -537,6 +539,63 @@ def draw_lane(original_img, binary_img, l_fit, r_fit, Minv):
     return result
 
 
+def highlight_road(original_img, binary_img, four_fits, Minv):
+    new_img = np.copy(original_img)
+    # Create an image to draw the lines on
+    warp_zero = np.zeros_like(binary_img).astype(np.uint8)
+    color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
+
+    h,w = binary_img.shape
+    ploty = np.linspace(0, h-1, num=h)# to cover same y-range as image
+
+    fit=[None,None,None,None]
+    pts=[None,None,None,None]
+
+
+    for i, fitt in enumerate(four_fits):
+        if fitt is not None:
+            fit[i] = four_fits[i][0]*ploty**2 + four_fits[i][1]*ploty + four_fits[i][2]
+            if i is 0 or i is 2:
+                pts[i] = np.array([np.transpose(np.vstack([fit[i], ploty]))])
+            else:
+                pts[i] = np.array([np.flipud(np.transpose(np.vstack([fit[i], ploty])))])
+
+    # if four_fits[0] is not None:
+    #     fit[0] = four_fits[0][0]*ploty**2 + four_fits[0][1]*ploty + four_fits[0][2]
+    #     pts[0] = np.array([np.flipud(np.transpose(np.vstack([fit[0], ploty])))])
+    # if four_fits[1] is not None:
+    #     fit[1] = four_fits[1][0]*ploty**2 + four_fits[1][1]*ploty + four_fits[1][2]
+    #     pts[1] = np.array([np.transpose(np.vstack([fit[1], ploty]))])
+    # if four_fits[2] is not None:
+    #     fit[2] = four_fits[2][0]*ploty**2 + four_fits[2][1]*ploty + four_fits[2][2]
+    #     pts[2] = np.array([np.flipud(np.transpose(np.vstack([fit[2], ploty])))])
+    # if four_fits[3] is not None:
+    #     fit[3] = four_fits[3][0]*ploty**2 + four_fits[3][1]*ploty + four_fits[3][2]
+    #     pts[3] = np.array([np.transpose(np.vstack([fit[3], ploty]))])
+
+    if pts[0] is not None and pts[1] is not None:
+        pts_road_left = np.hstack((pts[0], pts[1]))
+        cv2.fillPoly(color_warp, np.int_([pts_road_left]), (0, 0,255))
+    if pts[1] is not None and pts[2] is not None:
+        pts_road_middle = np.hstack((pts[1], pts[2]))
+        cv2.fillPoly(color_warp, np.int_([pts_road_middle]), (0,255, 0))
+    if pts[2] is not None and pts[3] is not None:
+        pts_road_right = np.hstack((pts[2], pts[3]))
+        cv2.fillPoly(color_warp, np.int_([pts_road_right]), (0, 0,255))
+
+
+    # pts_road_left = np.hstack((pts1, pts2))
+    # cv2.fillPoly(color_warp, np.int_([pts_road_left]), (0,255, 0))
+    # pts_road_right = np.hstack((pts2, pts3))
+    # cv2.fillPoly(color_warp, np.int_([pts_road_right]), (0,255, 0))
+
+    # Warp the blank back to original image space using inverse perspective matrix (Minv)
+    newwarp = cv2.warpPerspective(color_warp, Minv, (w, h))
+    # Combine the result with the original image
+    result = cv2.addWeighted(new_img, 1, newwarp, 2, 0)
+    #result = cv2.add(new_img,newwarp)
+    return result
+
 def draw_lane_custom(original_img, binary_img, l_fit, Minv):
     new_img = np.copy(original_img)
     if l_fit is None:
@@ -555,7 +614,7 @@ def draw_lane_custom(original_img, binary_img, l_fit, Minv):
 
     # Draw the lane onto the warped blank image
     #cv2.fillPoly(color_warp, np.int_([pts]), (0,255, 0))
-    cv2.polylines(color_warp, np.int32([pts_left]), isClosed=False, color=(0,0,255), thickness=15)
+    cv2.polylines(color_warp, np.int32([pts_left]), isClosed=False, color=(0,255,255), thickness=15)
 
 
     # Warp the blank back to original image space using inverse perspective matrix (Minv)
@@ -878,7 +937,7 @@ def switch_lanes(four_lanes):
             #print('lane_list['+str(i)+']='+str(lane_list[i].peak))
             #print('peak: '+str(peak))
             if i==0:
-                if lane_list[1].peak-margin<=peak<=lane_list[1].peak+margin:
+                if lane_list[1].peak-margin<=peak<=lane_list[1].peak+margin and lane_list[1].peak is not 0:
                     lane_list[0]=copy.deepcopy(lane_list[1])
                     lane_list[1]=copy.deepcopy(lane_list[2])
                     lane_list[2]=copy.deepcopy(lane_list[3])
@@ -886,14 +945,14 @@ def switch_lanes(four_lanes):
                     print('lanes changed:0')
                     break
             elif i==1:
-                if (lane_list[0].peak-margin<=peak<=lane_list[0].peak+margin):
+                if (lane_list[0].peak-margin<=peak<=lane_list[0].peak+margin) and lane_list[0].peak is not 0:
                     lane_list[3]=copy.deepcopy(lane_list[2])
                     lane_list[2]=copy.deepcopy(lane_list[1])
                     lane_list[1]=copy.deepcopy(lane_list[0])
                     lane_list[0].reset_lane()
                     print('lanes changed:11')
                     break
-                elif (lane_list[2].peak-margin<=peak<=lane_list[2].peak+margin):
+                elif (lane_list[2].peak-margin<=peak<=lane_list[2].peak+margin)and lane_list[2].peak is not 0:
                     lane_list[0]=copy.deepcopy(lane_list[1])
                     lane_list[1]=copy.deepcopy(lane_list[2])
                     lane_list[2]=copy.deepcopy(lane_list[3])
@@ -901,14 +960,14 @@ def switch_lanes(four_lanes):
                     print('lanes changed:12')
                     break
             elif i==2:
-                if (lane_list[1].peak-margin<=peak<=lane_list[1].peak+margin):
+                if (lane_list[1].peak-margin<=peak<=lane_list[1].peak+margin)and lane_list[1].peak is not 0:
                     lane_list[3]=copy.deepcopy(lane_list[2])
                     lane_list[2]=copy.deepcopy(lane_list[1])
                     lane_list[1]=copy.deepcopy(lane_list[0])
                     lane_list[0].reset_lane()
                     print('lanes changed:21')
                     break
-                elif (lane_list[3].peak-margin<=peak<=lane_list[3].peak+margin):
+                elif (lane_list[3].peak-margin<=peak<=lane_list[3].peak+margin)and lane_list[3].peak is not 0:
                     lane_list[0]=copy.deepcopy(lane_list[1])
                     lane_list[1]=copy.deepcopy(lane_list[2])
                     lane_list[2]=copy.deepcopy(lane_list[3])
@@ -916,7 +975,7 @@ def switch_lanes(four_lanes):
                     print('lanes changed:22')
                     break
             elif i==3:
-                if (lane_list[2].peak-margin<=peak<=lane_list[2].peak+margin):
+                if (lane_list[2].peak-margin<=peak<=lane_list[2].peak+margin)and lane_list[2].peak is not 0:
                     lane_list[3]=copy.deepcopy(lane_list[2])
                     lane_list[2]=copy.deepcopy(lane_list[1])
                     lane_list[1]=copy.deepcopy(lane_list[0])
@@ -1001,6 +1060,8 @@ def update_lanes(img_bin,rectangle_img,four_lanes):
 #             #lane_list[i].detected = False
 #     return rectangle_img
 
+
+
 def process_image_4lanes(imgOriginal,fullscreen=False):
 
     #processing image and returning binary image
@@ -1031,16 +1092,16 @@ def process_image_4lanes(imgOriginal,fullscreen=False):
 
     four_lanes, lane_change = allocate_peaks_to_4lanes(peaks)
 
-    #print('sorted peaks')
-    #print(four_lanes)
-    #print('___________________________________')
+    # print('sorted peaks')
+    # print(four_lanes)
+    # print('___________________________________')
 
     cv2.putText(histogram_image, 'Calculated peaks: '+str(peaks), (40,80), cv2.FONT_HERSHEY_DUPLEX, 1, (0,0,255), 2, cv2.LINE_AA)
     cv2.putText(histogram_image, 'Sorted peaks: '+str(four_lanes), (40,115), cv2.FONT_HERSHEY_DUPLEX, 1, (0,0,255), 2, cv2.LINE_AA)
 
     rectangle_img=update_lanes(img_bin,rectangle_img,four_lanes)
 
-    #print('_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*')
+    # print('_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*')
     img_out1=np.copy(imgOriginal)
     img_out2=np.copy(img_bin)
     img_out2= np.dstack((img_bin*255, img_bin*255, img_bin*255))
@@ -1049,6 +1110,17 @@ def process_image_4lanes(imgOriginal,fullscreen=False):
             img_out1 = draw_lane_custom(img_out1, img_bin, lane_list[i].best_fit, Minv)
             img_out2 = draw_all_curves_custom(img_out2, lane_list[i])
             cv2.putText(img_out2, str(lane_list[i].best_fit[0])+' '+str(lane_list[i].best_fit[1])+' '+str(lane_list[i].best_fit[2])+' ', (40,160+i*80), cv2.FONT_HERSHEY_DUPLEX, 1, (0,0,255), 2, cv2.LINE_AA)
+    # print(str(lane_list[0].best_fit))
+    # print('__________________________')
+    # print(str(lane_list[1].best_fit))
+    # print('__________________________')
+    # print(str(lane_list[2].best_fit))
+    # print('__________________________')
+    # print(str(lane_list[3].best_fit))
+    # print('__________________________')
+    # print('__________________________')
+    img_out1=highlight_road(img_out1, img_bin, [lane_list[0].best_fit,lane_list[1].best_fit,lane_list[2].best_fit,lane_list[3].best_fit], Minv)
+
 #-------------------------------------------------------------------------------------
     #processed_image=np.copy(imgOriginal)
     if fullscreen is False:

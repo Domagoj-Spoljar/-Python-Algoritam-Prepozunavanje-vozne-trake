@@ -10,7 +10,7 @@ if len(sys.argv) == 2:
     img_arg=sys.argv[1]
     print('Processing image: '+img_arg)
 else:
-    img_arg='frame9'
+    img_arg='frame1050'
     print('Processing default image: '+img_arg)
 
 dashcam_image_path = './Test_images/dashcam_driving/'
