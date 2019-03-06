@@ -7,11 +7,14 @@ import os
 import Lane_find_functions as Lff
 import Image_processing_functions as IPF
 from scipy import signal
+import function_parameters as FP
 
 def main():
-    dashcam_image_path = '/home/profesor/Documents/[ADAS]_Finding_Lanes/dashcam_driving/'
+    dashcam_image_path = FP.dashcam_image_path
+    count = FP.frame
+    #dashcam_image_path = './Test_images/dashcam_driving/'
     img_arg="frame"
-    count = 60
+    #count = 705
     k=0
     #cv2.namedWindow('prikaz', cv2.WINDOW_NORMAL)
     while k is not 27:
@@ -44,10 +47,17 @@ def main():
         # histogram_image=np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)
         #peaks,out_image=find_histogram_peaks(histogram,histogram_image,image=True)
 
-        #peaks,histogram_image=Lff.find_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
-        peaks,histogram_image=Lff.find_4_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
-
-        print(peaks)
+        peaks,histogram_image=Lff.find_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
+        #peaks,histogram_image=Lff.find_4_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
+        cv2.putText(histogram_image, str(peaks), (40,100), cv2.FONT_HERSHEY_DUPLEX, 1, (255,255,0), 2, cv2.LINE_AA)
+        combined_image = np.zeros((960,1280,3), dtype=np.uint8)
+        height,width,_=combined_image.shape
+        smaller_img_out2=  cv2.resize(histogram_image,(int(width),int(height/2)))
+        img_bin = np.uint8(np.dstack((img_bin, img_bin, img_bin))*255)
+        smaller_img_out1=  cv2.resize(img_bin,(int(width),int(height/2)))
+        combined_image[int(height/2):int(height),:] =smaller_img_out2
+        combined_image[0:int(height/2),:] =smaller_img_out1
+        # print(peaks)
 #------------------------------------------------------------------------------------------------------------------------------
 
         # histogram = np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)
@@ -137,7 +147,7 @@ def main():
         #final_image = Lff.process_image(imgOriginal)
 
 #--------------------------------------------------------------------------------------------------------------------
-        cv2.imshow(img_arg+str(count)+".jpg", histogram_image)
+        cv2.imshow(img_arg+str(count)+".jpg", combined_image)
         #print(final_image.shape)
         #cv2.imwrite('Output_'+img_arg+str(count)+".jpg",processed_image)
         k = cv2.waitKey()

@@ -1,0 +1,128 @@
+import numpy as np
+
+
+#for making video. False makes diagnostic video and True makes only result video
+fullscreen=False
+
+
+video_type='diagnostic'
+if fullscreen is True:
+    video_type='fullscreen'
+
+video_tip='challenge_video'
+
+version='v1.0'
+#video_name = 'v1.0_rainy_video' + video_type +'.mp4'
+#video_name = version+'rainy_better_video' + video_type +'.mp4'
+#video_name = 'v1.0_night_video' + video_type +'.mp4'
+#video_name = 'v1.5_test_video' + video_type +'.mp4'
+#video_name = 'v1.0_foggy_video' + video_type +'.mp4'
+#video_name = 'v1.3._challenge_video' + video_type +'.mp4'
+# video_name = 'v1.2._harder_challenge_video' + video_type +'.mp4'
+#video_name = 'v1.2._project_video' + video_type +'.mp4'
+
+video_name=video_tip+'_'+version+'_'+video_type+'.mp4'
+# dashcam_image_path = '/home/profesor/Documents/Datasets/project_video640x360/'
+# dashcam_image_path = '/home/profesor/Documents/Datasets/dashcam_driving-640x360/'
+# dashcam_image_path = '/home/profesor/Documents/Datasets/dashcam_driving/'
+#dashcam_image_path = '/home/profesor/Documents/Datasets/foggy_video/'
+#dashcam_image_path = '/home/profesor/Documents/Datasets/night/'
+#dashcam_image_path = '/home/profesor/Documents/Datasets/rainy_video_better/'
+#dashcam_image_path = '/home/profesor/Documents/Datasets/rainy_video/'
+#dashcam_image_path = '/home/profesor/Documents/Datasets/rainy_video2/'
+#dashcam_image_path = './Test_images/challnege_video/'
+# dashcam_image_path = './Test_images/harder_challenge_video/'
+dashcam_image_path = '/home/profesor/Documents/Datasets/project_video/'
+
+# frame=1
+frame=410
+
+image_folder = dashcam_image_path
+
+
+#binary_combinations=('hls_s','hls_l','lab_b','lab_l','sobel_abs','sobel_mag','sobel_dir',)
+binary_combinations=('hls_s','lab_b','hls_l ')
+#binary_combinations=('hls_l')
+# binary_combinations=('rgb-r')
+#binary_combinations=('rgb-r','lab_l','sobel_abs','sobel_mag')
+#binary_combinations=('sobel_abs','sobel_mag')
+# binary_combinations=()
+calibrated_combinations=[]
+
+
+
+def unwarp_points(h,w):
+    if dashcam_image_path == '/home/profesor/Documents/Datasets/dashcam_driving/':
+        # src = np.float32([(int(w*0.4),int(h*0.666)),
+        #                       (int(w*0.6),int(h*0.666)),
+        #                       (int(w*0.166),int(h*0.888)),
+        #                       (int(w*0.833),int(h*0.888))])
+        src = np.float32([(int(w*0.43),int(h*0.6)),
+                              (int(w*0.57),int(h*0.6)),
+                              (int(w*0.16),int(h*0.86)),
+                              (int(w*0.84),int(h*0.86))])
+        # src = np.float32([(550,430),
+        #                       (730,430),
+        #                       (200,622),
+        #                       (1080,622)])
+    elif dashcam_image_path == '/home/profesor/Documents/Datasets/dashcam_driving-640x360/':
+        src = np.float32([(int(w*0.43),int(h*0.6)),
+                              (int(w*0.57),int(h*0.6)),
+                              (int(w*0.16),int(h*0.86)),
+                              (int(w*0.84),int(h*0.86))])
+        # src = np.float32([(550,430),
+        #                       (730,430),
+        #                       (200,622),
+        #                       (1080,622)])
+    elif dashcam_image_path == '/home/profesor/Documents/Datasets/rainy_video_better/':
+        src = np.float32([(550,430),
+                              (730,430),
+                              (200,622),
+                              (1080,622)])
+    elif dashcam_image_path == '/home/profesor/Documents/Datasets/rainy_video/':
+        src = np.float32([(550,430),
+                              (730,430),
+                              (200,622),
+                              (1080,622)])
+    elif dashcam_image_path == '/home/profesor/Documents/Datasets/night_video/':
+        src = np.float32([(550,430),
+                              (730,430),
+                              (200,622),
+                              (1080,622)])
+    elif dashcam_image_path == '/home/profesor/Documents/Datasets/project_video/':
+        src = np.float32([(575,464),
+                          (707,464),
+                          (258,682),
+                          (1049,682)])
+    else:
+        src = np.float32([(575,464),
+                          (707,464),
+                          (258,682),
+                          (1049,682)])
+        # src = np.float32([(300,232),
+        #                   (350,232),
+        #                   (124,341),
+        #                   (520,341)])
+        # src = np.float32([(int(w*0.45),int(h*0.6)),
+        #                       (int(w*0.57),int(h*0.6)),
+        #                       (int(w*0.16),int(h*0.86)),
+        #                       (int(w*0.84),int(h*0.86))])
+        # src = np.float32([(int(w*0.43),int(h*0.6)),
+        #                       (int(w*0.57),int(h*0.6)),
+        #                       (int(w*0.16),int(h*0.86)),
+        #                       (int(w*0.84),int(h*0.86))])
+
+
+    dst = np.float32([(int(w*0.35),0),
+                          (int(w-w*0.35),0),
+                          (int(w*0.35),h),
+                          (int(w-w*0.35),h)])
+    # dst = np.float32([(450,0),
+    #                       (w-450,0),
+    #                       (450,h),
+    #                       (w-450,h)])
+    # dst = np.float32([(225,0),
+    #                       (w-225,0),
+    #                       (225,h),
+    #                       (w-225,h)])
+    return src,dst

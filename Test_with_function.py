@@ -7,10 +7,13 @@ import os
 import Lane_find_functions as Lff
 import Image_processing_functions as IPF
 import sys
+import function_parameters as FP
 
 def main():
 
-    dashcam_image_path = './Test_images/dashcam_driving/'
+    dashcam_image_path = FP.dashcam_image_path
+    count = FP.frame
+    #dashcam_image_path = './Test_images/dashcam_driving/'
     #dashcam_image_path = './Test_images/challnege_video/'
     #dashcam_image_path = './Test_images/harder_challenge_video/'
     #dashcam_image_path = './Test_images/project_video/'
@@ -21,8 +24,7 @@ def main():
     #count = 60
     #count = 290
     #count = 688
-    count = 1050
-    # count = 1042
+    #count = 0
     #count = 822
 
     k=0
@@ -37,7 +39,7 @@ def main():
             print ("error: image not read from file \n\n")        # print error message to std out
             os.system("pause")                                  # pause so user can see error message
             return
-
+        # imgOriginal = cv2.resize(imgOriginal,(640,360))
         processed_image =Lff.process_image_4lanes(imgOriginal,fullscreen=False)
 
 #--------------------------------------------------------------------------------------------------------------------
@@ -46,10 +48,10 @@ def main():
         #cv2.imwrite('Output_'+img_arg+str(count)+".jpg",processed_image)
         k = cv2.waitKey()
         if k == 83:
-            count=count+1
+            count=int(count)+1
         elif k == 81:
             if count !=0:
-                count=count-1# hold windows open until user presses a key
+                count=int(count)-1# hold windows open until user presses a key
         cv2.destroyAllWindows()                     # remove windows from memory
     cv2.destroyAllWindows()
     return
