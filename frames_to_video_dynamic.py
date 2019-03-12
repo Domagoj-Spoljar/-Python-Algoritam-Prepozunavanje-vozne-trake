@@ -21,6 +21,9 @@ import function_parameters as FP
 # image_folder = './Test_images/project_video/'
 
 count=0
+filename = 'frame_count'
+filename2 = 'calculated_binary_combinations'
+
 def main():
     global count
     video_name = FP.video_name
@@ -44,7 +47,11 @@ def main():
     count = 0
 
     while success:
-        FP.calibration_frame=count
+
+        outfile = open(filename,'wb')
+        pickle.dump(count,outfile)
+        outfile.close()
+
         image = cv2.imread(image_folder+"frame%d.jpg" % count)     # save frame as JPEG file
         #if image is None or count > 300:                             # if image was not read successfully
         if image is None:                             # if image was not read successfully
@@ -52,6 +59,11 @@ def main():
             success = 0                                 # pause so user can see error message
       #success,image = vidcap.read()
         #imgOriginal=oszv.pipeline(image)
+        infile = open(filename2,'rb')
+        new_count = pickle.load(infile)
+        infile.close()
+
+        FP.binary_combinations=new_count
         processed_image =Lff.process_image_4lanes(image, FP.fullscreen)
         cv2.putText(processed_image, 'frame ' + str(count), (40,80), cv2.FONT_HERSHEY_DUPLEX, 1, (255,0,0), 1, cv2.LINE_AA)
         #processed_image = cv2.resize(processed_image,width,height)

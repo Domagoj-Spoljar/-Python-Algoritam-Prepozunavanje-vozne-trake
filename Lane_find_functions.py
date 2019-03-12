@@ -1075,6 +1075,7 @@ def check_lane_order():
         for i,element in enumerate(no_none_list):
             print(str(element))
             if i+1 < len(no_none_list):
+                # if no_none_list[i]>no_none_list[i+1]:
                 if no_none_list[i]>no_none_list[i+1]:
                     invalid_order=True
     print('invalid_order= '+str(invalid_order))
@@ -1146,7 +1147,7 @@ def update_lanes(img_bin,rectangle_img,four_lanes):
                 print('reverse_switch_lanes activated for ['+str(i)+']')
                 reverse_switch_lanes(four_lanes_before)
                 print('lane peaks after reverse_switch_lanes:'+str(lane_list[0].peak)+'///'+str(lane_list[1].peak)+'///'+str(lane_list[2].peak)+'///'+str(lane_list[3].peak))
-
+                four_lanes_after=four_lanes_before
 
 
             # print('peak after adding= '+ str(lane_list[i].peak))

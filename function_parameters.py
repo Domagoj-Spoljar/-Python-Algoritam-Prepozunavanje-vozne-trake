@@ -9,7 +9,7 @@ video_type='diagnostic'
 if fullscreen is True:
     video_type='fullscreen'
 
-video_tip='challenge_video'
+video_tip='default_video'
 
 version='v1.0'
 #video_name = 'v1.0_rainy_video' + video_type +'.mp4'
@@ -24,7 +24,7 @@ version='v1.0'
 video_name=video_tip+'_'+version+'_'+video_type+'.mp4'
 # dashcam_image_path = '/home/profesor/Documents/Datasets/project_video640x360/'
 # dashcam_image_path = '/home/profesor/Documents/Datasets/dashcam_driving-640x360/'
-# dashcam_image_path = '/home/profesor/Documents/Datasets/dashcam_driving/'
+dashcam_image_path = '/home/profesor/Documents/Datasets/dashcam_driving/'
 #dashcam_image_path = '/home/profesor/Documents/Datasets/foggy_video/'
 #dashcam_image_path = '/home/profesor/Documents/Datasets/night/'
 #dashcam_image_path = '/home/profesor/Documents/Datasets/rainy_video_better/'
@@ -32,16 +32,18 @@ video_name=video_tip+'_'+version+'_'+video_type+'.mp4'
 #dashcam_image_path = '/home/profesor/Documents/Datasets/rainy_video2/'
 #dashcam_image_path = './Test_images/challnege_video/'
 # dashcam_image_path = './Test_images/harder_challenge_video/'
-dashcam_image_path = '/home/profesor/Documents/Datasets/project_video/'
+# dashcam_image_path = '/home/profesor/Documents/Datasets/project_video/'
+# dashcam_image_path = '/home/profesor/Documents/Datasets/harder_video2/'
 
 # frame=1
 frame=410
-
+calibration_frame=0
 image_folder = dashcam_image_path
 
 
 #binary_combinations=('hls_s','hls_l','lab_b','lab_l','sobel_abs','sobel_mag','sobel_dir',)
-binary_combinations=('hls_s','lab_b','hls_l ')
+binary_combinations=('rgb_r','hls_l ')
+# binary_combinations=('hls_s','lab_b','hls_l ')
 #binary_combinations=('hls_l')
 # binary_combinations=('rgb-r')
 #binary_combinations=('rgb-r','lab_l','sobel_abs','sobel_mag')
@@ -94,19 +96,24 @@ def unwarp_points(h,w):
                           (707,464),
                           (258,682),
                           (1049,682)])
+    elif dashcam_image_path == '/home/profesor/Documents/Datasets/harder_video2/':
+        src = np.float32([(575,444),
+                          (707,444),
+                          (208,710),
+                          (1000,710)])
     else:
-        src = np.float32([(575,464),
-                          (707,464),
-                          (258,682),
-                          (1049,682)])
+        # src = np.float32([(575,464),
+        #                   (707,464),
+        #                   (258,682),
+        #                   (1049,682)])
         # src = np.float32([(300,232),
         #                   (350,232),
         #                   (124,341),
         #                   (520,341)])
-        # src = np.float32([(int(w*0.45),int(h*0.6)),
-        #                       (int(w*0.57),int(h*0.6)),
-        #                       (int(w*0.16),int(h*0.86)),
-        #                       (int(w*0.84),int(h*0.86))])
+        src = np.float32([(int(w*0.45),int(h*0.6)),
+                              (int(w*0.57),int(h*0.6)),
+                              (int(w*0.16),int(h*0.86)),
+                              (int(w*0.84),int(h*0.86))])
         # src = np.float32([(int(w*0.43),int(h*0.6)),
         #                       (int(w*0.57),int(h*0.6)),
         #                       (int(w*0.16),int(h*0.86)),

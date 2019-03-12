@@ -8,8 +8,12 @@ import Lane_find_functions as Lff
 import Image_processing_functions as IPF
 import sys
 import function_parameters as FP
+import Parallel_calibration_algorithm as PCA
+
+filename = 'frame_count'
 
 def main():
+    # global count
     count = FP.frame
     dashcam_image_path = FP.dashcam_image_path
     #dashcam_image_path = './Test_images/dashcam_driving/'
@@ -29,6 +33,13 @@ def main():
     k=0
     #cv2.namedWindow('prikaz', cv2.WINDOW_NORMAL)
     while k is not 27:
+        # FP.calibration_frame=count
+        # FP.frame=count
+        # PCA.framesss=count
+
+        outfile = open(filename,'wb')
+        pickle.dump(count,outfile)
+        outfile.close()
 
         imgOriginal = cv2.imread(dashcam_image_path+img_arg+str(count)+".jpg")               # open image
         #cv2.imshow(img_arg+str(count)+".jpg", imgOriginal)
@@ -51,6 +62,7 @@ def main():
         elif k == 81:
             if count !=0:
                 count=int(count)-1# hold windows open until user presses a key
+
         cv2.destroyAllWindows()                     # remove windows from memory
     cv2.destroyAllWindows()
     return

@@ -57,10 +57,14 @@ def main():
         print('9. rainy_video2')
         print('10. test_video.mp4 (640x360)')
         print('11. project_video.mp4 (640x360)')
+        print('12. spoljar_mrak.mp4')
+        print('13. spoljar_sunce.mp4')
+        print('14. Grand_Canyon.mp4')
+        print('15. harder_video2.mp4')
         option2 = input("Choose video: ")
         print('')
 
-        while str(option2)!='1' and str(option2)!='2' and str(option2)!='3' and str(option2)!='4'and str(option2)!='5'and str(option2)!='6'and str(option2)!='7'and str(option2)!='8'and str(option2)!='9'and str(option2)!='10'and str(option2)!='11':
+        while str(option2)!='1' and str(option2)!='2' and str(option2)!='3' and str(option2)!='4'and str(option2)!='5'and str(option2)!='6'and str(option2)!='7'and str(option2)!='8'and str(option2)!='9'and str(option2)!='10'and str(option2)!='11'and str(option2)!='12'and str(option2)!='13'and str(option2)!='14'and str(option2)!='15':
             print('Wrong input entered. Please try again!')
             option2 = input("Choose video: ")
         print('')
@@ -98,6 +102,18 @@ def main():
         elif str(option2)=='11':
             FP.dashcam_image_path='/home/profesor/Documents/Datasets/project_video640x360/'
             FP.video_tip= 'project_video_640x360'
+        elif str(option2)=='12':
+            FP.dashcam_image_path='/home/profesor/Documents/Datasets/spoljar_mrak/'
+            FP.video_tip= 'spoljar_mrak'
+        elif str(option2)=='13':
+            FP.dashcam_image_path='/home/profesor/Documents/Datasets/spoljar_sunce/'
+            FP.video_tip= 'spoljar_sunce'
+        elif str(option2)=='14':
+            FP.dashcam_image_path='/home/profesor/Documents/Datasets/Grand Canyon/'
+            FP.video_tip= 'grand_canyon'
+        elif str(option2)=='15':
+            FP.dashcam_image_path='/home/profesor/Documents/Datasets/harder_video2/'
+            FP.video_tip= 'harder_video2'
 
 
 

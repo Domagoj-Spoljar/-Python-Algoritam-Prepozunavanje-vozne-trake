@@ -9,13 +9,13 @@ import Image_processing_functions as IPF
 import sys
 import function_parameters as FP
 
-def main():
+def main(count):
 
     if len(sys.argv) == 2:
         count=sys.argv[1]
         print('Processing image: frame'+count)
     else:
-        count=str(FP.frame)
+        # count=str(FP.frame)
         # count=str(FP.calibration_frame)
         print('Processing default image: frame'+count)
 
