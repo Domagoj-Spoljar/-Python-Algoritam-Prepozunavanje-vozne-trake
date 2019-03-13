@@ -126,7 +126,8 @@ def algorithm_function():
 #     frame_number=FP.frame
 #     print('%%%%%%%%%%%%%%%%%%%%%%%%frame_number= '+str(frame_number)+'%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
 
-if __name__ == '__main__':
+
+def main():
     outfile2 = open(filename2,'wb')
     value=True
     pickle.dump(value,outfile2)
@@ -150,6 +151,10 @@ if __name__ == '__main__':
 
     service.close()
     worker.close()
+
+if __name__ == '__main__':
+    main()
+
 
     # infile = open(filename,'rb')
     # new_count = pickle.load(infile)

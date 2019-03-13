@@ -40,7 +40,7 @@ def main():
             return
         # imgOriginal = cv2.resize(imgOriginal,(640,360))
         processed_image =Lff.process_image_4lanes(imgOriginal,fullscreen=False)
-
+        # processed_image = dynamic_calibration_information(processed_image)
 #--------------------------------------------------------------------------------------------------------------------
         cv2.imshow(img_arg+str(count)+".jpg", processed_image)
         #print(final_image.shape)

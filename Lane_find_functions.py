@@ -1685,3 +1685,17 @@ def combine_images_smaller(img_original,img_unwarp,img_bin,histogram_image,curve
 
 #----------------------------------------------------------------------------------------------------------
     return combined_image
+
+
+def dynamic_calibration_information(original_img):
+    height,width,_=original_img.shape
+    image = np.zeros((300, 300, 3), np.uint8)
+    image[:] = (0, 0, 255)
+
+    result=np.copy(original_img)
+
+    result[0:int(height/3),0:int(width/2)] =cv2.resize(img_original,(int(width/2),int(height/3)))
+
+
+
+    return result
