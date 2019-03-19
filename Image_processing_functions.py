@@ -5,6 +5,7 @@ import glob
 import matplotlib.pyplot as plt
 import os
 import function_parameters as FP
+import text_print_functions as TPF
 
 mtx = np.array([[1.15694035e+03, 0.00000000e+00, 6.65948597e+02],[0.00000000e+00, 1.15213869e+03, 3.88785178e+02],[0.00000000e+00, 0.00000000e+00, 1.00000000e+00]],np.float64)
 dist = np.array([-2.37636612e-01, -8.54129776e-02, -7.90955950e-04, -1.15908700e-04, 1.05741395e-01],np.float64)
@@ -277,12 +278,17 @@ def compare_binary_images_NEW(ref_img,bin_img,lista,diagnostic=False):
 
         razlika.sort(key=lambda x: x[0], reverse=True)
 
-        print('')
-        print('sortirano:')
+        print('+'+'_'*(TPF.line_length-2)+'+')
+        print(TPF.print_line_text_in_middle('Sorted:',TPF.line_length-2))
+        print('| '+'-'*(TPF.line_length-4)+' |')
+        # print('sortirano:')
         for index,x in enumerate(razlika):
                 # print(str(razlika[index])+' - '+str(x))
-                print(str(razlika[index]))
+                print(TPF.print_line_text_in_middle(str(razlika[index]),TPF.line_length-2))
+                # print(TPF.print_line_in_defined_length(str(razlika[index]),TPF.line_length-2))
+                # print(str(razlika[index]))
         # print('Best combinations: '+razlika[0][1]+' OR '+razlika[1][1])
+        print('+'+'_'*(TPF.line_length-2)+'+')
 
     return razlika
 
@@ -551,10 +557,20 @@ def calibrate_IPF_yellow_white(img_unwarp,sobel=False):
     top_yellow=compare_binary_images_NEW(thresholded_binary_image_yellow,all_binary_images_yellow,lista_yellow,diagnostic=True)
     print('')
     top_white=compare_binary_images_NEW(thresholded_binary_image_white,all_binary_images_white,lista_white,diagnostic=True)
-    print('Done!')
-    print('Best combinations are(yellow): '+top_yellow[0][1]+', '+ top_yellow[1][1]+', '+ top_yellow[2][1])
-    print('Best combinations are(white): '+top_white[0][1]+', '+ top_white[1][1]+', '+ top_white[2][1])
-    print("________________________________________________________________")
+    print('+'+'_'*(TPF.line_length-2)+'+')
+    print(TPF.print_line_text_in_middle('Done!',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    # print('Done!')
+    print(TPF.print_line_in_defined_length('Best combinations are (yellow)',TPF.line_length-2))
+    print(TPF.print_line_3_columns(top_yellow[0][1],top_yellow[1][1]  , top_yellow[2][1] ,TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+
+    print(TPF.print_line_in_defined_length('Best combinations are (white)',TPF.line_length-2))
+    print(TPF.print_line_3_columns(top_white[0][1],top_white[1][1]  , top_white[2][1] ,TPF.line_length-2))
+    print('+'+'_'*(TPF.line_length-2)+'+')
+    # print('Best combinations are(yellow): '+top_yellow[0][1]+', '+ top_yellow[1][1]+', '+ top_yellow[2][1])
+    # print('Best combinations are(white): '+top_white[0][1]+', '+ top_white[1][1]+', '+ top_white[2][1])
+    # print("________________________________________________________________")
     return top_white,top_yellow
 
 
@@ -600,6 +616,11 @@ def pipeline(img):
     #get points on image for perspective transform
     h,w = img.shape[:2]
     src,dst = FP.unwarp_points(h,w)
+
+    #sharpen image
+    sharpen_img=np.copy(img_undistort)
+    gausian_img=cv2.GaussianBlur(sharpen_img,(5,5),3)
+    img_undistort=cv2.addWeighted(img_undistort,1.5,gausian_img,-0.5,0)
 
     # Perspective Transform
     img_unwarp, M, Minv = unwarp(img_undistort, src, dst)

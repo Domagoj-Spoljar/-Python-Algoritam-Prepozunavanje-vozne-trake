@@ -52,35 +52,72 @@ def print_options():
     print(TPF.print_line_in_defined_length(' 6. Process image (frame) - OLD',TPF.line_length-2))
     print(TPF.print_line_in_defined_length(' 7. Calculate ROI on frame',TPF.line_length-2))
     print('+'+'_'*(TPF.line_length-2)+'+')
-    print(TPF.print_line_text_in_middle('  FINISHED ALGORITHM:',TPF.line_length-2))
+    print(TPF.print_line_text_in_middle('  COMPLETE ALGORITHM:',TPF.line_length-2))
     print(TPF.print_line_text_in_middle(' ',TPF.line_length-2))
     print(TPF.print_line_in_defined_length(' 9. Run complete algorithm (Calibration,create video)',TPF.line_length-2))
     print(TPF.print_line_in_defined_length(' 10. Run complete algorithm - Dynamic calibration',TPF.line_length-2))
     print('+'+'_'*(TPF.line_length-2)+'+')
+    print(TPF.print_line_in_defined_length(' ? Additional information',TPF.line_length-2))
     print(TPF.print_line_in_defined_length(' 0. EXIT',TPF.line_length-2))
     print('+'+'_'*(TPF.line_length-2)+'+')
     print(TPF.line_length*' ')
 
 def print_available_videos():
     print('+'+'_'*(TPF.line_length-2)+'+')
-
     print(TPF.print_line_text_in_middle('  AVAILABLE VIDEOS:',TPF.line_length-2))
-    print(TPF.print_line_in_defined_length(' 1. challenge_video.mp4 (Sunny, w/o trespassing)',TPF.line_length-2))
-    print(TPF.print_line_in_defined_length(' 2. project_video.mp4 (Sunny, w/o trespassing)',TPF.line_length-2))
-    print(TPF.print_line_in_defined_length(' 3. test_video.mp4 (Sunny, w/ trespassing)',TPF.line_length-2))
-    print(TPF.print_line_in_defined_length(' 4. harder_challenge_video.mp4',TPF.line_length-2))
-    print(TPF.print_line_in_defined_length(' 5. night_video.mp4',TPF.line_length-2))
-    print(TPF.print_line_in_defined_length(' 6. foggy_video',TPF.line_length-2))
-    print(TPF.print_line_in_defined_length(' 7. rainy_video',TPF.line_length-2))
-    print(TPF.print_line_in_defined_length(' 8. rainy_video_better',TPF.line_length-2))
-    print(TPF.print_line_in_defined_length(' 9. rainy_video2',TPF.line_length-2))
-    print(TPF.print_line_in_defined_length(' 10. test_video.mp4 (640x360)',TPF.line_length-2))
-    print(TPF.print_line_in_defined_length(' 11. project_video.mp4 (640x360)',TPF.line_length-2))
-    print(TPF.print_line_in_defined_length(' 12. spoljar_mrak.mp4',TPF.line_length-2))
-    print(TPF.print_line_in_defined_length(' 13. spoljar_sunce.mp4',TPF.line_length-2))
-    print(TPF.print_line_in_defined_length(' 14. Grand_Canyon.mp4',TPF.line_length-2))
-    print(TPF.print_line_in_defined_length(' 15. harder_video2.mp4',TPF.line_length-2))
-
+    print('+'+'_'*(TPF.line_length-2)+'+')
+    print(TPF.print_line_3_columns('1. challenge_video.mp4',  'Sunny',  'Solid yellow line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Straight w/o trespassing',  'Broken white line',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('2. project_video.mp4  ',  'Sunny',  'Solid yellow line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Curved w/o trespassing',  'Broken white line',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('3. test_video.mp4     ',  'Sunny',  'Solid yellow line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Straight w/ trespassing x3',  'Broken white line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  '',  'Solid white line',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('4. harder_challenge_video',  'Extreme Sunny',  'Double solid yellow line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Curved w/o trespassing',  'Solid white line',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('5. night_video.mp4      ',  'Night',  'Solid white line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Straight w/o trespassing',  'Double solid yellow line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Curved w/o trespassing',  '',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('6. foggy_video        ',  'Foggy',  'Solid white line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Straight w/o trespassing',  'Double solid yellow line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  '',  'Broken white line',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('7. rainy_video        ',  'Rainy',  'Solid white line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Straight w/ trespassing',  'Broken white line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Curved w/o trespassing',  'Double solid yellow line',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('8. rainy_video_better ',  'Rainy',  'Solid white line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Straight w/ trespassing',  'Broken white line',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('9. empty        ',  'xxxxxxxx',  'xxxxxxx',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('10. test_video (640x360)',  'Sunny',  'Solid yellow line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Straight w/ trespassing x3',  'Broken white line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  '',  'Solid white line',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('11. project_video (640x360)',  'Sunny',  'Solid yellow line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Curved w/o trespassing',  'Broken white line',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('12. spoljar_mrak.mp4',  'Night',  'Solid white line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Curved w/o trespassing',  'Broken white line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Straight w/o trespassing',  '',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('13. spoljar_sunce.mp4',  'Sunny',  'Solid white line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Curved & Straight',  'Broken white line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'w/o & w/ trespassing',  '',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('14. Grand_Canyon.mp4',  'Sunny',  'Double Solid yellow line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Straight w/o trespassing',  'Broken white line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Curved w/o trespassing',  'Solid white line',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('15. harder_video2.mp4',  'Sunny',  'Double Solid yellow line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Straight w/o trespassing',  'Broken white line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Curved w/o trespassing',  'Solid white line',TPF.line_length-2))
     print('+'+'_'*(TPF.line_length-2)+'+')
 
 def print_filters():
@@ -106,6 +143,16 @@ def print_filters():
 
     print('+'+'_'*(TPF.line_length-2)+'+')
 
+def print_additional_information():
+    print('+'+'_'*(TPF.line_length-2)+'+')
+
+    print(TPF.print_line_text_in_middle('  Additional information:',TPF.line_length-2))
+
+    print('+'+'_'*(TPF.line_length-2)+'+')
+
+    print(TPF.print_line_in_defined_length(' For saving program output in txt file use "| tee"',TPF.line_length-2))
+
+    print('+'+'_'*(TPF.line_length-2)+'+')
 
 def main():
 
@@ -121,13 +168,19 @@ def main():
 
         option1 = input("What do you want to do? ")
 
+
+
         while str(option1)!='0' and str(option1)!='1' and str(option1)!='2' and str(option1)!='3' and str(option1)!='4'and str(option1)!='5'and str(option1)!='6'and str(option1)!='7'and str(option1)!='9'and str(option1)!='10':
-            print('Wrong input entered. Please try again!')
+            if str(option1)=='?':
+                print_additional_information()
+            else:
+                print('Wrong input entered. Please try again!')
             option1 = input("What do you want to do? ")
         print('')
 
         if str(option1)=='0':
             break
+
 
         print_available_videos()
         # print('Available videos:')
@@ -375,6 +428,7 @@ def main():
             frames_to_video.main()
         elif str(option1)=='10':
             Parallel_calibration_algorithm.main()
+
     return
 
 ###################################################################################################

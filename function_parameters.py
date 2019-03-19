@@ -24,11 +24,11 @@ version='v1.0'
 video_name=video_tip+'_'+version+'_'+video_type+'.mp4'
 # dashcam_image_path = '/home/profesor/Documents/Datasets/project_video640x360/'
 # dashcam_image_path = '/home/profesor/Documents/Datasets/dashcam_driving-640x360/'
-dashcam_image_path = '/home/profesor/Documents/Datasets/dashcam_driving/'
+# dashcam_image_path = '/home/profesor/Documents/Datasets/dashcam_driving/'
 #dashcam_image_path = '/home/profesor/Documents/Datasets/foggy_video/'
 #dashcam_image_path = '/home/profesor/Documents/Datasets/night/'
 #dashcam_image_path = '/home/profesor/Documents/Datasets/rainy_video_better/'
-#dashcam_image_path = '/home/profesor/Documents/Datasets/rainy_video/'
+dashcam_image_path = '/home/profesor/Documents/Datasets/rainy_video/'
 #dashcam_image_path = '/home/profesor/Documents/Datasets/rainy_video2/'
 #dashcam_image_path = './Test_images/challnege_video/'
 # dashcam_image_path = './Test_images/harder_challenge_video/'
@@ -54,53 +54,49 @@ calibrated_combinations=[]
 
 
 def unwarp_points(h,w):
-    if dashcam_image_path == '/home/profesor/Documents/Datasets/dashcam_driving/':
-        # src = np.float32([(int(w*0.4),int(h*0.666)),
-        #                       (int(w*0.6),int(h*0.666)),
-        #                       (int(w*0.166),int(h*0.888)),
-        #                       (int(w*0.833),int(h*0.888))])
-        src = np.float32([(int(w*0.43),int(h*0.6)),
-                              (int(w*0.57),int(h*0.6)),
-                              (int(w*0.16),int(h*0.86)),
-                              (int(w*0.84),int(h*0.86))])
-        # src = np.float32([(550,430),
-        #                       (730,430),
-        #                       (200,622),
-        #                       (1080,622)])
-    elif dashcam_image_path == '/home/profesor/Documents/Datasets/dashcam_driving-640x360/':
-        src = np.float32([(int(w*0.43),int(h*0.6)),
-                              (int(w*0.57),int(h*0.6)),
-                              (int(w*0.16),int(h*0.86)),
-                              (int(w*0.84),int(h*0.86))])
-        # src = np.float32([(550,430),
-        #                       (730,430),
-        #                       (200,622),
-        #                       (1080,622)])
-    elif dashcam_image_path == '/home/profesor/Documents/Datasets/rainy_video_better/':
-        src = np.float32([(550,430),
-                              (730,430),
-                              (200,622),
-                              (1080,622)])
-    elif dashcam_image_path == '/home/profesor/Documents/Datasets/rainy_video/':
-        src = np.float32([(550,430),
-                              (730,430),
-                              (200,622),
-                              (1080,622)])
-    elif dashcam_image_path == '/home/profesor/Documents/Datasets/night_video/':
-        src = np.float32([(550,430),
-                              (730,430),
-                              (200,622),
-                              (1080,622)])
+
+    if dashcam_image_path == '/home/profesor/Documents/Datasets/challnege_video/':
+        src = np.float32([(499,466),(781,466),(343,692),(937,692)])
     elif dashcam_image_path == '/home/profesor/Documents/Datasets/project_video/':
-        src = np.float32([(575,464),
-                          (707,464),
-                          (258,682),
-                          (1049,682)])
+        src = np.float32([(575,464),(707,464),(258,682),(1049,682)])
+
+    elif dashcam_image_path == '/home/profesor/Documents/Datasets/dashcam_driving/':
+        src = np.float32([(int(w*0.43),int(h*0.6)),(int(w*0.57),int(h*0.6)),(int(w*0.16),int(h*0.86)),(int(w*0.84),int(h*0.86))])
+
+    # elif dashcam_image_path == '/home/profesor/Documents/Datasets/harder_challenge_video/':
+
+    # elif dashcam_image_path == '/home/profesor/Documents/Datasets/night/':
+
+    elif dashcam_image_path == '/home/profesor/Documents/Datasets/foggy_video/':
+        src = np.float32([(431, 437), (791, 437), (256, 647), (889, 647)])
+
+    elif dashcam_image_path == '/home/profesor/Documents/Datasets/rainy_video/':
+        src = np.float32([(550,430),(730,430),(200,622),(1080,622)])
+
+    elif dashcam_image_path == '/home/profesor/Documents/Datasets/rainy_video_better/':
+        src = np.float32([(550,430),(730,430),(200,622),(1080,622)])
+
+    # elif dashcam_image_path == '/home/profesor/Documents/Datasets/rainy_video2/':
+
+    elif dashcam_image_path == '/home/profesor/Documents/Datasets/dashcam_driving-640x360/':
+        src = np.float32([(int(w*0.43),int(h*0.6)),(int(w*0.57),int(h*0.6)),(int(w*0.16),int(h*0.86)),(int(w*0.84),int(h*0.86))])
+
+    # elif dashcam_image_path == '/home/profesor/Documents/Datasets/project_video640x360/':
+    #
+    # elif dashcam_image_path == '/home/profesor/Documents/Datasets/spoljar_mrak/':
+    #
+    # elif dashcam_image_path == '/home/profesor/Documents/Datasets/spoljar_sunce/':
+    #
+    elif dashcam_image_path == '/home/profesor/Documents/Datasets/Grand Canyon/':
+        src = np.float32([(499,466),(781,466),(343,692),(937,692)])
+
     elif dashcam_image_path == '/home/profesor/Documents/Datasets/harder_video2/':
-        src = np.float32([(575,444),
-                          (707,444),
-                          (208,710),
-                          (1000,710)])
+        src = np.float32([(575,444),(707,444),(208,710),(1000,710)])
+
+
+
+
+
     else:
         # src = np.float32([(575,464),
         #                   (707,464),
@@ -133,3 +129,46 @@ def unwarp_points(h,w):
     #                       (225,h),
     #                       (w-225,h)])
     return src,dst
+
+
+
+
+#src constants for clip_and_crop.py program
+
+src1 = np.float32([(575,464),
+                  (707,464),
+                  (258,682),
+                  (1049,682)])
+src2 = np.float32([(550,430),
+                      (730,430),
+                      (200,622),
+                      (1080,622)])
+src3 = np.float32([(529,464),
+                      (710,464),
+                      (258,682),
+                      (1049,682)])
+src6 = np.float32([(449,396),
+                      (831,396),
+                      (297,622),
+                      (987,622)])
+src7 = np.float32([(499,396),
+                      (781,396),
+                      (343,622),
+                      (937,622)])
+src8 = np.float32([(529,396),
+                      (751,396),
+                      (373,622),
+                      (907,622)])
+src9 = np.float32([(529,466),
+                      (751,466),
+                      (373,692),
+                      (907,692)])
+src0 = np.float32([(499,466),
+                      (781,466),
+                      (343,692),
+                      (937,692)])
+
+# src3 = np.float32([(int(w*0.43),int(h*0.6)),
+#                     (int(w*0.57),int(h*0.6)),
+#                     (int(w*0.16),int(h*0.86)),
+#                     (int(w*0.84),int(h*0.86))])

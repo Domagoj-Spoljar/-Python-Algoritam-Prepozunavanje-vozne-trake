@@ -14,7 +14,6 @@ import text_print_functions as TPF
 refPt = []
 roi_show=False
 
-
 xposition=80
 yposition=20
 # position=(20,80)
@@ -23,19 +22,7 @@ thickness=1
 
 reset_flag=False
 sharpen_flag=False
-sharpen2_flag=False
-blur_flag=False
 showimg_flag=False
-
-def print_shortcuts_on_image(image):
-	h,w = image.shape[:2]
-	cv2.putText(image, 'Shortcuts:', (12*w//16,h//18), cv2.FONT_HERSHEY_DUPLEX, font_size, (0,0,0), 0, cv2.LINE_AA)
-	cv2.putText(image, 'r - refresh points', (12*w//16,h//18*2), cv2.FONT_HERSHEY_DUPLEX, font_size, (0,0,0), thickness, cv2.LINE_AA)
-	cv2.putText(image, 'b - toggle blur (on ROI image):', (12*w//16,h//18*3), cv2.FONT_HERSHEY_DUPLEX, font_size, (0,0,0), thickness, cv2.LINE_AA)
-	cv2.putText(image, 's - toggle sharpen (on ROI image):', (12*w//16,h//18*4), cv2.FONT_HERSHEY_DUPLEX, font_size, (0,0,0), thickness, cv2.LINE_AA)
-	cv2.putText(image, '[1,2,..0] - toggle predefined points:', (12*w//16,h//18*5), cv2.FONT_HERSHEY_DUPLEX, font_size, (0,0,0), thickness, cv2.LINE_AA)
-	# print(h//5)
-	# print(w-w//5)
 
 def show_defined_roi(image,src,w):
 	xposition=80
@@ -244,14 +231,13 @@ image_name=img_arg+str(count)
 # cv2.setMouseCallback(image_name, click_and_crop,param)
 
 def main():
-	global refPt, roi_show, count, image, image_name, clone, h,w,img_arg, dashcam_image_path,param, reset_flag, sharpen_flag,sharpen2_flag, showimg_flag, blur_flag
+	global refPt, roi_show, count, image, image_name, clone, h,w,img_arg, dashcam_image_path,param, reset_flag, sharpen_flag
 
 	count = FP.frame
 	dashcam_image_path = FP.dashcam_image_path
 	img_arg="frame"
 	image = cv2.imread(dashcam_image_path+img_arg+str(count)+".jpg")
 	h,w = image.shape[:2]
-	dst = np.float32([(int(w*0.35),0),(int(w-w*0.35),0),(int(w*0.35),h),(int(w-w*0.35),h)])
 	clone = image.copy()
 	# cv2.namedWindow("image")
 	image_name=img_arg+str(count)
@@ -279,11 +265,18 @@ def main():
 	while True:
 		# display the image and wait for a keypress
 		cv2.imshow(image_name, image)
-		print_shortcuts_on_image(image)
 		# cv2.imshow("image", image)
 
 
-
+		if len(refPt) == 4 and roi_show is False:
+			image2 = clone.copy()
+			img_undistort = IPF.undistort(image2)
+			src = np.float32([refPt[0],refPt[1],refPt[2],refPt[3]])
+			dst = np.float32([(int(w*0.35),0),(int(w-w*0.35),0),(int(w*0.35),h),(int(w-w*0.35),h)])
+			roi, M, Minv = IPF.unwarp(img_undistort, src, dst)
+			cv2.imshow("ROI", roi)
+			draw_roi_information(refPt,dst)
+			roi_show=True
 			# cv2.waitKey(0)
 		# if the 'r' key is pressed, reset the cropping region
 		# key = cv2.waitKey()
@@ -312,61 +305,24 @@ def main():
 			refPt=[]
 			roi_show=False
 
-
 		elif key == ord("s"):
 			sharpen_flag = not sharpen_flag
-			showimg_flag=True
-		elif key == ord("d"):
-			sharpen2_flag = not sharpen2_flag
-			showimg_flag=True
-		elif key == ord("b"):
-			blur_flag = not blur_flag
-			showimg_flag=True
 
 		elif key== ord("1"):
-			refPt = FP.src1
-			showimg_flag=True
-			roi_show=True
-		elif key== ord("2"):
-			refPt = FP.src2
-			showimg_flag=True
-			roi_show=True
-		elif key== ord("3"):
-			refPt = FP.src3
-			showimg_flag=True
-			roi_show=True
-		elif key== ord("4"):
-			refPt = FP.src4
-			showimg_flag=True
-			roi_show=True
-		elif key== ord("5"):
-			refPt = FP.src5
-			showimg_flag=True
-			roi_show=True
-		elif key== ord("6"):
-			refPt = FP.src6
-			showimg_flag=True
-			roi_show=True
-		elif key== ord("7"):
-			refPt = FP.src7
-			showimg_flag=True
-			roi_show=True
-		elif key== ord("8"):
-			refPt = FP.src8
-			showimg_flag=True
-			roi_show=True
-		elif key== ord("9"):
-			refPt = FP.src9
-			showimg_flag=True
-			roi_show=True
-		elif key== ord("0"):
-			refPt = FP.src0
-			showimg_flag=True
-			roi_show=True
+			src = FP.src1
+			dst = np.float32([(int(w*0.35),0),(int(w-w*0.35),0),(int(w*0.35),h),(int(w-w*0.35),h)])
 
+			image = clone.copy()
+			show_defined_roi(image,src,w)
 
-
-
+			image2 = clone.copy()
+			img_undistort = IPF.undistort(image2)
+			if sharpen_flag is True:
+				img_undistort= cv2.blur(img_undistort,(5,5))
+			roi, M, Minv = IPF.unwarp(img_undistort, src, dst)
+			cv2.imshow("ROI", roi)
+			draw_roi_information(src,dst)
+			roi_show=True
 		#
 		# elif key== ord("2"):
 		# 	src = FP.src2
@@ -468,35 +424,8 @@ def main():
 		elif key != 255:
 			break
 
-		if len(refPt) == 4 and roi_show is False:
-			showimg_flag=True
-			roi_show=True
+		if showimg_flag is True:
 
-		if showimg_flag is True and roi_show is True:
-
-			image2 = clone.copy()
-			img_undistort = IPF.undistort(image2)
-			src = np.float32([refPt[0],refPt[1],refPt[2],refPt[3]])
-			dst = np.float32([(int(w*0.35),0),(int(w-w*0.35),0),(int(w*0.35),h),(int(w-w*0.35),h)])
-			image = clone.copy()
-			show_defined_roi(image,src,w)
-
-			if sharpen_flag is True:
-			    sharpen_img=np.copy(img_undistort)
-			    gausian_img=cv2.GaussianBlur(sharpen_img,(5,5),3)
-			    img_undistort=cv2.addWeighted(img_undistort,1.5,gausian_img,-0.5,0)
-
-			if sharpen2_flag is True:
-			    sharpen_img=np.copy(img_undistort)
-			    gausian_img=cv2.GaussianBlur(sharpen_img,(5,5),5)
-			    img_undistort=cv2.addWeighted(img_undistort,1.5,gausian_img,-0.5,0)
-			if blur_flag is True:
-				img_undistort= cv2.blur(img_undistort,(5,5))
-
-			roi, M, Minv = IPF.unwarp(img_undistort, src, dst)
-			cv2.imshow("ROI", roi)
-			draw_roi_information(refPt,dst)
-			roi_show=True
 			showimg_flag=False
 
 		# else:

@@ -528,11 +528,20 @@ def main():
     bxx[3,1].set_title('added all together THRESHOLD '+str(threshold_value), fontsize=12)
 
 
-    threshold_value2=3
-    thresh_binary_imagee=IPF.threshold_binary_stack(rez_slika,threshold_value2)
-    bxx[3,2].imshow(thresh_binary_imagee,cmap='gray')
+
+
+    sharpen_img=np.copy(exampleImg_unwarp)
+
+    gausian_img=cv2.GaussianBlur(sharpen_img,(5,5),0)
+    sharpened=cv2.addWeighted(exampleImg_unwarp,1.5,gausian_img,-0.5,0)
+    bxx[3,2].imshow(sharpened,cmap='gray')
     bxx[3,2].axis('off')
-    bxx[3,2].set_title('added all together THRESHOLD '+str(threshold_value2), fontsize=12)
+    bxx[3,2].set_title('sharpened ', fontsize=12)
+    # threshold_value2=3
+    # thresh_binary_imagee=IPF.threshold_binary_stack(rez_slika,threshold_value2)
+    # bxx[3,2].imshow(thresh_binary_imagee,cmap='gray')
+    # bxx[3,2].axis('off')
+    # bxx[3,2].set_title('added all together THRESHOLD '+str(threshold_value2), fontsize=12)
     #------------------------------------------------------
     plt.show()
 
