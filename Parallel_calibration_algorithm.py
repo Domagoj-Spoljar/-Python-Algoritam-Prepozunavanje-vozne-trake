@@ -5,6 +5,7 @@ import sys
 import function_parameters as FP
 import copy
 import pickle
+# import operator
 
 import OLD_calibrate_ipf
 import Process_image
@@ -18,6 +19,7 @@ import calibration_function_new
 import Test_with_function_noKeys
 import multiprocessing as mp
 from multiprocessing import Process, Queue
+import text_print_functions as TPF
 
 # def info(title):
 #     print(title)
@@ -35,13 +37,157 @@ from multiprocessing import Process, Queue
 # frame_number=FP.calibration_frame
 # frame_number=FP.frame
 
+# calibration_leaderboard =	{
+# 'rgb_r':0,
+# 'hls_s':0,
+# 'hls_l':0,
+# 'lab_l':1,
+# 'hsv_white':0,
+# 'white_tight':0,
+# 'white_loose':0,
+# 'lab_b':0,
+# 'hsv_yellow':0,
+# 'yellow':0
+# }
+calibration_leaderboard_white =	['rgb_r','hls_s','hls_l','lab_l','hsv_white','white_tight','white_loose']
+# [count,calib_simmilar_percent,delta_change_percent]
+calibration_leaderboard_white_scores=[[0,1,0],[0,1,0],[0,1,0],[0,1,0],[0,1,0],[0,1,0],[0,1,0]
+]
+# calibration_leaderboard_white =	[[['rgb_r'],[0,0,0]],[['hls_s'],[0,0,0]],[['hls_l'],[0,0,0]],[['lab_l'],[0,0,0]],[['hsv_white'],[0,0,0]],[['white_tight'],[0,0,0]],[['white_loose'],[0,0,0]]]
+# calibration_leaderboard_white =	[['rgb_r',0,0,0],['hls_s',0,0,0],['hls_l',0,0,0],['lab_l',0,0,0],['hsv_white',0,0,0],['white_tight',0,0,0],['white_loose',0,0,0]]
+# ['hls_s',0,0,0],['hls_l',0,0,0],['lab_l',0,0,0],['hsv_white',0,0,0],['white_tight',0,0,0],['white_loose',0,0,0]]
+
+calibration_leaderboard_yellow =[['lab_b',0],['hsv_yellow',0],['yellow',0]]
+
+image_width=1280
+image_height=720
+total_pixel_num=image_width*image_height
+
+
 framesss=0
 filename = 'frame_count'
 filename2 = 'algorithm_status'
 filename3 = 'calculated_binary_combinations'
 
+def update_leaderboards(white_filters,yellow_filters):
+    global calibration_leaderboard_white,calibration_leaderboard_white_scores,total_pixel_num
+    # name=white_filters[0][1]
+    # calibration_leaderboard_white[name]=
+
+    # calibration_leaderboard[white_filters[0][1]]+=1
+    # print('calibration_leaderboard')
+    # print(calibration_leaderboard)
+    #
+    #
+    # sorted_leaderboard = sorted(calibration_leaderboard.items(), key=operator.itemgetter(1))
+    name=white_filters[0][1]
+    number=calibration_leaderboard_white.index(name)
+    calibration_leaderboard_white_scores[number][0]+=1
+
+    print('calibration_leaderboard_white start')
+    for i, elements in enumerate(white_filters):
+        name=white_filters[i][1]
+        print('name= '+ str(name))
+        number=calibration_leaderboard_white.index(name)
+        print('number= '+ str(number))
+        calibration_leaderboard_white_previous=np.copy(calibration_leaderboard_white_scores[number][1])
+        calibration_leaderboard_white_scores[number][1]=((((white_filters[i][0]/total_pixel_num)*100)+100)/200)*100
+        # calibration_leaderboard_white_scores[number][1]=(white_filters[i][0]/total_pixel_num)*100
+        calibration_leaderboard_white_scores[number][2]+=(calibration_leaderboard_white_scores[number][1]/calibration_leaderboard_white_previous)-1
+
+
+
+    # print('calibration_leaderboard_white start')
+    # name=white_filters[0][1]
+    # print('name= '+ str(name))
+    # number=calibration_leaderboard_white.index(name)
+    # print('number= '+ str(number))
+    # calibration_leaderboard_white_scores[number][0]=white_filters[0][0]/total_pixel_num
+
+
+    # calibration_leaderboard_white[1][1][0]=white_filters[0][0]/total_pixel_num
+    # calibration_leaderboard_white[number][1][1]=
+    # calibration_leaderboard_white[number][1][2]+=1
+
+    # calibration_leaderboard_white[1][1][0]=white_filters[0][0]/total_pixel_num
+    # # calibration_leaderboard_white[number][1][1]=
+    # calibration_leaderboard_white[1][1][2]+=1
+
+    # print(str(calibration_leaderboard_white[0][0][0]))
+    # print(str(calibration_leaderboard_white[0][1][0]))
+    # print(str(calibration_leaderboard_white[0][1][1]))
+    # print(str(calibration_leaderboard_white[0][1][2]))
+    # print(str(calibration_leaderboard_white[1][0][0]))
+
+    print('+'+'_'*(TPF.line_length-2)+'+')
+    print(TPF.print_line_text_in_middle('Leaderboard',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('count','% with ref image', '% with prev calibration' ,TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    length=len(calibration_leaderboard_white)
+    for i in range(length):
+    # for i, elements in enumerate(calibration_leaderboard_white_scores):
+        print(TPF.print_line_in_defined_length(calibration_leaderboard_white[i],TPF.line_length-2))
+        print(TPF.print_line_3_columns(str(calibration_leaderboard_white_scores[i][0]),str(calibration_leaderboard_white_scores[i][1])+'%',str(calibration_leaderboard_white_scores[i][2])+'%' ,TPF.line_length-2))
+        print('| '+'-'*(TPF.line_length-4)+' |')
+        # print(i)
+
+    print('+'+'_'*(TPF.line_length-2)+'+')
+
+
+    print('calibration_leaderboard_white end')
+    print(calibration_leaderboard_white)
+    print('calibration_leaderboard_white_score')
+    print(calibration_leaderboard_white_scores)
+
+    final_list=('rgb_r','lab_b')
+    return final_list
+
+def update_leaderboards_first_time(white_filters,yellow_filters):
+    global calibration_leaderboard_white,calibration_leaderboard_white_scores,total_pixel_num
+
+    name=white_filters[0][1]
+    number=calibration_leaderboard_white.index(name)
+    calibration_leaderboard_white_scores[number][0]+=1
+
+    print('calibration_leaderboard_white start')
+    for i, elements in enumerate(white_filters):
+        name=white_filters[i][1]
+        print('name= '+ str(name))
+        number=calibration_leaderboard_white.index(name)
+        print('number= '+ str(number))
+        # calibration_leaderboard_white_previous=np.copy(calibration_leaderboard_white_scores[number][1])
+        calibration_leaderboard_white_scores[number][1]=((((white_filters[i][0]/total_pixel_num)*100)+100)/200)*100
+        # calibration_leaderboard_white_scores[number][1]=(white_filters[i][0]/total_pixel_num)*100
+        # calibration_leaderboard_white_scores[number][2]=calibration_leaderboard_white_scores[number][1]/calibration_leaderboard_white_previous
+
+
+    print('+'+'_'*(TPF.line_length-2)+'+')
+    print(TPF.print_line_text_in_middle('Leaderboard',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('count','% with ref image', '% with prev calibration' ,TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    length=len(calibration_leaderboard_white)
+    for i in range(length):
+    # for i, elements in enumerate(calibration_leaderboard_white_scores):
+        print(TPF.print_line_in_defined_length(calibration_leaderboard_white[i],TPF.line_length-2))
+        print(TPF.print_line_3_columns(str(calibration_leaderboard_white_scores[i][0]),str(calibration_leaderboard_white_scores[i][1])+'%',str(calibration_leaderboard_white_scores[i][2])+'%' ,TPF.line_length-2))
+        print('| '+'-'*(TPF.line_length-4)+' |')
+        # print(i)
+
+    print('+'+'_'*(TPF.line_length-2)+'+')
+
+    print('calibration_leaderboard_white end')
+    print(calibration_leaderboard_white)
+    print('calibration_leaderboard_white_score')
+    print(calibration_leaderboard_white_scores)
+
+    final_list=('rgb_r','lab_b')
+    return final_list
+
 
 def calibrate_loop():
+    global calibration_leaderboard_white,total_pixel_num
     # global algotirthm_running
     while True:
         # global framesss
@@ -63,8 +209,24 @@ def calibrate_loop():
         new_count = pickle.load(infile)
         infile.close()
 
-        calibration_function_new.main(str(new_count))
-        FP.binary_combinations=(FP.calibrated_combinations[0][0][1],FP.calibrated_combinations[0][1][1],FP.calibrated_combinations[1][0][1])
+        white_filters,yellow_filters=calibration_function_new.main(str(new_count))
+
+        # print('calibration_leaderboard_white')
+        # for i in len(white_filters):
+        #     name=white_filters[i][1]
+        #     # number=calibration_leaderboard_white[:][0][0].index(name)
+        #     # calibration_leaderboard_white[number][1][0]=white_filters[i][0]/total_pixel_num
+        #     # calibration_leaderboard_white[number][1][1]=
+        #     # calibration_leaderboard_white[number][1][2]+=1
+        # print(calibration_leaderboard_white)
+
+        final_filters=update_leaderboards(white_filters,yellow_filters)
+
+        # FP.binary_combinations=('rgb_r')
+        FP.binary_combinations=final_filters
+        # FP.binary_combinations=white_filters[0][1],white_filters[1][1],yellow_filters[0][1]
+        # FP.binary_combinations=(FP.calibrated_combinations[0][0][1],FP.calibrated_combinations[0][1][1],FP.calibrated_combinations[1][0][1])
+
         print('???????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????')
         print(FP.binary_combinations)
 
@@ -75,8 +237,10 @@ def calibrate_loop():
     # print('FP.frame= '+str(FP.frame))
 def calibrate_loop_once():
 
-    calibration_function_new.main(str(0))
-    FP.binary_combinations=(FP.calibrated_combinations[0][0][1],FP.calibrated_combinations[0][1][1],FP.calibrated_combinations[1][0][1])
+    white_filters,yellow_filters=calibration_function_new.main(str(0))
+    final_filters=update_leaderboards_first_time(white_filters,yellow_filters)
+    FP.binary_combinations=final_filters
+    # FP.binary_combinations=(white_filters[0][1],white_filters[1][1],yellow_filters[0][1])
     outfile3 = open(filename3,'wb')
     pickle.dump(FP.binary_combinations,outfile3)
     outfile3.close()
@@ -133,6 +297,13 @@ def main():
     pickle.dump(value,outfile2)
     outfile2.close()
 
+    outfile1 = open(filename,'wb')
+    value=0
+    pickle.dump(value,outfile1)
+    outfile1.close()
+
+
+
     calibrate_loop_once()
     # slika = multiprocessing.Value('i')
     # global frame_number
@@ -149,8 +320,8 @@ def main():
     service.join()
     worker.join()
 
-    service.close()
-    worker.close()
+    # service.close()
+    # worker.close()
 
 if __name__ == '__main__':
     main()

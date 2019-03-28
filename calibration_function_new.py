@@ -47,6 +47,7 @@ def main(count):
     # FP.binary_combinations=lista
     # print(len(FP.calibrated_combinations))
     FP.calibrated_combinations=[first,second]
+    print(FP.calibrated_combinations)
     # FP.binary_combinations[1]=second[0][1]
     # print(FP.calibrated_combinations[0])
     # print(FP.calibrated_combinations[0][1])
@@ -55,7 +56,7 @@ def main(count):
     # print(FP.calibrated_combinations[0][2][1])
     # print(len(FP.calibrated_combinations))
 #--------------------------------------------------------------------------------------------------------------------
-    return
+    return first,second
 
 ###################################################################################################
 if __name__ == "__main__":

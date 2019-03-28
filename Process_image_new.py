@@ -542,6 +542,62 @@ def main():
     # bxx[3,2].imshow(thresh_binary_imagee,cmap='gray')
     # bxx[3,2].axis('off')
     # bxx[3,2].set_title('added all together THRESHOLD '+str(threshold_value2), fontsize=12)
+
+
+
+    ff, cxx = plt.subplots(4, 3, figsize=(20,10))
+    ff.subplots_adjust(hspace = .1, wspace=0.01)
+
+    cxx[0,0].imshow(rez_slika,cmap='gray')
+    cxx[0,0].axis('off')
+    cxx[0,0].set_title('SOBEL added all together', fontsize=12)
+
+    max_value=np.max(rez_slika)
+    threshold_value=IPF.threshold_equation(max_value)
+    thresh_binary_image=IPF.threshold_binary_stack(rez_slika,threshold_value)
+
+    cxx[0,1].imshow(thresh_binary_image,cmap='gray')
+    cxx[0,1].axis('off')
+    cxx[0,1].set_title('SOBEL with calc THRESHOLD: '+str(threshold_value), fontsize=12)
+
+
+    cxx[1,0].imshow(stacked_binary_image_white,cmap='gray')
+    cxx[1,0].axis('off')
+    cxx[1,0].set_title('WHITE added all together', fontsize=12)
+
+    # combined_white_sobel=np.zeros_like(thresh_binary_image)
+    # combined_white_sobel+=thresh_binary_image
+    # combined_white_sobel+=stacked_binary_image_white
+    stacked_binary_white_sobel=thresh_binary_image+stacked_binary_image_white
+
+    cxx[1,1].imshow(stacked_binary_white_sobel,cmap='gray')
+    cxx[1,1].axis('off')
+    cxx[1,1].set_title('WHITE + SOBEL added', fontsize=12)
+
+    max_value2=np.max(stacked_binary_white_sobel)
+    threshold_value2=IPF.threshold_equation(max_value2)
+    stacked_thresholded_white_sobel=IPF.threshold_binary_stack(stacked_binary_white_sobel,threshold_value2)
+    cxx[1,2].imshow(stacked_thresholded_white_sobel,cmap='gray')
+    cxx[1,2].axis('off')
+    cxx[1,2].set_title('WHITE + SOBEL calc thresholded: '+str(threshold_value2), fontsize=12)
+
+    cxx[2,0].imshow(stacked_binary_image_yellow,cmap='gray')
+    cxx[2,0].axis('off')
+    cxx[2,0].set_title('YELLOW added all together', fontsize=12)
+
+
+    stacked_binary_yellow_sobel=thresh_binary_image+stacked_binary_image_yellow
+    cxx[2,1].imshow(stacked_binary_yellow_sobel,cmap='gray')
+    cxx[2,1].axis('off')
+    cxx[2,1].set_title('YELLOW + SOBEL added', fontsize=12)
+
+    max_value3=np.max(stacked_binary_image_yellow)
+    threshold_value3=IPF.threshold_equation(max_value3)
+    stacked_thresholded_yellow_sobel=IPF.threshold_binary_stack(stacked_binary_image_yellow,threshold_value3)
+    cxx[2,2].imshow(stacked_thresholded_yellow_sobel,cmap='gray')
+    cxx[2,2].axis('off')
+    cxx[2,2].set_title('YELLOW + SOBEL  calc thresholded: '+str(threshold_value3), fontsize=12)
+
     #------------------------------------------------------
     plt.show()
 

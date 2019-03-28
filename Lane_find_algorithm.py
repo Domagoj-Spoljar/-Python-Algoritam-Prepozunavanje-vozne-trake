@@ -118,6 +118,23 @@ def print_available_videos():
     print(TPF.print_line_3_columns('15. harder_video2.mp4',  'Sunny',  'Double Solid yellow line',TPF.line_length-2))
     print(TPF.print_line_3_columns('',  'Straight w/o trespassing',  'Broken white line',TPF.line_length-2))
     print(TPF.print_line_3_columns('',  'Curved w/o trespassing',  'Solid white line',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('16. Angels_Forest_Highway',  'Dawn',  'Double Solid yellow line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Curved w/o trespassing',  'Solid white line',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('17. Glenshane_Snowy_Scene',  'Snow',  'Solid white line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Straight w/o trespassing',  'Broken white line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Curved w/o trespassing',  '',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('18. double_solid_white_line',  'Sunny',  'Solid white line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Straight w/o trespassing',  'Broken white line',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('19. toronto_wet_drive',  'Rainy',  'Solid yellow line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Straight w/o trespassing',  'Broken white line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Curved w/o trespassing',  'Solid white line',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('20. night_highway',  'night',  'Solid yellow line',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'Straight w trespassing',  'Broken white line',TPF.line_length-2))
     print('+'+'_'*(TPF.line_length-2)+'+')
 
 def print_filters():
@@ -151,6 +168,10 @@ def print_additional_information():
     print('+'+'_'*(TPF.line_length-2)+'+')
 
     print(TPF.print_line_in_defined_length(' For saving program output in txt file use "| tee"',TPF.line_length-2))
+    print(TPF.print_line_in_defined_length(' For rotating video use: "',TPF.line_length-2))
+    print(TPF.print_line_in_defined_length(' ffmpeg -i 00a820ef-2b98dcf5.mov -vf "hflip" out4.mov"',TPF.line_length-2))
+
+
 
     print('+'+'_'*(TPF.line_length-2)+'+')
 
@@ -183,26 +204,11 @@ def main():
 
 
         print_available_videos()
-        # print('Available videos:')
-        # print('1. challenge_video.mp4 (Sunny, w/o trespassing)')
-        # print('2. project_video.mp4 (Sunny, w/o trespassing)')
-        # print('3. test_video.mp4 (Sunny, w/ trespassing)')
-        # print('4. harder_challenge_video.mp4')
-        # print('5. night_video.mp4')
-        # print('6. foggy_video')
-        # print('7. rainy_video')
-        # print('8. rainy_video_better')
-        # print('9. rainy_video2')
-        # print('10. test_video.mp4 (640x360)')
-        # print('11. project_video.mp4 (640x360)')
-        # print('12. spoljar_mrak.mp4')
-        # print('13. spoljar_sunce.mp4')
-        # print('14. Grand_Canyon.mp4')
-        # print('15. harder_video2.mp4')
+
         option2 = input("Choose video: ")
         print('')
 
-        while str(option2)!='1' and str(option2)!='2' and str(option2)!='3' and str(option2)!='4'and str(option2)!='5'and str(option2)!='6'and str(option2)!='7'and str(option2)!='8'and str(option2)!='9'and str(option2)!='10'and str(option2)!='11'and str(option2)!='12'and str(option2)!='13'and str(option2)!='14'and str(option2)!='15':
+        while str(option2)!='1' and str(option2)!='2' and str(option2)!='3' and str(option2)!='4'and str(option2)!='5'and str(option2)!='6'and str(option2)!='7'and str(option2)!='8'and str(option2)!='9'and str(option2)!='10'and str(option2)!='11'and str(option2)!='12'and str(option2)!='13'and str(option2)!='14'and str(option2)!='15'and str(option2)!='16'and str(option2)!='17'and str(option2)!='18'and str(option2)!='19'and str(option2)!='20':
             print('Wrong input entered. Please try again!')
             option2 = input("Choose video: ")
         print('')
@@ -252,6 +258,21 @@ def main():
         elif str(option2)=='15':
             FP.dashcam_image_path='/home/profesor/Documents/Datasets/harder_video2/'
             FP.video_tip= 'harder_video2'
+        elif str(option2)=='16':
+            FP.dashcam_image_path='/home/profesor/Documents/Datasets/angels_forest_highway/'
+            FP.video_tip= 'angeles_forest_highway'
+        elif str(option2)=='17':
+            FP.dashcam_image_path='/home/profesor/Documents/Datasets/glenshane_snowy/'
+            FP.video_tip= 'glenshane_snowy'
+        elif str(option2)=='18':
+            FP.dashcam_image_path='/home/profesor/Documents/Datasets/double_solid_white/'
+            FP.video_tip= 'double_solid_white'
+        elif str(option2)=='19':
+            FP.dashcam_image_path='/home/profesor/Documents/Datasets/toronto_wet_drive/'
+            FP.video_tip= 'toronto_wet_drive'
+        elif str(option2)=='20':
+            FP.dashcam_image_path='/home/profesor/Documents/Datasets/night_highway/'
+            FP.video_tip= 'night_highway'
 
 
 

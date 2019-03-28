@@ -169,7 +169,7 @@ def find_histogram_peaks(histogram,histogram_image, image=False):
 
     index = 0
     #width=100
-    if w==1280:
+    if w==1280 or w==1228: #1228 is for one video
         #original values for 1280x720
         width=190
         range=25

@@ -574,6 +574,7 @@ def calibrate_IPF_yellow_white(img_unwarp,sobel=False):
     return top_white,top_yellow
 
 
+
 # def unwarp_points(h,w):
 #     # src = np.float32([(592,450),
 #     #                       (692,450),
@@ -678,24 +679,45 @@ def pipeline(img):
         # img_LAB_b_thresh = lab_threshold(img_unwarp, thresh=(190,255), color='b')
         img_LAB_b_thresh = lab_threshold(img_unwarp_inverted, thresh=(190,255), color='b')
         list.append(img_LAB_b_thresh)
-    # if 'hsv_white' in FP.binary_combinations:
-    #     white_hsv_low  = np.array([ 0,   0,   160])
-    #     white_hsv_high = np.array([ 255,  80, 255])
-    #     image_HSV = cv2.cvtColor(img_unwarp,cv2.COLOR_RGB2HSV)
-    #     # image_HSV = cv2.cvtColor(img_unwarp_inverted,cv2.COLOR_RGB2HSV)
-    #     res1=np.zeros_like(img_unwarp)
-    #     res1 = cv2.inRange(image_HSV,white_hsv_low,white_hsv_high)
-    #     list.append(res1)
-    # if 'hsv_yellow' in FP.binary_combinations:
-    #     yellow_hsv_low  = np.array([ 0,  100,  100])
-    #     yellow_hsv_high = np.array([ 80, 255, 255])
-    #     def color_mask(hsv,low,high):
-    #     # Return mask from HSV
-    #         mask = cv2.inRange(hsv, low, high)
-    #         return mask
-    #     image_HSV = cv2.cvtColor(img_unwarp,cv2.COLOR_RGB2HSV)
-    #     res_mask = color_mask(image_HSV,yellow_hsv_low,yellow_hsv_high)
-    #     list.append(res_mask)
+    if 'hsv_white' in FP.binary_combinations:
+        white_hsv_low  = np.array([ 0,   0,   160])
+        white_hsv_high = np.array([ 255,  80, 255])
+
+        # image_HSV = cv2.cvtColor(img_copy,cv2.COLOR_RGB2HSV)
+        # image_HSV = cv2.cvtColor(img_unwarp,cv2.COLOR_BGR2HSV)
+        image_HSV = cv2.cvtColor(img_unwarp_inverted,cv2.COLOR_RGB2HSV)
+        image_H=np.zeros_like(image_HSV[:,:,0])
+        image_S=np.zeros_like(image_HSV[:,:,0])
+        image_V=np.zeros_like(image_HSV[:,:,0])
+
+        image_H[((image_HSV[:,:,0] > white_hsv_low[0]) & (image_HSV[:,:,0] <= white_hsv_high[0]))] = 1
+        image_S[((image_HSV[:,:,1] > white_hsv_low[1]) & (image_HSV[:,:,1] <= white_hsv_high[1]))] = 1
+        image_V[((image_HSV[:,:,2] > white_hsv_low[2]) & (image_HSV[:,:,2] <= white_hsv_high[2]))] = 1
+
+        res_hsv2 = cv2.bitwise_and(image_H, image_S)
+        res_hsv = cv2.bitwise_and(res_hsv2,image_V)
+        # image_res1 = image_H+image_S+image_V
+        # image_res1 = cv2.inRange(image_HSV,white_hsv_low,white_hsv_high)
+        list.append(res_hsv)
+
+    if 'hsv_yellow' in FP.binary_combinations:
+        yellow_hsv_low  = np.array([ 0,  100,  100])
+        yellow_hsv_high = np.array([ 80, 255, 255])
+
+        image_HSV = cv2.cvtColor(img_unwarp_inverted,cv2.COLOR_RGB2HSV)
+        image_H=np.zeros_like(image_HSV[:,:,0])
+        image_S=np.zeros_like(image_HSV[:,:,0])
+        image_V=np.zeros_like(image_HSV[:,:,0])
+
+        image_H[((image_HSV[:,:,0] > yellow_hsv_low[0]) & (image_HSV[:,:,0] <= yellow_hsv_high[0]))] = 1
+        image_S[((image_HSV[:,:,1] > yellow_hsv_low[1]) & (image_HSV[:,:,1] <= yellow_hsv_high[1]))] = 1
+        image_V[((image_HSV[:,:,2] > yellow_hsv_low[2]) & (image_HSV[:,:,2] <= yellow_hsv_high[2]))] = 1
+
+        res_hsv2 = cv2.bitwise_and(image_H, image_S)
+        res_hsv = cv2.bitwise_and(res_hsv2,image_V)
+        # image_res1 = image_H+image_S+image_V
+        # image_res1 = cv2.inRange(image_HSV,white_hsv_low,white_hsv_high)
+        list.append(res_hsv)
 
     if 'white_tight' in FP.binary_combinations:
         list.append(kanali['white_tight'])
