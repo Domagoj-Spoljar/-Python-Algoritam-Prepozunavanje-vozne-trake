@@ -47,7 +47,10 @@ def main(count):
     # FP.binary_combinations=lista
     # print(len(FP.calibrated_combinations))
     FP.calibrated_combinations=[first,second]
-    print(FP.calibrated_combinations)
+    print('izracunate vrijednosti bijele:')
+    print(FP.calibrated_combinations[0])
+    print('izracunate vrijednosti zute:')
+    print(FP.calibrated_combinations[1])
     # FP.binary_combinations[1]=second[0][1]
     # print(FP.calibrated_combinations[0])
     # print(FP.calibrated_combinations[0][1])

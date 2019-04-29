@@ -65,7 +65,7 @@ def main():
     exampleImg_SThresh = IPF.hls_threshold(exampleImg_unwarp,thresh=(125,255),color='s')
     exampleImg_LThresh = IPF.hls_threshold(exampleImg_unwarp,thresh=(220,255),color='l')
     # exampleImg_LBThresh = IPF.lab_threshold(img_unwarp_inverted,thresh=(150,255),color='b')
-    exampleImg_LBThresh = IPF.lab_threshold(exampleImg_unwarp,thresh=(190,255),color='b')
+    exampleImg_LBThresh = IPF.lab_threshold(img_unwarp_inverted,thresh=(190,255),color='b')
     exampleImg_LLBThresh = IPF.lab_threshold(exampleImg_unwarp,thresh=(190,255),color='l')
     exampleImg_RRGBThresh = IPF.rgb_thresh(exampleImg_unwarp,color=0)
     exampleImg_GRGBThresh = IPF.rgb_thresh(exampleImg_unwarp,color=1)
@@ -124,8 +124,34 @@ def main():
     white_hsv_low  = np.array([ 0,   0,   160])
     white_hsv_high = np.array([ 255,  80, 255])
     res_mask = color_mask(image_HSV,yellow_hsv_low,yellow_hsv_high)
+    res_mask[(res_mask > 0)] = 1
     # res1 = apply_color_mask(image_HSV,exampleImg_unwarp,white_hsv_low,white_hsv_high)
     res1 = color_mask(image_HSV,white_hsv_low,white_hsv_high)
+
+
+    yellow_hsv_low2  = np.array([ 0, 80, 200])
+    yellow_hsv_high2 = np.array([ 40, 255, 255])
+    res_mask2 = cv2.inRange(image_HSV,yellow_hsv_low2,yellow_hsv_high2)
+    res_mask2[(res_mask2 > 0)] = 1
+
+    yellow_hsv_low3  = np.array([ 15, 38, 115])
+    yellow_hsv_high3 = np.array([ 35, 204, 255])
+    res_mask3 = cv2.inRange(image_HSV,yellow_hsv_low3,yellow_hsv_high3)
+    res_mask3[(res_mask3 > 0)] = 1
+
+    yellow_hsv_low4  = np.array([ 20, 120, 80])
+    yellow_hsv_high4 = np.array([ 45, 200, 255])
+    res_mask4 = cv2.inRange(image_HSV,yellow_hsv_low4,yellow_hsv_high4)
+    res_mask4[(res_mask4 > 0)] = 1
+
+    yellow_hsv_low5  = np.array([ 0, 100, 100])
+    yellow_hsv_high5 = np.array([ 50, 255, 255])
+    res_mask5 = cv2.inRange(image_HSV,yellow_hsv_low5,yellow_hsv_high5)
+    res_mask5[(res_mask5 > 0)] = 1
+
+
+
+
 
     #_______________________________________________________________________________________________________________________________
     # Visualize undistortion
@@ -336,7 +362,7 @@ def main():
     axy[1,3].axis('off')
     axy[1,3].set_title('thresholded (sobel): '+str(threshold_sobel), fontsize=12)
 # --------------------------------------------------------------------------------------------------------------------------
-    ff, axx = plt.subplots(3, 4, figsize=(20,10))
+    ff, axx = plt.subplots(4, 4, figsize=(20,10))
     ff.subplots_adjust(hspace = .1, wspace=0.01)
 
     # axx[0,0].imshow(kanali['edge_pos'],cmap='gray')0    # axx[0,0].axis('off')
@@ -363,6 +389,9 @@ def main():
     axx[1,0].set_title('yellow', fontsize=12)
 
 
+
+
+
     axx[1,1].imshow(exampleImg_LBThresh,cmap='gray')
     axx[1,1].axis('off')
     axx[1,1].set_title('LAB B-channel thresholded', fontsize=12)
@@ -371,7 +400,25 @@ def main():
     axx[2,0].axis('off')
     axx[2,0].set_title('HSV yellow', fontsize=12)
 
-    lista_yellow=['lab_b','hsv_yellow','yellow_edge_pos','yellow_edge_neg','yellow']
+    axx[1,2].imshow(res_mask2,cmap='gray')
+    axx[1,2].axis('off')
+    axx[1,2].set_title('HSV yellow 2', fontsize=12)
+
+    axx[1,3].imshow(res_mask3,cmap='gray')
+    axx[1,3].axis('off')
+    axx[1,3].set_title('HSV yellow 3', fontsize=12)
+
+    axx[3,0].imshow(res_mask4,cmap='gray')
+    axx[3,0].axis('off')
+    axx[3,0].set_title('HSV yellow 4', fontsize=12)
+
+    axx[3,1].imshow(res_mask5,cmap='gray')
+    axx[3,1].axis('off')
+    axx[3,1].set_title('HSV yellow 5', fontsize=12)
+
+
+
+    lista_yellow=['lab_b','hsv_yellow','yellow_edge_pos','yellow_edge_neg','yellow','yellow_2','yellow_3','yellow_4','yellow_5']
     stacked_binary_image_yellow,all_binary_images_yellow=IPF.make_binary_stack_custom(exampleImg_unwarp,lista_yellow)
     max_value_yellow=np.max(stacked_binary_image_yellow)
 
@@ -518,7 +565,7 @@ def main():
 
     bxx[3,0].imshow(rez_slika,cmap='gray')
     bxx[3,0].axis('off')
-    bxx[3,0].set_title('added all together', fontsize=12)
+    bxx[3,0].set_title('added all together (MAX: '+str(max_value_sobel)+')', fontsize=12)
 
 
     threshold_value=2

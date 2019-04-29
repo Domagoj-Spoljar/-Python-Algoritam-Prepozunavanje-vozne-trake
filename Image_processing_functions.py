@@ -371,25 +371,31 @@ def make_binary_stack_custom(exampleImg_unwarp,list):
     if(len(list)!=0):
         for x in list:
             if str(x)=='rgb_r':
-                exampleImg_RRGBThresh = rgb_thresh(exampleImg_unwarp,color=0)
+                exampleImg_unwarp3=cv2.cvtColor(exampleImg_unwarp,cv2.COLOR_BGR2RGB)
+                exampleImg_RRGBThresh = rgb_thresh(exampleImg_unwarp3,color=0)
                 slike.append(exampleImg_RRGBThresh)
                 tekst.append('rgb_r')
             if str(x)=='hls_s':
                 exampleImg_SThresh = hls_threshold(exampleImg_unwarp,thresh=(125,255),color='s')
                 slike.append(exampleImg_SThresh)
                 tekst.append('hls_s')
+                # cv2.imwrite('[make_binary_stack_custom()]hls_s.png',exampleImg_SThresh)
             if str(x)=='hls_l':
                 exampleImg_LThresh = hls_threshold(exampleImg_unwarp,thresh=(220,255),color='l')
                 slike.append(exampleImg_LThresh)
                 tekst.append('hls_l')
             if str(x)=='lab_l':
-                exampleImg_LLBThresh = lab_threshold(exampleImg_unwarp,thresh=(190,255),color='l')
+                exampleImg_unwarp3=cv2.cvtColor(exampleImg_unwarp,cv2.COLOR_BGR2RGB)
+                exampleImg_LLBThresh = lab_threshold(exampleImg_unwarp3,thresh=(190,255),color='l')
                 slike.append(exampleImg_LLBThresh)
                 tekst.append('lab_l')
+                # cv2.imwrite('[make_binary_stack_custom()]lab_l.png',exampleImg_LLBThresh)
             if str(x)=='lab_b':
-                exampleImg_LBThresh = lab_threshold(exampleImg_unwarp,thresh=(190,255),color='b')
+                exampleImg_unwarp2=cv2.cvtColor(exampleImg_unwarp,cv2.COLOR_BGR2HSV)
+                exampleImg_LBThresh = lab_threshold(exampleImg_unwarp2,thresh=(190,255),color='b')
                 slike.append(exampleImg_LBThresh)
                 tekst.append('lab_b')
+                # cv2.imwrite('[make_binary_stack_custom()]lab_b.png',exampleImg_LBThresh)
             if str(x)=='sobel_mag':
                 min_thresh2=25
                 max_thresh2=255
@@ -423,7 +429,7 @@ def make_binary_stack_custom(exampleImg_unwarp,list):
             if str(x)=='hsv_yellow':
                 yellow_hsv_low  = np.array([ 0,  100,  100])
                 yellow_hsv_high = np.array([ 80, 255, 255])
-                image_HSV = cv2.cvtColor(exampleImg_unwarp,cv2.COLOR_RGB2HSV)
+                image_HSV = cv2.cvtColor(exampleImg_unwarp,cv2.COLOR_BGR2HSV)
                 # res_mask = color_mask(image_HSV,yellow_hsv_low,yellow_hsv_high)
                 res11=np.zeros_like(image_HSV[:,:,0])
                 res_mask = cv2.inRange(image_HSV, yellow_hsv_low, yellow_hsv_high)
@@ -443,7 +449,15 @@ def make_binary_stack_custom(exampleImg_unwarp,list):
                 slike.append(kanali['yellow_edge_neg'])
                 tekst.append('yellow_edge_neg')
             if str(x)=='yellow':
-                slike.append(kanali['yellow'])
+                h_thresh=(15, 35)
+                s_thresh=(75, 255)
+                hsv2 = cv2.cvtColor(exampleImg_unwarp, cv2.COLOR_BGR2HSV).astype(np.float)
+                h_channel2 = hsv2[:,:,0]
+                s_channel2 = hsv2[:,:,1]
+                v_channel2 = hsv2[:,:,2]
+                h_binary = np.zeros_like(h_channel2)
+                h_binary[(h_channel2 >= h_thresh[0]) & (h_channel2 <= h_thresh[1]) & (s_channel2 >= s_thresh[0])] = 1
+                slike.append(h_binary)
                 tekst.append('yellow')
             if str(x)=='edge_pos':
                 slike.append(kanali['edge_pos'])
@@ -467,7 +481,43 @@ def make_binary_stack_custom(exampleImg_unwarp,list):
                 final_binary[np.logical_or((s_channel > s_thresh[0]) & (s_channel < s_thresh[1]) & (l_channel > l_thresh[0]) & (l_channel < l_thresh[1]) , (scaled_sobel > sx_thresh[0]) & (scaled_sobel <= sx_thresh[1]))] = 1
                 slike.append(final_binary)
                 tekst.append('hls_sobel')
-
+                # cv2.imwrite('[make_binary_stack_custom()]hls_sobel.png',final_binary)
+            if str(x)=='yellow_2':
+                image_HSV = cv2.cvtColor(exampleImg_unwarp,cv2.COLOR_BGR2HSV)
+                yellow_hsv_low2  = np.array([ 0, 80, 200])
+                yellow_hsv_high2 = np.array([ 40, 255, 255])
+                res_mask2 = cv2.inRange(image_HSV,yellow_hsv_low2,yellow_hsv_high2)
+                res_mask2[(res_mask2 > 0)] = 1
+                slike.append(res_mask2)
+                tekst.append('yellow_2')
+                # cv2.imwrite('[make_binary_stack_custom()]yellow_2.png',res_mask2)
+            if str(x)=='yellow_3':
+                image_HSV = cv2.cvtColor(exampleImg_unwarp,cv2.COLOR_BGR2HSV)
+                yellow_hsv_low3  = np.array([ 15, 38, 115])
+                yellow_hsv_high3 = np.array([ 35, 204, 255])
+                res_mask3 = cv2.inRange(image_HSV,yellow_hsv_low3,yellow_hsv_high3)
+                res_mask3[(res_mask3 > 0)] = 1
+                slike.append(res_mask3)
+                tekst.append('yellow_3')
+                # cv2.imwrite('[make_binary_stack_custom()]yellow_3.png',res_mask3)
+            if str(x)=='yellow_4':
+                image_HSV = cv2.cvtColor(exampleImg_unwarp,cv2.COLOR_BGR2HSV)
+                yellow_hsv_low4  = np.array([ 20, 120, 80])
+                yellow_hsv_high4 = np.array([ 45, 200, 255])
+                res_mask4 = cv2.inRange(image_HSV,yellow_hsv_low4,yellow_hsv_high4)
+                res_mask4[(res_mask4 > 0)] = 1
+                slike.append(res_mask4)
+                tekst.append('yellow_4')
+                # cv2.imwrite('[make_binary_stack_custom()]yellow_4.png',res_mask4)
+            if str(x)=='yellow_5':
+                image_HSV = cv2.cvtColor(exampleImg_unwarp,cv2.COLOR_BGR2HSV)
+                yellow_hsv_low5  = np.array([ 0, 100, 100])
+                yellow_hsv_high5 = np.array([ 50, 255, 255])
+                res_mask5 = cv2.inRange(image_HSV,yellow_hsv_low5,yellow_hsv_high5)
+                res_mask5[(res_mask5 > 0)] = 1
+                slike.append(res_mask5)
+                tekst.append('yellow_5')
+                # cv2.imwrite('[make_binary_stack_custom()]yellow_5.png',res_mask5)
 
     for x in slike:
         added_binary_images+=x.astype(np.uint8)
@@ -532,9 +582,29 @@ def calibrate_IPF_yellow_white(img_unwarp,sobel=False):
     print("_______________________________________________________________")
     print('Calibrating image filters',end="", flush=True)
     lista_white=['rgb_r','hls_s','hls_l','lab_l','hsv_white','white_tight','white_loose']
-    lista_yellow=['lab_b','hsv_yellow','yellow']
+    lista_yellow=['lab_b','hsv_yellow','yellow','yellow_2','yellow_3','yellow_4','yellow_5']
     stacked_binary_image_white,all_binary_images_white=make_binary_stack_custom(img_unwarp,lista_white)
     stacked_binary_image_yellow,all_binary_images_yellow=make_binary_stack_custom(img_unwarp,lista_yellow)
+
+
+    # cv2.imwrite('[make_binary_stack_custom()]_white1.png',all_binary_images_white[0].astype('uint8') * 255)
+    # cv2.imwrite('[make_binary_stack_custom()]_white2.png',all_binary_images_white[1].astype('uint8') * 255)
+    # cv2.imwrite('[make_binary_stack_custom()]_white3.png',all_binary_images_white[2].astype('uint8') * 255)
+    # cv2.imwrite('[make_binary_stack_custom()]_white4.png',all_binary_images_white[3].astype('uint8') * 255)
+    # cv2.imwrite('[make_binary_stack_custom()]_white5.png',all_binary_images_white[4].astype('uint8') * 255)
+    # cv2.imwrite('[make_binary_stack_custom()]_white6.png',all_binary_images_white[5].astype('uint8') * 255)
+    # cv2.imwrite('[make_binary_stack_custom()]_white7.png',all_binary_images_white[6].astype('uint8') * 255)
+    #
+    #
+    # cv2.imwrite('[make_binary_stack_custom()]_yellow1.png',all_binary_images_yellow[0].astype('uint8') * 255)
+    # cv2.imwrite('[make_binary_stack_custom()]_yellow2.png',all_binary_images_yellow[1].astype('uint8') * 255)
+    # cv2.imwrite('[make_binary_stack_custom()]_yellow3.png',all_binary_images_yellow[2].astype('uint8') * 255)
+    # cv2.imwrite('[make_binary_stack_custom()]_yellow4.png',all_binary_images_yellow[3].astype('uint8') * 255)
+    # cv2.imwrite('[make_binary_stack_custom()]_yellow5.png',all_binary_images_yellow[4].astype('uint8') * 255)
+    # cv2.imwrite('[make_binary_stack_custom()]_yellow6.png',all_binary_images_yellow[5].astype('uint8') * 255)
+    # cv2.imwrite('[make_binary_stack_custom()]_yellow7.png',all_binary_images_yellow[6].astype('uint8') * 255)
+
+
     if sobel:
         lista_sobel=['sobel_mag','sobel_abs','sobel_dir','edge_pos','edge_neg','hls_sobel']
         stacked_binary_image_sobel,all_binary_images_sobel=make_binary_stack_custom(img_unwarp,lista_sobel)
@@ -553,6 +623,7 @@ def calibrate_IPF_yellow_white(img_unwarp,sobel=False):
 
     thresholded_binary_image_white=threshold_binary_stack(stacked_binary_image_white,threshold_white)
     thresholded_binary_image_yellow=threshold_binary_stack(stacked_binary_image_yellow,threshold_yellow)
+
     print('.')
     top_yellow=compare_binary_images_NEW(thresholded_binary_image_yellow,all_binary_images_yellow,lista_yellow,diagnostic=True)
     print('')
@@ -718,6 +789,24 @@ def pipeline(img):
         # image_res1 = image_H+image_S+image_V
         # image_res1 = cv2.inRange(image_HSV,white_hsv_low,white_hsv_high)
         list.append(res_hsv)
+    if 'hsv_yellow_soft' in FP.binary_combinations:
+        yellow_hsv_low  = np.array([ 0, 80, 200])
+        yellow_hsv_high = np.array([ 40, 255, 255])
+
+        image_HSV = cv2.cvtColor(img_unwarp_inverted,cv2.COLOR_RGB2HSV)
+        image_H=np.zeros_like(image_HSV[:,:,0])
+        image_S=np.zeros_like(image_HSV[:,:,0])
+        image_V=np.zeros_like(image_HSV[:,:,0])
+
+        image_H[((image_HSV[:,:,0] > yellow_hsv_low[0]) & (image_HSV[:,:,0] <= yellow_hsv_high[0]))] = 1
+        image_S[((image_HSV[:,:,1] > yellow_hsv_low[1]) & (image_HSV[:,:,1] <= yellow_hsv_high[1]))] = 1
+        image_V[((image_HSV[:,:,2] > yellow_hsv_low[2]) & (image_HSV[:,:,2] <= yellow_hsv_high[2]))] = 1
+
+        res_hsv2 = cv2.bitwise_and(image_H, image_S)
+        res_hsv = cv2.bitwise_and(res_hsv2,image_V)
+        # image_res1 = image_H+image_S+image_V
+        # image_res1 = cv2.inRange(image_HSV,white_hsv_low,white_hsv_high)
+        list.append(res_hsv)
 
     if 'white_tight' in FP.binary_combinations:
         list.append(kanali['white_tight'])
@@ -820,9 +909,11 @@ def split_channels(image) :
         img = np.copy(image)
         # Convert to HSV color space and separate the V channel
         hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV).astype(np.float)
+
         h_channel = hsv[:,:,0]
         s_channel = hsv[:,:,1]
         v_channel = hsv[:,:,2]
+
 
         # Sobel x for v-channel
         sobelx_pos = cv2.Sobel(v_channel, cv2.CV_64F, 1, 0, ksize=3) # Take the derivative in x

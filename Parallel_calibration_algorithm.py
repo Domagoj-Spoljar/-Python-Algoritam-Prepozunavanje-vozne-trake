@@ -49,15 +49,28 @@ import text_print_functions as TPF
 # 'hsv_yellow':0,
 # 'yellow':0
 # }
-calibration_leaderboard_white =	['rgb_r','hls_s','hls_l','lab_l','hsv_white','white_tight','white_loose']
 # [count,calib_simmilar_percent,delta_change_percent]
-calibration_leaderboard_white_scores=[[0,1,0],[0,1,0],[0,1,0],[0,1,0],[0,1,0],[0,1,0],[0,1,0]
-]
-# calibration_leaderboard_white =	[[['rgb_r'],[0,0,0]],[['hls_s'],[0,0,0]],[['hls_l'],[0,0,0]],[['lab_l'],[0,0,0]],[['hsv_white'],[0,0,0]],[['white_tight'],[0,0,0]],[['white_loose'],[0,0,0]]]
-# calibration_leaderboard_white =	[['rgb_r',0,0,0],['hls_s',0,0,0],['hls_l',0,0,0],['lab_l',0,0,0],['hsv_white',0,0,0],['white_tight',0,0,0],['white_loose',0,0,0]]
-# ['hls_s',0,0,0],['hls_l',0,0,0],['lab_l',0,0,0],['hsv_white',0,0,0],['white_tight',0,0,0],['white_loose',0,0,0]]
+# calibration_leaderboard_white_scores=[[0,1,0],[0,1,0],[0,1,0],[0,1,0],[0,1,0],[0,1,0],[0,1,0]]
 
-calibration_leaderboard_yellow =[['lab_b',0],['hsv_yellow',0],['yellow',0]]
+# total_count,count_memory,percent_memory,weights,final_score
+calibration_leaderboard_white =	['rgb_r','hls_s','hls_l','lab_l','hsv_white','white_tight','white_loose']
+calibration_leaderboard_white_scores=[[0,[0,0,0,0,0],[0,0,0,0,0],[0.1,0.1,0.1,0.1,0.1],0,[0,0,0,0,0]],
+[0,[0,0,0,0,0],[0,0,0,0,0],[0.1,0.1,0.1,0.1,0.1],0,[0,0,0,0,0]],
+[0,[0,0,0,0,0],[0,0,0,0,0],[0.1,0.1,0.1,0.1,0.1],0,[0,0,0,0,0]],
+[0,[0,0,0,0,0],[0,0,0,0,0],[0.1,0.1,0.1,0.1,0.1],0,[0,0,0,0,0]],
+[0,[0,0,0,0,0],[0,0,0,0,0],[0.1,0.1,0.1,0.1,0.1],0,[0,0,0,0,0]],
+[0,[0,0,0,0,0],[0,0,0,0,0],[0.1,0.1,0.1,0.1,0.1],0,[0,0,0,0,0]],
+[0,[0,0,0,0,0],[0,0,0,0,0],[0.1,0.1,0.1,0.1,0.1],0,[0,0,0,0,0]]]
+
+calibration_leaderboard_yellow =['lab_b','hsv_yellow','yellow','yellow_2','yellow_3','yellow_4','yellow_5']
+calibration_leaderboard_yellow_scores =[[0,[0,0,0,0,0],[0,0,0,0,0],[0.1,0.1,0.1,0.1,0.1],0,[0,0,0,0,0]],
+[0,[0,0,0,0,0],[0,0,0,0,0],[0.1,0.1,0.1,0.1,0.1],0,[0,0,0,0,0]],
+[0,[0,0,0,0,0],[0,0,0,0,0],[0.1,0.1,0.1,0.1,0.1],0,[0,0,0,0,0]],
+[0,[0,0,0,0,0],[0,0,0,0,0],[0.1,0.1,0.1,0.1,0.1],0,[0,0,0,0,0]],
+[0,[0,0,0,0,0],[0,0,0,0,0],[0.1,0.1,0.1,0.1,0.1],0,[0,0,0,0,0]],
+[0,[0,0,0,0,0],[0,0,0,0,0],[0.1,0.1,0.1,0.1,0.1],0,[0,0,0,0,0]],
+[0,[0,0,0,0,0],[0,0,0,0,0],[0.1,0.1,0.1,0.1,0.1],0,[0,0,0,0,0]]]
+
 
 image_width=1280
 image_height=720
@@ -71,77 +84,163 @@ filename3 = 'calculated_binary_combinations'
 
 def update_leaderboards(white_filters,yellow_filters):
     global calibration_leaderboard_white,calibration_leaderboard_white_scores,total_pixel_num
-    # name=white_filters[0][1]
-    # calibration_leaderboard_white[name]=
-
-    # calibration_leaderboard[white_filters[0][1]]+=1
-    # print('calibration_leaderboard')
-    # print(calibration_leaderboard)
-    #
-    #
-    # sorted_leaderboard = sorted(calibration_leaderboard.items(), key=operator.itemgetter(1))
+    # for white filters
     name=white_filters[0][1]
     number=calibration_leaderboard_white.index(name)
     calibration_leaderboard_white_scores[number][0]+=1
 
+
     print('calibration_leaderboard_white start')
+    # print(calibration_leaderboard_white_scores)
     for i, elements in enumerate(white_filters):
         name=white_filters[i][1]
         print('name= '+ str(name))
         number=calibration_leaderboard_white.index(name)
         print('number= '+ str(number))
-        calibration_leaderboard_white_previous=np.copy(calibration_leaderboard_white_scores[number][1])
-        calibration_leaderboard_white_scores[number][1]=((((white_filters[i][0]/total_pixel_num)*100)+100)/200)*100
+        # calibration_leaderboard_white_previous=np.copy(calibration_leaderboard_white_scores[number][1])
+        percent=((((white_filters[i][0]/total_pixel_num)*100)+100)/200)*100
+        # calibration_leaderboard_white_scores[number][1]=((((white_filters[i][0]/total_pixel_num)*100)+100)/200)*100
         # calibration_leaderboard_white_scores[number][1]=(white_filters[i][0]/total_pixel_num)*100
-        calibration_leaderboard_white_scores[number][2]+=(calibration_leaderboard_white_scores[number][1]/calibration_leaderboard_white_previous)-1
+        # calibration_leaderboard_white_scores[number][2]+=(calibration_leaderboard_white_scores[number][1]/calibration_leaderboard_white_previous)-1
+
+        calibration_leaderboard_white_scores[number][1].insert(0,percent)
+        del calibration_leaderboard_white_scores[number][1][-1]
 
 
+        calibration_leaderboard_white_scores[number][2].insert(0,calibration_leaderboard_white_scores[number][0])
+        del calibration_leaderboard_white_scores[number][2][-1]
 
-    # print('calibration_leaderboard_white start')
-    # name=white_filters[0][1]
-    # print('name= '+ str(name))
-    # number=calibration_leaderboard_white.index(name)
-    # print('number= '+ str(number))
-    # calibration_leaderboard_white_scores[number][0]=white_filters[0][0]/total_pixel_num
+        calibration_leaderboard_white_scores[number][3].insert(0,(0.1*calibration_leaderboard_white_scores[number][0]+0.1))
+        del calibration_leaderboard_white_scores[number][3][-1]
 
-
-    # calibration_leaderboard_white[1][1][0]=white_filters[0][0]/total_pixel_num
-    # calibration_leaderboard_white[number][1][1]=
-    # calibration_leaderboard_white[number][1][2]+=1
-
-    # calibration_leaderboard_white[1][1][0]=white_filters[0][0]/total_pixel_num
-    # # calibration_leaderboard_white[number][1][1]=
-    # calibration_leaderboard_white[1][1][2]+=1
-
-    # print(str(calibration_leaderboard_white[0][0][0]))
-    # print(str(calibration_leaderboard_white[0][1][0]))
-    # print(str(calibration_leaderboard_white[0][1][1]))
-    # print(str(calibration_leaderboard_white[0][1][2]))
-    # print(str(calibration_leaderboard_white[1][0][0]))
+        a=np.array(calibration_leaderboard_white_scores[i][1])
+        b=np.array(calibration_leaderboard_white_scores[i][3])
+        calibration_leaderboard_white_scores[i][5]=a*b
+        calibration_leaderboard_white_scores[i][4]=np.sum(calibration_leaderboard_white_scores[i][5])
 
     print('+'+'_'*(TPF.line_length-2)+'+')
-    print(TPF.print_line_text_in_middle('Leaderboard',TPF.line_length-2))
+    print(TPF.print_line_text_in_middle('Leaderboard white',TPF.line_length-2))
     print('| '+'-'*(TPF.line_length-4)+' |')
-    print(TPF.print_line_3_columns('count','% with ref image', '% with prev calibration' ,TPF.line_length-2))
+    print(TPF.print_line_3_columns('count','% with ref image', 'stored %' ,TPF.line_length-2))
     print('| '+'-'*(TPF.line_length-4)+' |')
     length=len(calibration_leaderboard_white)
     for i in range(length):
     # for i, elements in enumerate(calibration_leaderboard_white_scores):
         print(TPF.print_line_in_defined_length(calibration_leaderboard_white[i],TPF.line_length-2))
-        print(TPF.print_line_3_columns(str(calibration_leaderboard_white_scores[i][0]),str(calibration_leaderboard_white_scores[i][1])+'%',str(calibration_leaderboard_white_scores[i][2])+'%' ,TPF.line_length-2))
+        print(TPF.print_line_in_defined_length("count",TPF.line_length-2))
+        print(TPF.print_line_in_defined_length(str(calibration_leaderboard_white_scores[i][2]),TPF.line_length-2))
+        print(TPF.print_line_in_defined_length("stored %",TPF.line_length-2))
+        # print(TPF.print_line_3_columns(str(calibration_leaderboard_white_scores[i][0]),'-',"-",TPF.line_length-2))
+        print(TPF.print_line_in_defined_length(str(calibration_leaderboard_white_scores[i][1]),TPF.line_length-2))
+        print(TPF.print_line_in_defined_length(str(calibration_leaderboard_white_scores[i][3]) ,TPF.line_length-2))
+        print(TPF.print_line_in_defined_length(str(calibration_leaderboard_white_scores[i][5]) ,TPF.line_length-2))
+        print(TPF.print_line_in_defined_length(str(calibration_leaderboard_white_scores[i][4]) ,TPF.line_length-2))
+
         print('| '+'-'*(TPF.line_length-4)+' |')
-        # print(i)
+
 
     print('+'+'_'*(TPF.line_length-2)+'+')
-
-
     print('calibration_leaderboard_white end')
     print(calibration_leaderboard_white)
     print('calibration_leaderboard_white_score')
     print(calibration_leaderboard_white_scores)
+    print('MAX_INDEX')
+    total_calc=[]
+    print(len(calibration_leaderboard_white_scores))
+    total_length=len(calibration_leaderboard_white_scores)
+    for i in range(total_length):
+        total_calc.append((calibration_leaderboard_white[i],calibration_leaderboard_white_scores[i][4]))
+    print('total_calc')
+    print(total_calc)
 
-    final_list=('rgb_r','lab_b')
+    max_value=max(total_calc,key=lambda item:item[1])
+    print('max_value')
+    print(max_value)
+    print(max_value[0])
+# ------------------------------------------------------------------
+    # for yellow filters
+    name=yellow_filters[0][1]
+    number=calibration_leaderboard_yellow.index(name)
+    calibration_leaderboard_yellow_scores[number][0]+=1
+
+    print('calibration_leaderboard_yellow start')
+    # print(calibration_leaderboard_white_scores)
+    for i, elements in enumerate(yellow_filters):
+        name=yellow_filters[i][1]
+        print('name= '+ str(name))
+        number=calibration_leaderboard_yellow.index(name)
+        print('number= '+ str(number))
+        # calibration_leaderboard_white_previous=np.copy(calibration_leaderboard_white_scores[number][1])
+        # percent=((((yellow_filters[i][0]/total_pixel_num)*100)+100)/200)*100
+        percent=((((yellow_filters[i][0]/total_pixel_num)*100)+100)/200)*1000
+        # calibration_leaderboard_white_scores[number][1]=((((white_filters[i][0]/total_pixel_num)*100)+100)/200)*100
+        # calibration_leaderboard_white_scores[number][1]=(white_filters[i][0]/total_pixel_num)*100
+        # calibration_leaderboard_white_scores[number][2]+=(calibration_leaderboard_white_scores[number][1]/calibration_leaderboard_white_previous)-1
+
+        calibration_leaderboard_yellow_scores[number][1].insert(0,percent)
+        del calibration_leaderboard_yellow_scores[number][1][-1]
+
+
+        calibration_leaderboard_yellow_scores[number][2].insert(0,calibration_leaderboard_yellow_scores[number][0])
+        del calibration_leaderboard_yellow_scores[number][2][-1]
+
+        calibration_leaderboard_yellow_scores[number][3].insert(0,(0.1*calibration_leaderboard_yellow_scores[number][0]+0.1))
+        del calibration_leaderboard_yellow_scores[number][3][-1]
+
+        a=np.array(calibration_leaderboard_yellow_scores[i][1])
+        b=np.array(calibration_leaderboard_yellow_scores[i][3])
+        calibration_leaderboard_yellow_scores[i][5]=a*b
+        calibration_leaderboard_yellow_scores[i][4]=np.sum(calibration_leaderboard_yellow_scores[i][5])
+
+    print('+'+'_'*(TPF.line_length-2)+'+')
+    print(TPF.print_line_text_in_middle('Leaderboard yellow',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('count','% with ref image', 'stored %' ,TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    length=len(calibration_leaderboard_yellow)
+    for i in range(length):
+    # for i, elements in enumerate(calibration_leaderboard_white_scores):
+        print(TPF.print_line_in_defined_length(calibration_leaderboard_yellow[i],TPF.line_length-2))
+        print(TPF.print_line_in_defined_length("count",TPF.line_length-2))
+        print(TPF.print_line_in_defined_length(str(calibration_leaderboard_yellow_scores[i][2]),TPF.line_length-2))
+        print(TPF.print_line_in_defined_length("stored %",TPF.line_length-2))
+        # print(TPF.print_line_3_columns(str(calibration_leaderboard_white_scores[i][0]),'-',"-",TPF.line_length-2))
+        print(TPF.print_line_in_defined_length(str(calibration_leaderboard_yellow_scores[i][1]),TPF.line_length-2))
+        print(TPF.print_line_in_defined_length(str(calibration_leaderboard_yellow_scores[i][3]) ,TPF.line_length-2))
+        print(TPF.print_line_in_defined_length(str(calibration_leaderboard_yellow_scores[i][5]) ,TPF.line_length-2))
+        print(TPF.print_line_in_defined_length(str(calibration_leaderboard_yellow_scores[i][4]) ,TPF.line_length-2))
+
+        print('| '+'-'*(TPF.line_length-4)+' |')
+
+
+    print('+'+'_'*(TPF.line_length-2)+'+')
+    print('calibration_leaderboard_yellow end')
+    print(calibration_leaderboard_yellow)
+    print('calibration_leaderboard_yellow_score')
+    print(calibration_leaderboard_yellow_scores)
+    print('MAX_INDEX')
+    total_calc=[]
+    print(len(calibration_leaderboard_yellow_scores))
+    total_length=len(calibration_leaderboard_yellow_scores)
+    for i in range(total_length):
+        total_calc.append((calibration_leaderboard_yellow[i],calibration_leaderboard_yellow_scores[i][4]))
+    print('total_calc')
+    print(total_calc)
+
+    max_value2=max(total_calc,key=lambda item:item[1])
+    print('max_value')
+    print(max_value2)
+    print(max_value2[0])
+
+    if max_value2[1]>9:
+        final_list=(max_value[0],max_value2[0])
+    else:
+        final_list=(max_value[0])
+
     return final_list
+
+
+
 
 def update_leaderboards_first_time(white_filters,yellow_filters):
     global calibration_leaderboard_white,calibration_leaderboard_white_scores,total_pixel_num
@@ -238,7 +337,7 @@ def calibrate_loop():
 def calibrate_loop_once():
 
     white_filters,yellow_filters=calibration_function_new.main(str(0))
-    final_filters=update_leaderboards_first_time(white_filters,yellow_filters)
+    final_filters=update_leaderboards(white_filters,yellow_filters)
     FP.binary_combinations=final_filters
     # FP.binary_combinations=(white_filters[0][1],white_filters[1][1],yellow_filters[0][1])
     outfile3 = open(filename3,'wb')

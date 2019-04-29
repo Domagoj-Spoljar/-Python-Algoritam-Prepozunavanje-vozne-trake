@@ -782,7 +782,7 @@ def allocate_peaks_to_4lanes(peaks):
                 else:
                     four_lanes[1] = peak
 
-            elif  640<= peak < 930:
+            elif  640<= peak < 936:
                 if four_lanes[2] is not None:
                     if four_lanes[1] is None:
                         four_lanes[1]=four_lanes[2]
@@ -800,7 +800,7 @@ def allocate_peaks_to_4lanes(peaks):
                 else:
                     four_lanes[2] = peak
 
-            elif 930 <= peak < 1280:
+            elif 936 <= peak < 1280:
                 if four_lanes[3] is not None:
                     if four_lanes[2] is None:
                         four_lanes[2]=four_lanes[3]

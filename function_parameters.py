@@ -32,8 +32,8 @@ video_name=video_tip+'_'+version+'_'+video_type+'.mp4'
 #dashcam_image_path = '/home/profesor/Documents/Datasets/rainy_video2/'
 #dashcam_image_path = './Test_images/challnege_video/'
 # dashcam_image_path = './Test_images/harder_challenge_video/'
-dashcam_image_path = '/home/profesor/Documents/Datasets/challnege_video/'
-# dashcam_image_path = '/home/profesor/Documents/Datasets/project_video/'
+# dashcam_image_path = '/home/profesor/Documents/Datasets/challnege_video/'
+dashcam_image_path = '/home/profesor/Documents/Datasets/project_video/'
 # dashcam_image_path = '/home/profesor/Documents/Datasets/harder_video2/'
 
 # frame=1
@@ -73,16 +73,24 @@ def unwarp_points(h,w):
     elif dashcam_image_path == '/home/profesor/Documents/Datasets/night/':
         # src = np.float32([(550,430),(730,430),(200,622),(1080,622)])
          # SRC => [(527, 462), (768, 462), (276, 650), (950, 650)]
-        src = np.float32([(529,422),(776,422),(101,600),(1101,600)])
+        # src = np.float32([(529,422),(776,422),(101,600),(1101,600)])
+        # src = np.float32([(481,463),(595,463),(317,570),(691,570)])
+        # src = np.float32([(479,422),(726,422),(51,600),(1051,600)])
+        #src = np.float32([(475,464),(607,464),(148,582),(702,582)])
+        # src = np.float32([(553, 436), (673, 436), (368, 563), (672, 563)])
+        src = np.float32([(595, 428), (689, 428), (405, 547), (768, 547)])
 
     elif dashcam_image_path == '/home/profesor/Documents/Datasets/foggy_video/':
-        src = np.float32([(431, 437), (791, 437), (256, 647), (889, 647)])
+        # src = np.float32([(431, 437), (791, 437), (256, 647), (889, 647)])
+        src = np.float32([(562, 448), (724, 448), (310, 670), (1006, 670)])
 
     elif dashcam_image_path == '/home/profesor/Documents/Datasets/rainy_video/':
-        src = np.float32([(550,430),(730,430),(200,622),(1080,622)])
+        # src = np.float32([(550,430),(730,430),(200,622),(1080,622)])
+        src = np.float32([(631, 472), (820, 472), (406, 646), (978, 646)])
 
     elif dashcam_image_path == '/home/profesor/Documents/Datasets/rainy_video_better/':
-        src = np.float32([(550,430),(730,430),(200,622),(1080,622)])
+        # src = np.float32([(550,430),(730,430),(200,622),(1080,622)])
+        src = np.float32([(593, 456), (721, 456), (384, 634), (951, 634)])
 
     # elif dashcam_image_path == '/home/profesor/Documents/Datasets/rainy_video2/':
 
@@ -92,26 +100,35 @@ def unwarp_points(h,w):
     # elif dashcam_image_path == '/home/profesor/Documents/Datasets/project_video640x360/':
 
     elif dashcam_image_path == '/home/profesor/Documents/Datasets/spoljar_mrak/':
-        src = np.float32([(550,430),(730,430),(200,622),(1080,622)])
+        # src = np.float32([(550,430),(730,430),(200,622),(1080,622)])
+        src = np.float32([(617, 412), (783, 412), (416, 566), (1068, 566)] )
 
     elif dashcam_image_path == '/home/profesor/Documents/Datasets/spoljar_sunce/':
-        src = np.float32([(499,396),(781,396),(343,622),(937,622)])
+        # src = np.float32([(499,396),(781,396),(343,622),(937,622)])
+        src = np.float32([(587, 429), (881, 429), (210, 567), (1248, 567)])
 
     elif dashcam_image_path == '/home/profesor/Documents/Datasets/Grand Canyon/':
-        src = np.float32([(499,466),(781,466),(343,692),(937,692)])
+        # src = np.float32([(499,466),(781,466),(343,692),(937,692)])
+        src = np.float32([(607, 483), (740, 483), (345, 710), (910, 710)])
 
     elif dashcam_image_path == '/home/profesor/Documents/Datasets/harder_video2/':
-        src = np.float32([(575,444),(707,444),(208,710),(1000,710)])
+        # src = np.float32([(575,444),(707,444),(208,710),(1000,710)])
+        src = np.float32([(707, 502), (936, 502), (557, 698), (1048, 698)])
     elif dashcam_image_path == '/home/profesor/Documents/Datasets/angels_forest_highway/':
-        src = np.float32([(550,430),(730,430),(200,622),(1080,622)])
+        # src = np.float32([(550,430),(730,430),(200,622),(1080,622)])
+        src = np.float32([(511, 434), (648, 434), (248, 600), (854, 600)])
     elif dashcam_image_path == '/home/profesor/Documents/Datasets/glenshane_snowy/':
-        src = np.float32([(467, 536), (728, 536), (167, 698), (943, 698)])
+        # src = np.float32([(467, 536), (728, 536), (167, 698), (943, 698)])
+        src = np.float32([(548, 562), (649, 562), (423, 708), (901, 708)])
     elif dashcam_image_path == '/home/profesor/Documents/Datasets/double_solid_white/':
-        src = np.float32([(529, 466), (751, 466), (373, 692), (907, 692)])
+        # src = np.float32([(529, 466), (751, 466), (373, 692), (907, 692)])
+        src = np.float32([(507, 481), (750, 481), (234, 709), (1078, 709)])
     elif dashcam_image_path == '/home/profesor/Documents/Datasets/toronto_wet_drive/':
-        src = np.float32([(529, 464), (776, 464), (101, 682), (1101, 682)])
+        # src = np.float32([(529, 464), (776, 464), (101, 682), (1101, 682)])
+        src = np.float32([(608, 457), (727, 457), (427, 631), (987, 631)])
     elif dashcam_image_path == '/home/profesor/Documents/Datasets/night_highway/':
-        src = np.float32([(529, 396), (751, 396), (373, 622), (907, 662)])
+        # src = np.float32([(529, 396), (751, 396), (373, 622), (907, 662)])
+        src = np.float32([(647, 399), (768, 399), (499, 616), (1167, 616)])
 
 
 
@@ -170,6 +187,10 @@ src4 = np.float32([(529,464),
                       (776,464),
                       (101,682),
                       (1101,682)])
+src5 = np.float32([(475,464),
+                      (607,464),
+                      (148,582),
+                      (702,582)])
 src6 = np.float32([(449,396),
                       (831,396),
                       (297,622),
