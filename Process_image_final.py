@@ -290,19 +290,27 @@ def main():
     bxx[2,1].axis('off')
     bxx[2,1].set_title('yellow_edge_neg', fontsize=12)
 
-    max_value_sobel=np.max(stacked_binary_image_sobel)
-    threshold_sobel=IPF.threshold_equation(max_value_sobel)
-    thresholded_binary_image_sobel=IPF.threshold_binary_stack(stacked_binary_image_sobel,threshold_sobel)
+    lista_all=['rgb_r','hls_s','hls_l','lab_l','hsv_white','white_tight','white_loose','lab_b','hsv_yellow','yellow','yellow_2','yellow_3','yellow_4','yellow_5','sobel_mag','sobel_abs','sobel_dir','edge_pos','edge_neg','hls_sobel']
+    stacked_binary_image_all,all_binary_images=IPF.make_binary_stack_custom(img_unwarp,lista_all)
+    max_value=np.max(stacked_binary_image_all)
+    threshold_value=IPF.threshold_equation(max_value)
+    thresholded_binary_image=IPF.threshold_binary_stack(stacked_binary_image_all,threshold_value)
+    threshold_value_custom=5
+    thresholded_binary_image_custom=IPF.threshold_binary_stack(stacked_binary_image_all,threshold_value_custom)
 
-    bxx[3,0].imshow(stacked_binary_image_sobel,cmap='gray')
-    bxx[3,0].axis('off')
-    bxx[3,0].set_title('stacked all together', fontsize=12)
+    bxx[2,2].imshow(stacked_binary_image_all,cmap='gray')
+    bxx[2,2].axis('off')
+    bxx[2,2].set_title('all filters stacked', fontsize=12)
 
-    bxx[3,1].imshow(thresholded_binary_image_sobel,cmap='gray')
+
+    bxx[3,2].imshow(thresholded_binary_image,cmap='gray')
+    bxx[3,2].axis('off')
+    bxx[3,2].set_title('all filters thresholded: '+str(threshold_value), fontsize=12)
+
+
+    bxx[3,1].imshow(thresholded_binary_image_custom,cmap='gray')
     bxx[3,1].axis('off')
-    bxx[3,1].set_title('thresholded: '+str(threshold_sobel), fontsize=12)
-
-
+    bxx[3,1].set_title('all filters thresholded: '+str(threshold_value_custom), fontsize=12)
 
 
 
@@ -310,27 +318,97 @@ def main():
 
     gausian_img=cv2.GaussianBlur(sharpen_img,(5,5),0)
     sharpened=cv2.addWeighted(exampleImg_unwarp,1.5,gausian_img,-0.5,0)
-    bxx[3,2].imshow(sharpened,cmap='gray')
-    bxx[3,2].axis('off')
-    bxx[3,2].set_title('sharpened ', fontsize=12)
+    bxx[3,0].imshow(sharpened,cmap='gray')
+    bxx[3,0].axis('off')
+    bxx[3,0].set_title('sharpened ', fontsize=12)
 
 
 
 
 
 
-    #
-    #
-    # ff, cxx = plt.subplots(4, 3, figsize=(20,10))
-    # ff.subplots_adjust(hspace = .1, wspace=0.01)
-    #
-    # cxx[0,0].imshow(rez_slika,cmap='gray')
-    # cxx[0,0].axis('off')
-    # cxx[0,0].set_title('SOBEL added all together', fontsize=12)
-    #
-    # max_value=np.max(rez_slika)
-    # threshold_value=IPF.threshold_equation(max_value)
-    # thresh_binary_image=IPF.threshold_binary_stack(rez_slika,threshold_value)
+
+
+    ff, cxx = plt.subplots(4, 3, figsize=(20,10))
+    ff.subplots_adjust(hspace = .1, wspace=0.01)
+
+    lista_all=['rgb_r','hls_s','hls_l','lab_l','hsv_white','white_tight','white_loose','lab_b','hsv_yellow','yellow','yellow_2','yellow_3','yellow_4','yellow_5','sobel_mag','sobel_abs','sobel_dir','edge_pos','edge_neg','hls_sobel']
+    stacked_binary_image_all,all_binary_images=IPF.make_binary_stack_custom(img_unwarp,lista_all)
+    max_value=np.max(stacked_binary_image_all)
+    threshold_value=IPF.threshold_equation(max_value)
+    thresholded_binary_image=IPF.threshold_binary_stack(stacked_binary_image_all,threshold_value)
+
+
+
+    cxx[0,0].imshow(stacked_binary_image_all,cmap='gray')
+    cxx[0,0].axis('off')
+    cxx[0,0].set_title('all filters stacked', fontsize=12)
+
+    cxx[3,2].imshow(thresholded_binary_image,cmap='gray')
+    cxx[3,2].axis('off')
+    cxx[3,2].set_title('all filters AUTO thresholded: '+str(threshold_value), fontsize=12)
+
+    threshold_value_custom1=1
+    thresholded_binary_image_custom1=IPF.threshold_binary_stack(stacked_binary_image_all,threshold_value_custom1)
+    threshold_value_custom2=2
+    thresholded_binary_image_custom2=IPF.threshold_binary_stack(stacked_binary_image_all,threshold_value_custom2)
+    threshold_value_custom3=3
+    thresholded_binary_image_custom3=IPF.threshold_binary_stack(stacked_binary_image_all,threshold_value_custom3)
+    threshold_value_custom4=4
+    thresholded_binary_image_custom4=IPF.threshold_binary_stack(stacked_binary_image_all,threshold_value_custom4)
+    threshold_value_custom5=5
+    thresholded_binary_image_custom5=IPF.threshold_binary_stack(stacked_binary_image_all,threshold_value_custom5)
+    threshold_value_custom6=6
+    thresholded_binary_image_custom6=IPF.threshold_binary_stack(stacked_binary_image_all,threshold_value_custom6)
+    threshold_value_custom7=7
+    thresholded_binary_image_custom7=IPF.threshold_binary_stack(stacked_binary_image_all,threshold_value_custom7)
+    threshold_value_custom8=8
+    thresholded_binary_image_custom8=IPF.threshold_binary_stack(stacked_binary_image_all,threshold_value_custom8)
+    threshold_value_custom9=9
+    thresholded_binary_image_custom9=IPF.threshold_binary_stack(stacked_binary_image_all,threshold_value_custom9)
+    threshold_value_custom10=10
+    thresholded_binary_image_custom10=IPF.threshold_binary_stack(stacked_binary_image_all,threshold_value_custom10)
+
+
+    cxx[0,1].imshow(thresholded_binary_image_custom1,cmap='gray')
+    cxx[0,1].axis('off')
+    cxx[0,1].set_title('all filters thresholded: '+str(threshold_value_custom1), fontsize=12)
+
+    cxx[0,2].imshow(thresholded_binary_image_custom2,cmap='gray')
+    cxx[0,2].axis('off')
+    cxx[0,2].set_title('all filters thresholded: '+str(threshold_value_custom2), fontsize=12)
+
+    cxx[1,0].imshow(thresholded_binary_image_custom3,cmap='gray')
+    cxx[1,0].axis('off')
+    cxx[1,0].set_title('all filters thresholded: '+str(threshold_value_custom3), fontsize=12)
+
+    cxx[1,1].imshow(thresholded_binary_image_custom4,cmap='gray')
+    cxx[1,1].axis('off')
+    cxx[1,1].set_title('all filters thresholded: '+str(threshold_value_custom4), fontsize=12)
+
+    cxx[1,2].imshow(thresholded_binary_image_custom5,cmap='gray')
+    cxx[1,2].axis('off')
+    cxx[1,2].set_title('all filters thresholded: '+str(threshold_value_custom5), fontsize=12)
+
+    cxx[2,0].imshow(thresholded_binary_image_custom6,cmap='gray')
+    cxx[2,0].axis('off')
+    cxx[2,0].set_title('all filters thresholded: '+str(threshold_value_custom6), fontsize=12)
+
+    cxx[2,1].imshow(thresholded_binary_image_custom7,cmap='gray')
+    cxx[2,1].axis('off')
+    cxx[2,1].set_title('all filters thresholded: '+str(threshold_value_custom7), fontsize=12)
+
+    cxx[2,2].imshow(thresholded_binary_image_custom8,cmap='gray')
+    cxx[2,2].axis('off')
+    cxx[2,2].set_title('all filters thresholded: '+str(threshold_value_custom8), fontsize=12)
+
+    cxx[3,0].imshow(thresholded_binary_image_custom9,cmap='gray')
+    cxx[3,0].axis('off')
+    cxx[3,0].set_title('all filters thresholded: '+str(threshold_value_custom9), fontsize=12)
+
+    cxx[3,1].imshow(thresholded_binary_image_custom10,cmap='gray')
+    cxx[3,1].axis('off')
+    cxx[3,1].set_title('all filters thresholded: '+str(threshold_value_custom10), fontsize=12)
     #
     # cxx[0,1].imshow(thresh_binary_image,cmap='gray')
     # cxx[0,1].axis('off')

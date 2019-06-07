@@ -62,13 +62,15 @@ def main():
         infile = open(filename2,'rb')
         new_count = pickle.load(infile)
         infile.close()
-
+        print('xdxdxdxdxdxd '+str(new_count))
         FP.binary_combinations=new_count
         processed_image =Lff.process_image_4lanes(image, FP.fullscreen)
         cv2.putText(processed_image, 'frame ' + str(count), (40,80), cv2.FONT_HERSHEY_DUPLEX, 1, (255,0,0), 1, cv2.LINE_AA)
         #processed_image = cv2.resize(processed_image,width,height)
         video.write(processed_image)
-        print('wrote a new frame: ', count)
+        print('________________________________')
+        print('|    wrote a new frame: ', count,'   |')
+        print('________________________________')
         count += 1
 
     cv2.destroyAllWindows()

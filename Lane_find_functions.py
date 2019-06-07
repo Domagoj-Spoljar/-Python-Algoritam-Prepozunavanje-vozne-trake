@@ -7,6 +7,7 @@ import os
 import Image_processing_functions as IPF
 import copy
 import function_parameters as FP
+from math import *
 
 # Define a class to receive the characteristics of each line detection
 class Line():
@@ -67,10 +68,10 @@ class Line():
                     #self.peak=0
             #good fit.
             else:
-                if self.confidence+20<=150:
+                if self.confidence+20<=100:
                     self.confidence+=20
                 else:
-                    self.confidence=150
+                    self.confidence=100
 
                 self.previous_fit=self.best_fit
 
@@ -125,7 +126,10 @@ def plot_fit_onto_img(img, fit, plot_color):
     new_img = np.copy(img)
     h = new_img.shape[0]
     ploty = np.linspace(0, h-1, h)
+    # for 2nd order polynominal
     plotx = fit[0]*ploty**2 + fit[1]*ploty + fit[2]
+    # for 1st order polynominal
+    # plotx = fit[1]*ploty + fit[2]
     pts = np.array([np.transpose(np.vstack([plotx, ploty]))])
     cv2.polylines(new_img, np.int32([pts]), isClosed=False, color=plot_color, thickness=8)
     return new_img
@@ -150,10 +154,13 @@ def find_histogram_peaks(histogram,histogram_image, image=False):
 
     cv2.putText(out_image, "4. Histogram image with peaks", position, cv2.FONT_HERSHEY_DUPLEX, font_size, (0,255,0), thickness, cv2.LINE_AA)
 
+    noise_count=0
     peak_indices=[]
     i=1
     while i <= len(histogram)-2:
-
+        if histogram[i]>70:
+        # if histogram[i]==0:
+            noise_count+=1
         cv2.line(out_image,(i-1,histogram_image.shape[0]-int(histogram[i-1])),(i,histogram_image.shape[0]-int(histogram[i])),(255,255,255),2)
 
         if(histogram[i]>=histogram[i-1] and histogram[i]>histogram[i+1]):
@@ -162,6 +169,14 @@ def find_histogram_peaks(histogram,histogram_image, image=False):
             #draw all found peaks
             #cv2.circle(out_image,(i,histogram_image.shape[0]-int(histogram[i])),2,(255,0,255),2)
         i+=1
+    noise_percent=(noise_count/(len(histogram)-2))*100
+    ones_percent=100-noise_percent
+    print('noise_percent= '+str(noise_percent)+'%')
+    print('ones_percent= '+str(ones_percent)+'%')
+
+    if noise_percent >=45:
+        peak_indices=[]
+        cv2.putText(out_image, "Image too noisy!", (200,200), cv2.FONT_HERSHEY_DUPLEX, font_size, (0,255,255), thickness, cv2.LINE_AA)
 
     # print('before: ')
     # print(peak_indices)
@@ -214,6 +229,110 @@ def find_histogram_peaks(histogram,histogram_image, image=False):
         return peak_indices, out_image
     else:
         return peak_indices
+
+
+def correct_false_lines_abcoef():
+    correction_index=None
+    false_count=0
+    best_false_count=0
+    num_of_lanes=4
+
+    for i, elements in enumerate(lane_list):
+        if lane_list[i].best_fit is not None:
+            false_count=0
+            comparatora=lane_list[i].best_fit[0]
+            comparatorb=lane_list[i].best_fit[1]
+            derivation_comparator_a=2*lane_list[i].best_fit[0]*360
+            # derivation_comparator_b=lane_list[i].best_fit[1]
+            # print(str(i)+'=>i '+str(lane_list[i]))
+            # print('comparatora='+str(comparatora))
+            # print('comparatorb='+str(comparatorb))
+            # print('derivation_comparator_a='+str(derivation_comparator_a)+' |  derivation_comparator_b='+str(derivation_comparator_b))
+            print('')
+            for j, elementsz in enumerate(lane_list):
+                if i is j or lane_list[j].best_fit is None:
+                    continue
+                else:
+                    # print(str(j)+'=>j '+str(lane_list[j]))
+                    iteration_derivation_a=2*lane_list[j].best_fit[0]*360
+                    # iteration_derivation_b=lane_list[j].best_fit[1]
+                    # print('lejns[j][1]-1.5e-01'+' < '+'comparator'+' < '+'lejns[j][1]+1.5e-01')
+                    # print(str(lane_list[j].best_fit[1]-1.5e-01)+'<'+str(comparator)+'<'+str(lane_list[j].best_fit[1]+1.5e-01))
+                    # print('comparator derivation= '+str(derivation_comparator_a)+'X+'+str(derivation_comparator_b)+'  <---> list['+str(j)+'].best_fit derivation= '+str(iteration_derivation_a)+'X+'+str(iteration_derivation_b))
+                    print('comparator angle= '+str(degrees(atan(derivation_comparator_a)))+'  <--->  '+str(degrees(atan(iteration_derivation_a)))+' =list['+str(j)+'].best_fit angle= ')
+                    print('abs razlika stupnjeva= '+str(abs(degrees(atan(derivation_comparator_a)) - degrees(atan(iteration_derivation_a)))))
+                    # print('abs(lane_list[j].best_fit[1] - comparatorb)='+str(lane_list[j].best_fit[1] - comparatorb)+'='+str(lane_list[j].best_fit[1]) +' - '+ str(comparatorb))
+                    # print('abs(lane_list[j].best_fit[1] - comparatora)='+str(lane_list[j].best_fit[0] - comparatora)+'='+str(lane_list[j].best_fit[0]) +' - '+ str(comparatora))
+                    # print(str(lane_list[j].best_fit[1]-1.5e-01)+'<'+str(comparator)+'<'+str(lane_list[j].best_fit[1]+1.5e-01))
+                    # print('')
+                    # if (lane_list[j].best_fit[1]-1.5e-01) < comparator < (lane_list[j].best_fit[1] + 1.5e-01):
+                    # if abs(lane_list[j].best_fit[1] - comparatorb) < abs((lane_list[j].best_fit[1]*0.2+lane_list[j].best_fit[1])-lane_list[j].best_fit[1])0.31 and abs(abs(lane_list[j].best_fit[0]) - comparatora) < 0.00035 :
+                    # if asb(lane_list[j].best_fit[1]-lane_list[j].best_fit[1]*0.5) < abs(comparatorb) < abs(lane_list[j].best_fit[1] + lane_list[j].best_fit[1]*0.5) and (lane_list[j].best_fit[0]-lane_list[j].best_fit[0]*0.5) < comparatora < (lane_list[j].best_fit[0] + lane_list[j].best_fit[0]*0.5) :
+                    # if abs(lane_list[j].best_fit[1])-abs(lane_list[j].best_fit[1]) < abs(comparatorb) < abs(lane_list[j].best_fit[1]) + abs(lane_list[j].best_fit[1]):
+                    # if abs(lane_list[j].best_fit[1]-lane_list[j].best_fit[1]*0.8) > abs(comparatorb) > abs(lane_list[j].best_fit[1] + lane_list[j].best_fit[1]*0.8) and  abs(lane_list[j].best_fit[0]-lane_list[j].best_fit[0]*0.8) < abs(comparatora) < abs(lane_list[j].best_fit[0] + lane_list[j].best_fit[0]*0.8):
+                    if abs(degrees(atan(derivation_comparator_a)) - degrees(atan(iteration_derivation_a))) < 10: #mozda tocno
+                        print('curves are similar')
+                    else:
+                        false_count+=1
+                        print('curves are NOT similar')
+
+            # if false_count>1 and false_count>best_false_count:
+            if false_count>1 and false_count>best_false_count:
+                best_false_count=false_count
+                correction_index=i
+
+            print('false_count='+str(false_count))
+            print('best_false_count='+str(best_false_count))
+            print('-----------------')
+        else:
+            num_of_lanes-=1
+    print('correction_index='+str(correction_index))
+    print('length of lane_list='+str(num_of_lanes))
+    averagea=0
+    averageb=0
+    divider=0
+    correctedBValue=None
+    correctedAValue=None
+    X=360
+    if correction_index is not None and best_false_count is num_of_lanes-1:
+        for i, elements in enumerate(lane_list):
+            if correction_index is i or lane_list[i].best_fit is None :
+                continue
+            else:
+                print('lejns['+str(i)+'][1]='+str(lane_list[i]))
+                print('averagea='+str(averagea))
+                print('averageb='+str(averageb))
+                averagea+=lane_list[i].best_fit[0]
+                averageb+=lane_list[i].best_fit[1]
+                divider+=1
+                print('averagea+lejns['+str(i)+'][0]='+str(averagea))
+                print('averageb+lejns['+str(i)+'][1]='+str(averageb))
+                print('divider='+str(divider))
+        if divider is not 0:
+            correctedBValue=averageb/divider
+            correctedAValue=averagea/divider
+        print('correctedAValue='+str(correctedAValue))
+        print('correctedBValue='+str(correctedBValue))
+        signbita = -1 if correctedAValue < 0 else 1
+        signbitb = -1 if correctedBValue < 0 else 1
+        print('signbita='+str(signbita))
+        print('signbitb='+str(signbitb))
+        c_coef=lane_list[correction_index].best_fit[0]*X*X+lane_list[correction_index].best_fit[1]*X+lane_list[correction_index].best_fit[2]
+        print('c_coef='+str(c_coef))
+        lane_list[correction_index].best_fit[0]=abs(correctedAValue)*signbita
+        lane_list[correction_index].best_fit[1]=abs(correctedBValue)*signbitb
+        lane_list[correction_index].best_fit[2]=c_coef
+        print('correctedAValue w/sign='+str(correctedAValue))
+        print('correctedBValue w/sign='+str(correctedBValue))
+
+    if correctedBValue is None:
+        return False,correction_index
+    else:
+        return True,correction_index
+
+
+
+
 
 def find_4_histogram_peaks(histogram,histogram_image, image=False):
 
@@ -493,7 +612,9 @@ def polyfit_using_prev_fit_all(binary_warped, left_fit_prev):
     nonzero = binary_warped.nonzero()
     nonzeroy = np.array(nonzero[0])
     nonzerox = np.array(nonzero[1])
-    margin = 80
+    margin = 30
+    # margin = 40
+    # margin = 80
     left_lane_inds = ((nonzerox > (left_fit_prev[0]*(nonzeroy**2) + left_fit_prev[1]*nonzeroy + left_fit_prev[2] - margin)) &
                       (nonzerox < (left_fit_prev[0]*(nonzeroy**2) + left_fit_prev[1]*nonzeroy + left_fit_prev[2] + margin)))
 
@@ -629,7 +750,10 @@ def draw_lane_custom(original_img, binary_img, l_fit, Minv):
     # h,w,_ = original_img.shape
     h,w = binary_img.shape
     ploty = np.linspace(0, h-1, num=h)# to cover same y-range as image
+    # for 2nd order polynominal
     left_fitx = l_fit[0]*ploty**2 + l_fit[1]*ploty + l_fit[2]
+    # for 1st order polynominal
+    # left_fitx = l_fit[1]*ploty + l_fit[2]
 
     # Recast the x and y points into usable format for cv2.fillPoly()
     pts_left = np.array([np.transpose(np.vstack([left_fitx, ploty]))])
@@ -824,11 +948,76 @@ def allocate_peaks_to_4lanes(peaks):
                     four_lanes[3] = peak
     else:
         print('Calculated more than 4 peaks: ' + str(len(peaks)) + '____________________________________________________________________________')
-        four_lanes=[]
+        # four_lanes=[]
+        four_lanes=[None,None,None,None]
         lane_change=False
         # four_lanes=None
         # lane_change=None
     return four_lanes, lane_change
+
+
+def sort_peaks_in_list(peaks):
+    if len(peaks)<5:
+        # four_lanes=[0,0,0,0]
+        four_lanes=[None,None,None,None]
+        for peak in peaks:
+
+            if peak is None:
+                continue
+            elif peak < 320:
+                if four_lanes[0] is not None:
+                    if four_lanes[1] is not None:
+                        four_lanes[2]=peak
+                    else:
+                        four_lanes[1]=peak
+                else:
+                    four_lanes[0] = peak
+
+            elif  320 <= peak < 640:
+                if four_lanes[1] is not None:
+                    if four_lanes[2] is not None:
+                        four_lanes[3]=peak
+                    else:
+                        four_lanes[2]=peak
+                else:
+                    four_lanes[1] = peak
+
+            elif  640<= peak < 936:
+                if four_lanes[2] is not None:
+                    if four_lanes[1] is None:
+                        four_lanes[1]=four_lanes[2]
+                        four_lanes[2]=peak
+
+                    elif four_lanes[0] is None:
+                        four_lanes[0]=four_lanes[1]
+                        four_lanes[1]=four_lanes[2]
+                        four_lanes[2]=peak
+                    else:
+                        four_lanes[3]=peak
+                    #lane_change=True
+                else:
+                    four_lanes[2] = peak
+
+            elif 936 <= peak < 1280:
+                if four_lanes[3] is not None:
+                    if four_lanes[2] is None:
+                        four_lanes[2]=four_lanes[3]
+                        four_lanes[3]=peak
+                    elif four_lanes[1] is None:
+                        four_lanes[1]=four_lanes[2]
+                        four_lanes[2]=four_lanes[3]
+                        four_lanes[3]=peak
+                    elif four_lanes[0] is None:
+                        four_lanes[0]=four_lanes[1]
+                        four_lanes[1]=four_lanes[2]
+                        four_lanes[2]=four_lanes[3]
+                        four_lanes[3]=peak
+                else:
+                    four_lanes[3] = peak
+    else:
+        print('Calculated more than 4 peaks: ' + str(len(peaks)) + '____________________________________________________________________________')
+        four_lanes=[None,None,None,None]
+    return four_lanes
 
 def switch_lanes(four_lanes):
     global temp_line
@@ -914,6 +1103,29 @@ def switch_lanes(four_lanes):
                     break
 
 
+def sort_peaks_in_list_new(four_peaks,four_lanes_peaks_sorted):
+    margin=90
+    # new_four_lanes=[None,None,None,None]
+    # sorted_four_peaks=[0,0,0,0]
+    sorted_four_peaks=[None,None,None,None]
+    # sorted_four_peaks=copy.deepcopy(four_peaks)
+    # new_four_lanes=[x if x else 0 for x in four_lanes]
+    print('[Before for] sorted_four_peaks: '+str(sorted_four_peaks))
+    if four_lanes_peaks_sorted[0] is 0 and four_lanes_peaks_sorted[1] is 0 and four_lanes_peaks_sorted[2] is 0 and four_lanes_peaks_sorted[3] is 0:
+        sorted_four_peaks=sort_peaks_in_list(four_peaks)
+    else:
+        for i, peak in enumerate(four_lanes_peaks_sorted):
+            # print('if peak is not None or 0, '+str(peak))
+            if peak is not 0:
+                for j, peakk in enumerate(four_peaks):
+                    if peakk is not None:
+                        if peak-margin<=peakk<=peak+margin:
+                            sorted_four_peaks[i]=peakk
+            else:
+                # print('entered in else')
+                sorted_four_peaks[i]=four_peaks[i]
+
+    return sorted_four_peaks
 
 
 
@@ -1069,19 +1281,42 @@ def check_lane_order():
     print('lane_list.bestfit[]')
     for i,element in enumerate(lane_list):
         if element.best_fit is not None:
-            no_none_list.append(element.best_fit[2])
+            no_none_list.append(element.best_fit)
     print('len(no_none_list)= '+str(len(no_none_list)))
     if len(no_none_list)>1:
         for i,element in enumerate(no_none_list):
             print(str(element))
             if i+1 < len(no_none_list):
                 # if no_none_list[i]>no_none_list[i+1]:
-                if no_none_list[i]>no_none_list[i+1]:
+                X=720
+                c_coef_left=no_none_list[i][0]*X*X+no_none_list[i][1]*X+no_none_list[i][2]
+                c_coef_right=no_none_list[i+1][0]*X*X+no_none_list[i+1][1]*X+no_none_list[i+1][2]
+                if c_coef_left+100>=c_coef_right or no_none_list[i][2]+50>=no_none_list[i+1][2]:
                     invalid_order=True
     print('invalid_order= '+str(invalid_order))
     print('-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/')
 
     return invalid_order
+
+# def check_lane_order():
+#     invalid_order=False
+#     no_none_list=[]
+#     print('lane_list.bestfit[]')
+#     for i,element in enumerate(lane_list):
+#         if element.best_fit is not None:
+#             no_none_list.append(element.best_fit[2])
+#     print('len(no_none_list)= '+str(len(no_none_list)))
+#     if len(no_none_list)>1:
+#         for i,element in enumerate(no_none_list):
+#             print(str(element))
+#             if i+1 < len(no_none_list):
+#                 # if no_none_list[i]>no_none_list[i+1]:
+#                 if no_none_list[i]+20>=no_none_list[i+1]:
+#                     invalid_order=True
+#     print('invalid_order= '+str(invalid_order))
+#     print('-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/')
+#
+#     return invalid_order
 
 def update_lanes(img_bin,rectangle_img,four_lanes):
     # print('********************************************')
@@ -1119,14 +1354,23 @@ def update_lanes(img_bin,rectangle_img,four_lanes):
     # print('previous self.previous_fit[1]: '+str(lane_list[1].previous_fit))
     # print('previous self.previous_fit[2]: '+str(lane_list[2].previous_fit))
     # print('previous self.previous_fit[3]: '+str(lane_list[3].previous_fit))
+    print('?*?*?*?*?*?*?*?*?*?*?*?*?*?*?*?*?*?*?*?*?*?*?')
+    print('[BEFORE] four_lanes= '+str(four_lanes))
+    print('[BEFORE] four_lanes_after= '+str(four_lanes_after))
+    print('-----------------------------------------------')
+    four_lanes2 = sort_peaks_in_list_new(four_lanes,four_lanes_after)
+    print('-----------------------------------------------')
+    # four_lanes2=four_lanes_after
+    print('[AFTER] four_lanes= '+str(four_lanes2))
+    print('?*?*?*?*?*?*?*?*?*?*?*?*?*?*?*?*?*?*?*?*?*?*?')
 
-    for i, peak in enumerate(four_lanes):
-        # print('current self.peak['+str(i)+']='+str(lane_list[i].peak))
+    # four_lanes_after=(253, 528, 883, None)
+
+    for i, peak in enumerate(four_lanes2):
+        print('peak['+str(i)+']='+str(peak))
 
         if peak is not None:
             # print('adding peak= '+str(peak))
-
-
 
             if not lane_list[i].detected:
                 temp_fit, temp_lane_inds, rectangles = sliding_window_polyfit_all(img_bin,peak)
@@ -1153,21 +1397,71 @@ def update_lanes(img_bin,rectangle_img,four_lanes):
             # print('peak after adding= '+ str(lane_list[i].peak))
             # print('___________________________________________')
         else:
-            #if lane_list[i].peak is not None:
+            # if lane_list[i].detected is not None:
 
-            if lane_list[i].confidence < 10 and lane_list[i].best_fit is not None:
-                lane_list[i].reset_lane()
-                #print('lane_list['+ str(i)+'].reset_lane()')
-                #lane_list[i].detected=False
-            elif lane_list[i].confidence-3 >= 0:
-                lane_list[i].confidence-= 3
-                #follow line function
-                lane_correction=follow_other_lane(i)
-                lane_list[i].best_fit[2]+=lane_correction
+                if lane_list[i].confidence < 10 and lane_list[i].best_fit is not None:
+                    lane_list[i].reset_lane()
+                    #print('lane_list['+ str(i)+'].reset_lane()')
+                    #lane_list[i].detected=False
+                elif lane_list[i].confidence-3 >= 0:
+                    lane_list[i].confidence-= 3
+                    #follow line function
+                    lane_correction=follow_other_lane(i)
+                    lane_list[i].best_fit[2]+=lane_correction
             # elif lane_list[i].confidence-5 >= 0:
             #     lane_list[i].confidence-= 5
 
             #lane_list[i].detected = False
+
+
+    # for i, peak in enumerate(four_lanes):
+    #     # print('current self.peak['+str(i)+']='+str(lane_list[i].peak))
+    #
+    #     if peak is not None:
+    #         # print('adding peak= '+str(peak))
+    #
+    #
+    #
+    #         if not lane_list[i].detected:
+    #             temp_fit, temp_lane_inds, rectangles = sliding_window_polyfit_all(img_bin,peak)
+    #             rectangle_img = create_image_of_sliding_windows_polyfit(rectangle_img,img_bin, temp_fit, temp_lane_inds, rectangles,colour=(255,255,0))
+    #         else:
+    #             temp_fit, temp_lane_inds=polyfit_using_prev_fit_all(img_bin,lane_list[i].best_fit)
+    #             rectangle_img= create_image_of_polyfit_using_prev_fit(rectangle_img,img_bin,temp_fit,temp_lane_inds)
+    #
+    #
+    #         ignored=lane_list[i].add_fit(temp_fit, temp_lane_inds,i,peak)
+    #
+    #
+    #         print('ignored is: ' + str(ignored)+' ['+str(i)+']')
+    #         print(str(four_lanes_before[i]))
+    #         print(str(four_lanes_after[i]))
+    #         print(str(four_lanes_before[i] is not four_lanes_after[i]))
+    #         if ignored is True and four_lanes_before[i] is not four_lanes_after[i]:
+    #             print('reverse_switch_lanes activated for ['+str(i)+']')
+    #             reverse_switch_lanes(four_lanes_before)
+    #             print('lane peaks after reverse_switch_lanes:'+str(lane_list[0].peak)+'///'+str(lane_list[1].peak)+'///'+str(lane_list[2].peak)+'///'+str(lane_list[3].peak))
+    #             four_lanes_after=four_lanes_before
+    #
+    #
+    #         # print('peak after adding= '+ str(lane_list[i].peak))
+    #         # print('___________________________________________')
+    #     else:
+    #         #if lane_list[i].peak is not None:
+    #
+    #         if lane_list[i].confidence < 10 and lane_list[i].best_fit is not None:
+    #             lane_list[i].reset_lane()
+    #             #print('lane_list['+ str(i)+'].reset_lane()')
+    #             #lane_list[i].detected=False
+    #         elif lane_list[i].confidence-3 >= 0:
+    #             lane_list[i].confidence-= 3
+    #             #follow line function
+    #             lane_correction=follow_other_lane(i)
+    #             lane_list[i].best_fit[2]+=lane_correction
+    #         # elif lane_list[i].confidence-5 >= 0:
+    #         #     lane_list[i].confidence-= 5
+    #
+    #         #lane_list[i].detected = False
 
 
     # lanelisttt=(lane_list[0].best_fit[2],lane_list[1].best_fit[2],lane_list[2].best_fit[2],lane_list[3].best_fit[2])
@@ -1270,8 +1564,9 @@ def process_image_4lanes(imgOriginal,fullscreen=False):
 
     peaks,histogram_image=find_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
     #peaks,histogram_image=find_histogram_peaks((np.sum(img_bin[:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
-    #print('calculated peaks')
-    #print(peaks)
+    print('___________________________________')
+    print('calculated peaks')
+    print(peaks)
 
     cv2.line(histogram_image,(int(w*0.25),0),(int(w*0.25),h),(255,255,0),2)
     cv2.line(histogram_image,(int(w*0.5),0),(int(w*0.5),h),(255,255,0),2)
@@ -1286,27 +1581,48 @@ def process_image_4lanes(imgOriginal,fullscreen=False):
 
     four_lanes, lane_change = allocate_peaks_to_4lanes(peaks)
 
-    # print('sorted peaks')
-    # print(four_lanes)
-    # print('___________________________________')
+    print('sorted peaks')
+    print(four_lanes)
+    print('___________________________________')
 
     cv2.putText(histogram_image, 'Calculated peaks: '+str(peaks), (40,80), cv2.FONT_HERSHEY_DUPLEX, float(w/1028), (0,0,255), int(w/640), cv2.LINE_AA)
     cv2.putText(histogram_image, 'Sorted peaks: '+str(four_lanes), (40,115), cv2.FONT_HERSHEY_DUPLEX, float(w/1028), (0,0,255), int(w/640), cv2.LINE_AA)
 
     rectangle_img=update_lanes(img_bin,rectangle_img,four_lanes)
 
-
-    # follow_other_lane()
-
-    #print('_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*')
     img_out1=np.copy(imgOriginal)
     img_out2=np.copy(img_bin)
     img_out2= np.dstack((img_bin*255, img_bin*255, img_bin*255))
+
+    print('LINIJE')
+    print(lane_list[0].best_fit)
+    print(lane_list[1].best_fit)
+    print(lane_list[2].best_fit)
+    print(lane_list[3].best_fit)
+    print('LINIJE')
+
+    # natpis=False
+    # correctionIndex=0
+
+    natpis,correctionIndex=correct_false_lines_abcoef()
+    if natpis is True:
+        cv2.putText(img_out2,'B_corrected'+str(correctionIndex+1)+': '+str(lane_list[correctionIndex].best_fit[0])+' '+str(lane_list[correctionIndex].best_fit[1])+' '+str(lane_list[correctionIndex].best_fit[2])+' ', (100,700), cv2.FONT_HERSHEY_DUPLEX, font_size, (255,0,200), thickness, cv2.LINE_AA)
+        # #cv2.putText(img_out2,'A_corrected'+str(correctionIndex)+': '+str(lane_list[correctionIndex].best_fit[0])+' '+str(lane_list[correctionIndex].best_fit[1])+' '+str(lane_list[correctionIndex].best_fit[2])+' ', (100,620), cv2.FONT_HERSHEY_DUPLEX, font_size, (255,0,200), thickness, cv2.LINE_AA)
+
+
+
+    #print('_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*')
+
+
     for i, elements in enumerate(lane_list):
         if lane_list[i].best_fit is not None:
             img_out1 = draw_lane_custom(img_out1, img_bin, lane_list[i].best_fit, Minv)
             img_out2 = draw_all_curves_custom(img_out2, lane_list[i])
+    for i, elements in enumerate(lane_list):
+        if lane_list[i].best_fit is not None:
             cv2.putText(img_out2,str(i+1)+'. '+ str(lane_list[i].best_fit[0])+' '+str(lane_list[i].best_fit[1])+' '+str(lane_list[i].best_fit[2])+' ', (position1,position2+i*inc), cv2.FONT_HERSHEY_DUPLEX, font_size, (0,0,255), thickness, cv2.LINE_AA)
+
+
     # print(str(lane_list[0].best_fit))
     # print('__________________________')
     # print(str(lane_list[1].best_fit))

@@ -11,8 +11,10 @@ import Test_with_function
 import frames_to_video
 import Histogram_peaks
 import Process_image_new
+import Process_image_final
 import Complete_algorithm
 import Parallel_calibration_algorithm
+import Parallel_calibration_algorithm_all_filters
 import click_and_crop
 
 video_option=0
@@ -55,7 +57,8 @@ def print_options():
     print(TPF.print_line_text_in_middle('  COMPLETE ALGORITHM:',TPF.line_length-2))
     print(TPF.print_line_text_in_middle(' ',TPF.line_length-2))
     print(TPF.print_line_in_defined_length(' 9. Run complete algorithm (Calibration,create video)',TPF.line_length-2))
-    print(TPF.print_line_in_defined_length(' 10. Run complete algorithm - Dynamic calibration',TPF.line_length-2))
+    print(TPF.print_line_in_defined_length(' 10. Run complete algorithm - Dynamic calibration -> custom white & yellow filters',TPF.line_length-2))
+    print(TPF.print_line_in_defined_length(' 11. Run complete algorithm - Dynamic calibration -> with all filters in stack',TPF.line_length-2))
     print('+'+'_'*(TPF.line_length-2)+'+')
     print(TPF.print_line_in_defined_length(' ? Additional information',TPF.line_length-2))
     print(TPF.print_line_in_defined_length(' 0. EXIT',TPF.line_length-2))
@@ -135,6 +138,12 @@ def print_available_videos():
     print('| '+'-'*(TPF.line_length-4)+' |')
     print(TPF.print_line_3_columns('20. night_highway',  'night',  'Solid yellow line',TPF.line_length-2))
     print(TPF.print_line_3_columns('',  'Straight w trespassing',  'Broken white line',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('21. toronto_highway',  'day',  'x',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'x',  'x',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    print(TPF.print_line_3_columns('22. toronto_highway_driving',  'day',  'x',TPF.line_length-2))
+    print(TPF.print_line_3_columns('',  'x',  'x',TPF.line_length-2))
     print('+'+'_'*(TPF.line_length-2)+'+')
 
 def print_filters():
@@ -155,6 +164,10 @@ def print_filters():
     print(TPF.print_line_3_columns('13. yellow_edge_pos'  ,  '14. yellow_edge_neg'  ,  '15. yellow',TPF.line_length-2))
     print('+'+'_'*(TPF.line_length-2)+'+')
     print(TPF.print_line_3_columns('16. edge_pos'  ,  '17. edge_neg'  ,  '18. hls_sobel',TPF.line_length-2))
+    print('+'+'_'*(TPF.line_length-2)+'+')
+    print(TPF.print_line_3_columns('19. yellow_2'  ,  '20. yellow_3'  ,  '21. yellow_4',TPF.line_length-2))
+    print('+'+'_'*(TPF.line_length-2)+'+')
+    print(TPF.print_line_3_columns('22. yellow_5'  ,  'x'  ,  'x',TPF.line_length-2))
     print('+'+'_'*(TPF.line_length-2)+'+')
     print(TPF.print_line_text_in_middle('  0. DONE',TPF.line_length-2))
 
@@ -191,7 +204,7 @@ def main():
 
 
 
-        while str(option1)!='0' and str(option1)!='1' and str(option1)!='2' and str(option1)!='3' and str(option1)!='4'and str(option1)!='5'and str(option1)!='6'and str(option1)!='7'and str(option1)!='9'and str(option1)!='10':
+        while str(option1)!='0' and str(option1)!='1' and str(option1)!='2' and str(option1)!='3' and str(option1)!='4'and str(option1)!='5'and str(option1)!='6'and str(option1)!='7'and str(option1)!='9'and str(option1)!='10'and str(option1)!='11':
             if str(option1)=='?':
                 print_additional_information()
             else:
@@ -208,7 +221,7 @@ def main():
         option2 = input("Choose video: ")
         print('')
 
-        while str(option2)!='1' and str(option2)!='2' and str(option2)!='3' and str(option2)!='4'and str(option2)!='5'and str(option2)!='6'and str(option2)!='7'and str(option2)!='8'and str(option2)!='9'and str(option2)!='10'and str(option2)!='11'and str(option2)!='12'and str(option2)!='13'and str(option2)!='14'and str(option2)!='15'and str(option2)!='16'and str(option2)!='17'and str(option2)!='18'and str(option2)!='19'and str(option2)!='20':
+        while str(option2)!='1' and str(option2)!='2' and str(option2)!='3' and str(option2)!='4'and str(option2)!='5'and str(option2)!='6'and str(option2)!='7'and str(option2)!='8'and str(option2)!='9'and str(option2)!='10'and str(option2)!='11'and str(option2)!='12'and str(option2)!='13'and str(option2)!='14'and str(option2)!='15'and str(option2)!='16'and str(option2)!='17'and str(option2)!='18'and str(option2)!='19'and str(option2)!='20'and str(option2)!='21'and str(option2)!='22':
             print('Wrong input entered. Please try again!')
             option2 = input("Choose video: ")
         print('')
@@ -273,6 +286,12 @@ def main():
         elif str(option2)=='20':
             FP.dashcam_image_path='/home/profesor/Documents/Datasets/night_highway/'
             FP.video_tip= 'night_highway'
+        elif str(option2)=='21':
+            FP.dashcam_image_path='/home/profesor/Documents/Datasets/toronto_highway/'
+            FP.video_tip= 'toronto_highway'
+        elif str(option2)=='22':
+            FP.dashcam_image_path='/home/profesor/Documents/Datasets/toronto_highway_driving/'
+            FP.video_tip= 'toronto_highway_driving'
 
 
 
@@ -311,7 +330,7 @@ def main():
             option7 = input("Choose combination: ")
 
             while str(option7)!='0':
-                while str(option7)!='1' and str(option7)!='2' and str(option7)!='3' and str(option7)!='4'and str(option7)!='5'and str(option7)!='6'and str(option7)!='7'and str(option7)!='8'and str(option7)!='9'and str(option7)!='10'and str(option7)!='11'and str(option7)!='12'and str(option7)!='13'and str(option7)!='14'and str(option7)!='15'and str(option7)!='16'and str(option7)!='17'and str(option7)!='18'and str(option7)!='0':
+                while str(option7)!='1' and str(option7)!='2' and str(option7)!='3' and str(option7)!='4'and str(option7)!='5'and str(option7)!='6'and str(option7)!='7'and str(option7)!='8'and str(option7)!='9'and str(option7)!='10'and str(option7)!='11'and str(option7)!='12'and str(option7)!='13'and str(option7)!='14'and str(option7)!='15'and str(option7)!='16'and str(option7)!='17'and str(option7)!='18'and str(option7)!='19'and str(option7)!='20'and str(option7)!='21'and str(option7)!='22'and str(option7)!='0':
                     print('Wrong input entered. Please try again!')
                     option7 = input("Choose combination: ")
                 while option7 in combinations:
@@ -360,6 +379,14 @@ def main():
                         rez_binary_combinations+=('edge_neg',)
                     if str(x)=='18':
                         rez_binary_combinations+=('hls_sobel',)
+                    if str(x)=='19':
+                        rez_binary_combinations+=('yellow_2',)
+                    if str(x)=='20':
+                        rez_binary_combinations+=('yellow_3',)
+                    if str(x)=='21':
+                        rez_binary_combinations+=('yellow_4',)
+                    if str(x)=='22':
+                        rez_binary_combinations+=('yellow_5',)
                 FP.binary_combinations=rez_binary_combinations
 
             else:
@@ -383,7 +410,7 @@ def main():
                 option4 = input("Enter custom frame:")
                 FP.frame=str(option4)
 
-        elif str(option1)=='4' or str(option1)=='9'or str(option1)=='10':
+        elif str(option1)=='4' or str(option1)=='9'or str(option1)=='10'or str(option1)=='11':
 
             print('Choose video type:')
             print('1. Diagnostic')
@@ -429,7 +456,8 @@ def main():
             OLD_calibrate_ipf.main()
             # FP.binary_combinations=lista
         elif str(option1)=='2':
-            Process_image_new.main()
+            # Process_image_new.main()
+            Process_image_final.main()
         elif str(option1)=='3':
             Test_with_function.main()
         elif str(option1)=='4':
@@ -449,6 +477,8 @@ def main():
             frames_to_video.main()
         elif str(option1)=='10':
             Parallel_calibration_algorithm.main()
+        elif str(option1)=='11':
+            Parallel_calibration_algorithm_all_filters.main()
 
     return
 

@@ -16,6 +16,7 @@ def undistort(img):
     undist = cv2.undistort(img, mtx, dist, None, mtx)
     return undist
 
+
 #Function that converts Region of Interest (ROI) defined with "src" points
 #and makes perspective transfrom to apply "birds eye view" on process_image
 #also returns inverse matrix (Minv) for later usage with ploting lines to original image
@@ -384,6 +385,8 @@ def make_binary_stack_custom(exampleImg_unwarp,list):
                 exampleImg_LThresh = hls_threshold(exampleImg_unwarp,thresh=(220,255),color='l')
                 slike.append(exampleImg_LThresh)
                 tekst.append('hls_l')
+                print(exampleImg_LThresh.shape)
+                print(exampleImg_LThresh.dtype)
             if str(x)=='lab_l':
                 exampleImg_unwarp3=cv2.cvtColor(exampleImg_unwarp,cv2.COLOR_BGR2RGB)
                 exampleImg_LLBThresh = lab_threshold(exampleImg_unwarp3,thresh=(190,255),color='l')
@@ -481,7 +484,6 @@ def make_binary_stack_custom(exampleImg_unwarp,list):
                 final_binary[np.logical_or((s_channel > s_thresh[0]) & (s_channel < s_thresh[1]) & (l_channel > l_thresh[0]) & (l_channel < l_thresh[1]) , (scaled_sobel > sx_thresh[0]) & (scaled_sobel <= sx_thresh[1]))] = 1
                 slike.append(final_binary)
                 tekst.append('hls_sobel')
-                # cv2.imwrite('[make_binary_stack_custom()]hls_sobel.png',final_binary)
             if str(x)=='yellow_2':
                 image_HSV = cv2.cvtColor(exampleImg_unwarp,cv2.COLOR_BGR2HSV)
                 yellow_hsv_low2  = np.array([ 0, 80, 200])
@@ -490,7 +492,6 @@ def make_binary_stack_custom(exampleImg_unwarp,list):
                 res_mask2[(res_mask2 > 0)] = 1
                 slike.append(res_mask2)
                 tekst.append('yellow_2')
-                # cv2.imwrite('[make_binary_stack_custom()]yellow_2.png',res_mask2)
             if str(x)=='yellow_3':
                 image_HSV = cv2.cvtColor(exampleImg_unwarp,cv2.COLOR_BGR2HSV)
                 yellow_hsv_low3  = np.array([ 15, 38, 115])
@@ -499,7 +500,6 @@ def make_binary_stack_custom(exampleImg_unwarp,list):
                 res_mask3[(res_mask3 > 0)] = 1
                 slike.append(res_mask3)
                 tekst.append('yellow_3')
-                # cv2.imwrite('[make_binary_stack_custom()]yellow_3.png',res_mask3)
             if str(x)=='yellow_4':
                 image_HSV = cv2.cvtColor(exampleImg_unwarp,cv2.COLOR_BGR2HSV)
                 yellow_hsv_low4  = np.array([ 20, 120, 80])
@@ -508,7 +508,6 @@ def make_binary_stack_custom(exampleImg_unwarp,list):
                 res_mask4[(res_mask4 > 0)] = 1
                 slike.append(res_mask4)
                 tekst.append('yellow_4')
-                # cv2.imwrite('[make_binary_stack_custom()]yellow_4.png',res_mask4)
             if str(x)=='yellow_5':
                 image_HSV = cv2.cvtColor(exampleImg_unwarp,cv2.COLOR_BGR2HSV)
                 yellow_hsv_low5  = np.array([ 0, 100, 100])
@@ -517,7 +516,6 @@ def make_binary_stack_custom(exampleImg_unwarp,list):
                 res_mask5[(res_mask5 > 0)] = 1
                 slike.append(res_mask5)
                 tekst.append('yellow_5')
-                # cv2.imwrite('[make_binary_stack_custom()]yellow_5.png',res_mask5)
 
     for x in slike:
         added_binary_images+=x.astype(np.uint8)
@@ -645,6 +643,45 @@ def calibrate_IPF_yellow_white(img_unwarp,sobel=False):
     return top_white,top_yellow
 
 
+def calibrate_IPF_all(img_unwarp):
+    print("_______________________________________________________________")
+    print('Calibrating image filters',end="", flush=True)
+    lista_all=['rgb_r','hls_s','hls_l','lab_l','hsv_white','white_tight','white_loose','lab_b','hsv_yellow','yellow','yellow_2','yellow_3','yellow_4','yellow_5','sobel_mag','sobel_abs','sobel_dir','edge_pos','edge_neg','hls_sobel']
+    stacked_binary_image_all,all_binary_images=make_binary_stack_custom(img_unwarp,lista_all)
+
+
+
+
+    print('.',end="", flush=True)
+    max_value=np.max(stacked_binary_image_all)
+
+
+    threshold=threshold_equation(max_value)
+
+    print('.',end="", flush=True)
+
+    thresholded_binary_image=threshold_binary_stack(stacked_binary_image_all,threshold)
+
+
+    print('.')
+
+    print('')
+    top=compare_binary_images_NEW(thresholded_binary_image,all_binary_images,lista_all,diagnostic=True)
+    print('+'+'_'*(TPF.line_length-2)+'+')
+    print(TPF.print_line_text_in_middle('Done!',TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+    # print('Done!')
+    print(TPF.print_line_in_defined_length('Best combinations are:',TPF.line_length-2))
+    print(TPF.print_line_3_columns(top[0][1],top[1][1]  , top[2][1] ,TPF.line_length-2))
+    print('| '+'-'*(TPF.line_length-4)+' |')
+
+
+    # print('Best combinations are(yellow): '+top_yellow[0][1]+', '+ top_yellow[1][1]+', '+ top_yellow[2][1])
+    # print('Best combinations are(white): '+top_white[0][1]+', '+ top_white[1][1]+', '+ top_white[2][1])
+    # print("________________________________________________________________")
+    return top
+
+
 
 # def unwarp_points(h,w):
 #     # src = np.float32([(592,450),
@@ -704,139 +741,178 @@ def pipeline(img):
 
     img_unwarp_inverted=cv2.cvtColor(img_unwarp, cv2.COLOR_RGB2BGR)
     kanali = split_channels(img_unwarp_inverted)
-    list=[]
-    # Sobel Absolute (using default parameters)
-    if 'rgb_r' in FP.binary_combinations:
-        exampleImg_RRGBThresh = rgb_thresh(img_unwarp,color=0)
-        list.append(exampleImg_RRGBThresh)
-    if 'sobel_abs' in FP.binary_combinations:
-        min_thresh=25
-        max_thresh=255
-        img_sobelAbs = sobel_abs_thresh(img_unwarp, 'x', min_thresh, max_thresh)
-        list.append(img_sobelAbs)
-    # Sobel Magnitude (using default parameters)
-    if 'sobel_mag' in FP.binary_combinations:
-        min_thresh2=25
-        max_thresh2=255
-        kernel_size=25
-        img_sobelMag = sobel_mag_thresh(img_unwarp, kernel_size, (min_thresh2, max_thresh2))
-        list.append(img_sobelMag)
-    # Sobel Direction (using default parameters)
-    if 'sobel_dir' in FP.binary_combinations:
-        min_thresh3=0
-        max_thresh3=0.11
-        kernel_size2=7
-        img_sobelDir = sobel_dir_thresh(img_unwarp, kernel_size2, (min_thresh3, max_thresh3))
-        list.append(img_sobelDir)
-    # HLS S-channel Threshold (using default parameters)
-    #img_HLS_s_thresh = hls_threshold(img_unwarp, thresh=(220, 255), color='s')
-    if 'hls_s' in FP.binary_combinations:
-        img_HLS_s_thresh = hls_threshold(img_unwarp, thresh=(125, 255), color='s')
-        list.append(img_HLS_s_thresh)
-    # HLS L-channel Threshold (using default parameters)
-    #img_LThresh = hls_lthresh(img_unwarp)
-    #img_LThresh = hls_threshold(img_unwarp, thresh=(125, 255), color='l')
-    if 'hls_l' in FP.binary_combinations:
-        img_HLS_l_thresh = hls_threshold(img_unwarp, thresh=(220, 255), color='l')
-        list.append(img_HLS_l_thresh)
-    # Lab L-channel Threshold (using default parameters)
-    #img_LLThresh = lab_lthresh(img_unwarp)
-    if 'lab_l' in FP.binary_combinations:
-        #img_LAB_l_thresh = lab_threshold(img_unwarp, thresh=(190,255), color='l')
-        img_LAB_l_thresh = lab_threshold(img_unwarp_inverted, thresh=(190,255), color='l')
-        list.append(img_LAB_l_thresh)
-    # Lab B-channel Threshold (using default parameters)
-    if 'lab_b' in FP.binary_combinations:
-        # img_LAB_b_thresh = lab_threshold(img_unwarp, thresh=(190,255), color='b')
-        img_LAB_b_thresh = lab_threshold(img_unwarp_inverted, thresh=(190,255), color='b')
-        list.append(img_LAB_b_thresh)
-    if 'hsv_white' in FP.binary_combinations:
-        white_hsv_low  = np.array([ 0,   0,   160])
-        white_hsv_high = np.array([ 255,  80, 255])
-
-        # image_HSV = cv2.cvtColor(img_copy,cv2.COLOR_RGB2HSV)
-        # image_HSV = cv2.cvtColor(img_unwarp,cv2.COLOR_BGR2HSV)
-        image_HSV = cv2.cvtColor(img_unwarp_inverted,cv2.COLOR_RGB2HSV)
-        image_H=np.zeros_like(image_HSV[:,:,0])
-        image_S=np.zeros_like(image_HSV[:,:,0])
-        image_V=np.zeros_like(image_HSV[:,:,0])
-
-        image_H[((image_HSV[:,:,0] > white_hsv_low[0]) & (image_HSV[:,:,0] <= white_hsv_high[0]))] = 1
-        image_S[((image_HSV[:,:,1] > white_hsv_low[1]) & (image_HSV[:,:,1] <= white_hsv_high[1]))] = 1
-        image_V[((image_HSV[:,:,2] > white_hsv_low[2]) & (image_HSV[:,:,2] <= white_hsv_high[2]))] = 1
-
-        res_hsv2 = cv2.bitwise_and(image_H, image_S)
-        res_hsv = cv2.bitwise_and(res_hsv2,image_V)
-        # image_res1 = image_H+image_S+image_V
-        # image_res1 = cv2.inRange(image_HSV,white_hsv_low,white_hsv_high)
-        list.append(res_hsv)
-
-    if 'hsv_yellow' in FP.binary_combinations:
-        yellow_hsv_low  = np.array([ 0,  100,  100])
-        yellow_hsv_high = np.array([ 80, 255, 255])
-
-        image_HSV = cv2.cvtColor(img_unwarp_inverted,cv2.COLOR_RGB2HSV)
-        image_H=np.zeros_like(image_HSV[:,:,0])
-        image_S=np.zeros_like(image_HSV[:,:,0])
-        image_V=np.zeros_like(image_HSV[:,:,0])
-
-        image_H[((image_HSV[:,:,0] > yellow_hsv_low[0]) & (image_HSV[:,:,0] <= yellow_hsv_high[0]))] = 1
-        image_S[((image_HSV[:,:,1] > yellow_hsv_low[1]) & (image_HSV[:,:,1] <= yellow_hsv_high[1]))] = 1
-        image_V[((image_HSV[:,:,2] > yellow_hsv_low[2]) & (image_HSV[:,:,2] <= yellow_hsv_high[2]))] = 1
-
-        res_hsv2 = cv2.bitwise_and(image_H, image_S)
-        res_hsv = cv2.bitwise_and(res_hsv2,image_V)
-        # image_res1 = image_H+image_S+image_V
-        # image_res1 = cv2.inRange(image_HSV,white_hsv_low,white_hsv_high)
-        list.append(res_hsv)
-    if 'hsv_yellow_soft' in FP.binary_combinations:
-        yellow_hsv_low  = np.array([ 0, 80, 200])
-        yellow_hsv_high = np.array([ 40, 255, 255])
-
-        image_HSV = cv2.cvtColor(img_unwarp_inverted,cv2.COLOR_RGB2HSV)
-        image_H=np.zeros_like(image_HSV[:,:,0])
-        image_S=np.zeros_like(image_HSV[:,:,0])
-        image_V=np.zeros_like(image_HSV[:,:,0])
-
-        image_H[((image_HSV[:,:,0] > yellow_hsv_low[0]) & (image_HSV[:,:,0] <= yellow_hsv_high[0]))] = 1
-        image_S[((image_HSV[:,:,1] > yellow_hsv_low[1]) & (image_HSV[:,:,1] <= yellow_hsv_high[1]))] = 1
-        image_V[((image_HSV[:,:,2] > yellow_hsv_low[2]) & (image_HSV[:,:,2] <= yellow_hsv_high[2]))] = 1
-
-        res_hsv2 = cv2.bitwise_and(image_H, image_S)
-        res_hsv = cv2.bitwise_and(res_hsv2,image_V)
-        # image_res1 = image_H+image_S+image_V
-        # image_res1 = cv2.inRange(image_HSV,white_hsv_low,white_hsv_high)
-        list.append(res_hsv)
-
-    if 'white_tight' in FP.binary_combinations:
-        list.append(kanali['white_tight'])
-    if 'white_loose' in FP.binary_combinations:
-        list.append(kanali['white_loose'])
-    if 'yellow_edge_pos' in FP.binary_combinations:
-        list.append(kanali['yellow_edge_pos'])
-    if 'yellow_edge_neg' in FP.binary_combinations:
-        list.append(kanali['yellow_edge_neg'])
-    if 'yellow' in FP.binary_combinations:
-        list.append(kanali['yellow'])
-    if 'edge_pos' in FP.binary_combinations:
-        list.append(kanali['edge_pos'])
-    if 'edge_neg' in FP.binary_combinations:
-        list.append(kanali['edge_neg'])
-    if 'hls_sobel' in FP.binary_combinations:
-        s_thresh=(150, 255)
-        l_thresh=(120,255)
-        sx_thresh=(20, 100)
-        hls = cv2.cvtColor(img_unwarp, cv2.COLOR_RGB2HLS).astype(np.float)
-        l_channel = hls[:,:,1]
-        s_channel = hls[:,:,2]
-        # Apply Sobel x
-        sobelx = cv2.Sobel(l_channel, cv2.CV_64F, 1, 0) # This will take the derivative in x
-        abs_sobelx = np.absolute(sobelx) # Absolute x derivative to accentuate lines away from the horizontal
-        scaled_sobel = np.uint8(255*abs_sobelx/np.max(abs_sobelx))
-        # Apply Thresholding
-        final_binary = np.zeros_like(s_channel)
-        final_binary[np.logical_or((s_channel > s_thresh[0]) & (s_channel < s_thresh[1]) & (l_channel > l_thresh[0]) & (l_channel < l_thresh[1]) , (scaled_sobel > sx_thresh[0]) & (scaled_sobel <= sx_thresh[1]))] = 1
-        list.append(final_binary)
+    # list=[]
+    added_binary_images,list=make_binary_stack_custom(img_unwarp,FP.binary_combinations)
+    # list=slike
+    # # Sobel Absolute (using default parameters)
+    # if 'rgb_r' in FP.binary_combinations:
+    #     exampleImg_RRGBThresh = rgb_thresh(img_unwarp,color=0)
+    #     list.append(exampleImg_RRGBThresh)
+    # if 'sobel_abs' in FP.binary_combinations:
+    #     min_thresh=25
+    #     max_thresh=255
+    #     img_sobelAbs = sobel_abs_thresh(img_unwarp, 'x', min_thresh, max_thresh)
+    #     list.append(img_sobelAbs)
+    # # Sobel Magnitude (using default parameters)
+    # if 'sobel_mag' in FP.binary_combinations:
+    #     min_thresh2=25
+    #     max_thresh2=255
+    #     kernel_size=25
+    #     img_sobelMag = sobel_mag_thresh(img_unwarp, kernel_size, (min_thresh2, max_thresh2))
+    #     list.append(img_sobelMag)
+    # # Sobel Direction (using default parameters)
+    # if 'sobel_dir' in FP.binary_combinations:
+    #     min_thresh3=0
+    #     max_thresh3=0.11
+    #     kernel_size2=7
+    #     img_sobelDir = sobel_dir_thresh(img_unwarp, kernel_size2, (min_thresh3, max_thresh3))
+    #     list.append(img_sobelDir)
+    # # HLS S-channel Threshold (using default parameters)
+    # #img_HLS_s_thresh = hls_threshold(img_unwarp, thresh=(220, 255), color='s')
+    # if 'hls_s' in FP.binary_combinations:
+    #     img_HLS_s_thresh = hls_threshold(img_unwarp, thresh=(125, 255), color='s')
+    #     list.append(img_HLS_s_thresh)
+    # # HLS L-channel Threshold (using default parameters)
+    # #img_LThresh = hls_lthresh(img_unwarp)
+    # #img_LThresh = hls_threshold(img_unwarp, thresh=(125, 255), color='l')
+    # if 'hls_l' in FP.binary_combinations:
+    #     img_HLS_l_thresh = hls_threshold(img_unwarp, thresh=(220, 255), color='l')
+    #     list.append(img_HLS_l_thresh)
+    # # Lab L-channel Threshold (using default parameters)
+    # #img_LLThresh = lab_lthresh(img_unwarp)
+    # if 'lab_l' in FP.binary_combinations:
+    #     #img_LAB_l_thresh = lab_threshold(img_unwarp, thresh=(190,255), color='l')
+    #     img_LAB_l_thresh = lab_threshold(img_unwarp_inverted, thresh=(190,255), color='l')
+    #     list.append(img_LAB_l_thresh)
+    # # Lab B-channel Threshold (using default parameters)
+    # if 'lab_b' in FP.binary_combinations:
+    #     # img_LAB_b_thresh = lab_threshold(img_unwarp, thresh=(190,255), color='b')
+    #     img_LAB_b_thresh = lab_threshold(img_unwarp_inverted, thresh=(190,255), color='b')
+    #     list.append(img_LAB_b_thresh)
+    # if 'hsv_white' in FP.binary_combinations:
+    #     white_hsv_low  = np.array([ 0,   0,   160])
+    #     white_hsv_high = np.array([ 255,  80, 255])
+    #
+    #     # image_HSV = cv2.cvtColor(img_copy,cv2.COLOR_RGB2HSV)
+    #     # image_HSV = cv2.cvtColor(img_unwarp,cv2.COLOR_BGR2HSV)
+    #     image_HSV = cv2.cvtColor(img_unwarp_inverted,cv2.COLOR_RGB2HSV)
+    #     image_H=np.zeros_like(image_HSV[:,:,0])
+    #     image_S=np.zeros_like(image_HSV[:,:,0])
+    #     image_V=np.zeros_like(image_HSV[:,:,0])
+    #
+    #     image_H[((image_HSV[:,:,0] > white_hsv_low[0]) & (image_HSV[:,:,0] <= white_hsv_high[0]))] = 1
+    #     image_S[((image_HSV[:,:,1] > white_hsv_low[1]) & (image_HSV[:,:,1] <= white_hsv_high[1]))] = 1
+    #     image_V[((image_HSV[:,:,2] > white_hsv_low[2]) & (image_HSV[:,:,2] <= white_hsv_high[2]))] = 1
+    #
+    #     res_hsv2 = cv2.bitwise_and(image_H, image_S)
+    #     res_hsv = cv2.bitwise_and(res_hsv2,image_V)
+    #     # image_res1 = image_H+image_S+image_V
+    #     # image_res1 = cv2.inRange(image_HSV,white_hsv_low,white_hsv_high)
+    #     list.append(res_hsv)
+    #
+    # if 'hsv_yellow' in FP.binary_combinations:
+    #     yellow_hsv_low  = np.array([ 0,  100,  100])
+    #     yellow_hsv_high = np.array([ 80, 255, 255])
+    #
+    #     image_HSV = cv2.cvtColor(img_unwarp_inverted,cv2.COLOR_RGB2HSV)
+    #     image_H=np.zeros_like(image_HSV[:,:,0])
+    #     image_S=np.zeros_like(image_HSV[:,:,0])
+    #     image_V=np.zeros_like(image_HSV[:,:,0])
+    #
+    #     image_H[((image_HSV[:,:,0] > yellow_hsv_low[0]) & (image_HSV[:,:,0] <= yellow_hsv_high[0]))] = 1
+    #     image_S[((image_HSV[:,:,1] > yellow_hsv_low[1]) & (image_HSV[:,:,1] <= yellow_hsv_high[1]))] = 1
+    #     image_V[((image_HSV[:,:,2] > yellow_hsv_low[2]) & (image_HSV[:,:,2] <= yellow_hsv_high[2]))] = 1
+    #
+    #     res_hsv2 = cv2.bitwise_and(image_H, image_S)
+    #     res_hsv = cv2.bitwise_and(res_hsv2,image_V)
+    #     # image_res1 = image_H+image_S+image_V
+    #     # image_res1 = cv2.inRange(image_HSV,white_hsv_low,white_hsv_high)
+    #     list.append(res_hsv)
+    # if 'hsv_yellow_soft' in FP.binary_combinations:
+    #     yellow_hsv_low  = np.array([ 0, 80, 200])
+    #     yellow_hsv_high = np.array([ 40, 255, 255])
+    #
+    #     image_HSV = cv2.cvtColor(img_unwarp_inverted,cv2.COLOR_RGB2HSV)
+    #     image_H=np.zeros_like(image_HSV[:,:,0])
+    #     image_S=np.zeros_like(image_HSV[:,:,0])
+    #     image_V=np.zeros_like(image_HSV[:,:,0])
+    #
+    #     image_H[((image_HSV[:,:,0] > yellow_hsv_low[0]) & (image_HSV[:,:,0] <= yellow_hsv_high[0]))] = 1
+    #     image_S[((image_HSV[:,:,1] > yellow_hsv_low[1]) & (image_HSV[:,:,1] <= yellow_hsv_high[1]))] = 1
+    #     image_V[((image_HSV[:,:,2] > yellow_hsv_low[2]) & (image_HSV[:,:,2] <= yellow_hsv_high[2]))] = 1
+    #
+    #     res_hsv2 = cv2.bitwise_and(image_H, image_S)
+    #     res_hsv = cv2.bitwise_and(res_hsv2,image_V)
+    #     # image_res1 = image_H+image_S+image_V
+    #     # image_res1 = cv2.inRange(image_HSV,white_hsv_low,white_hsv_high)
+    #     list.append(res_hsv)
+    #
+    # if 'white_tight' in FP.binary_combinations:
+    #     list.append(kanali['white_tight'])
+    # if 'white_loose' in FP.binary_combinations:
+    #     list.append(kanali['white_loose'])
+    # if 'yellow_edge_pos' in FP.binary_combinations:
+    #     list.append(kanali['yellow_edge_pos'])
+    # if 'yellow_edge_neg' in FP.binary_combinations:
+    #     list.append(kanali['yellow_edge_neg'])
+    # if 'yellow' in FP.binary_combinations:
+    #     list.append(kanali['yellow'])
+    # if 'edge_pos' in FP.binary_combinations:
+    #     list.append(kanali['edge_pos'])
+    # if 'edge_neg' in FP.binary_combinations:
+    #     list.append(kanali['edge_neg'])
+    # if 'hls_sobel' in FP.binary_combinations:
+    #     s_thresh=(150, 255)
+    #     l_thresh=(120,255)
+    #     sx_thresh=(20, 100)
+    #     hls = cv2.cvtColor(img_unwarp, cv2.COLOR_RGB2HLS).astype(np.float)
+    #     l_channel = hls[:,:,1]
+    #     s_channel = hls[:,:,2]
+    #     # Apply Sobel x
+    #     sobelx = cv2.Sobel(l_channel, cv2.CV_64F, 1, 0) # This will take the derivative in x
+    #     abs_sobelx = np.absolute(sobelx) # Absolute x derivative to accentuate lines away from the horizontal
+    #     scaled_sobel = np.uint8(255*abs_sobelx/np.max(abs_sobelx))
+    #     # Apply Thresholding
+    #     final_binary = np.zeros_like(s_channel)
+    #     final_binary[np.logical_or((s_channel > s_thresh[0]) & (s_channel < s_thresh[1]) & (l_channel > l_thresh[0]) & (l_channel < l_thresh[1]) , (scaled_sobel > sx_thresh[0]) & (scaled_sobel <= sx_thresh[1]))] = 1
+    #     list.append(final_binary)
+    # if str(x)=='yellow_2':
+    #     image_HSV = cv2.cvtColor(exampleImg_unwarp,cv2.COLOR_BGR2HSV)
+    #     yellow_hsv_low2  = np.array([ 0, 80, 200])
+    #     yellow_hsv_high2 = np.array([ 40, 255, 255])
+    #     res_mask2 = cv2.inRange(image_HSV,yellow_hsv_low2,yellow_hsv_high2)
+    #     res_mask2[(res_mask2 > 0)] = 1
+    #     list.append(res_mask2)
+    #     # tekst.append('yellow_2')
+    #     # cv2.imwrite('[make_binary_stack_custom()]yellow_2.png',res_mask2)
+    # if str(x)=='yellow_3':
+    #     image_HSV = cv2.cvtColor(exampleImg_unwarp,cv2.COLOR_BGR2HSV)
+    #     yellow_hsv_low3  = np.array([ 15, 38, 115])
+    #     yellow_hsv_high3 = np.array([ 35, 204, 255])
+    #     res_mask3 = cv2.inRange(image_HSV,yellow_hsv_low3,yellow_hsv_high3)
+    #     res_mask3[(res_mask3 > 0)] = 1
+    #     list.append(res_mask3)
+    #     # tekst.append('yellow_3')
+    #     print(res_mask3.shape)
+    #     print(res_mask3.dtype)
+    #     # cv2.imwrite('[make_binary_stack_custom()]yellow_3.png',res_mask3)
+    # if str(x)=='yellow_4':
+    #     image_HSV = cv2.cvtColor(exampleImg_unwarp,cv2.COLOR_BGR2HSV)
+    #     yellow_hsv_low4  = np.array([ 20, 120, 80])
+    #     yellow_hsv_high4 = np.array([ 45, 200, 255])
+    #     res_mask4 = cv2.inRange(image_HSV,yellow_hsv_low4,yellow_hsv_high4)
+    #     res_mask4[(res_mask4 > 0)] = 1
+    #     list.append(res_mask4)
+    #     # tekst.append('yellow_4')
+    #     # cv2.imwrite('[make_binary_stack_custom()]yellow_4.png',res_mask4)
+    # if str(x)=='yellow_5':
+    #     image_HSV = cv2.cvtColor(exampleImg_unwarp,cv2.COLOR_BGR2HSV)
+    #     yellow_hsv_low5  = np.array([ 0, 100, 100])
+    #     yellow_hsv_high5 = np.array([ 50, 255, 255])
+    #     res_mask5 = cv2.inRange(image_HSV,yellow_hsv_low5,yellow_hsv_high5)
+    #     res_mask5[(res_mask5 > 0)] = 1
+    #     list.append(res_mask5)
+    #     # tekst.append('yellow_5')
 
 
     # Combine HLS and Lab B channel thresholds

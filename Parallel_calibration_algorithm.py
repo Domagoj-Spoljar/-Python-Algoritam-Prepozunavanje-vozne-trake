@@ -171,8 +171,8 @@ def update_leaderboards(white_filters,yellow_filters):
         number=calibration_leaderboard_yellow.index(name)
         print('number= '+ str(number))
         # calibration_leaderboard_white_previous=np.copy(calibration_leaderboard_white_scores[number][1])
-        # percent=((((yellow_filters[i][0]/total_pixel_num)*100)+100)/200)*100
-        percent=((((yellow_filters[i][0]/total_pixel_num)*100)+100)/200)*1000
+        percent=((((yellow_filters[i][0]/total_pixel_num)*100)+100)/200)*100
+        # percent=((((yellow_filters[i][0]/total_pixel_num)*100)+100)/200)*1000
         # calibration_leaderboard_white_scores[number][1]=((((white_filters[i][0]/total_pixel_num)*100)+100)/200)*100
         # calibration_leaderboard_white_scores[number][1]=(white_filters[i][0]/total_pixel_num)*100
         # calibration_leaderboard_white_scores[number][2]+=(calibration_leaderboard_white_scores[number][1]/calibration_leaderboard_white_previous)-1
@@ -235,7 +235,7 @@ def update_leaderboards(white_filters,yellow_filters):
     if max_value2[1]>9:
         final_list=(max_value[0],max_value2[0])
     else:
-        final_list=(max_value[0])
+        final_list=(max_value[0],)
 
     return final_list
 
