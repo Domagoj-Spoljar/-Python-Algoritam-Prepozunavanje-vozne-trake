@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import os
 import Lane_find_functions as Lff
 import function_parameters as FP
-
+import time
 
 # video_name = 'test_video_4lanes_1.13.mp4'
 # image_folder = './Test_images/dashcam_driving/'
@@ -47,6 +47,7 @@ def main():
     count = 0
 
     while success:
+        start = time.time()
 
         outfile = open(filename,'wb')
         pickle.dump(count,outfile)
@@ -68,13 +69,18 @@ def main():
         cv2.putText(processed_image, 'frame ' + str(count), (40,80), cv2.FONT_HERSHEY_DUPLEX, 1, (255,0,0), 1, cv2.LINE_AA)
         #processed_image = cv2.resize(processed_image,width,height)
         video.write(processed_image)
-        print('________________________________')
-        print('|    wrote a new frame: ', count,'   |')
-        print('________________________________')
         count += 1
-
+        end = time.time()
+        # print('frames_to_video_dynamic time= '+str(end - start)+'sec')
+        print('______________________________________')
+        print('|    wrote a new frame: ', count,'   |',str(end - start)+'sec')
+        print('______________________________________')
+        f = open("fps_test_log.txt", "a")
+        write_line=str(FP.video_tip)+' '+'frame:'+str(count)+' '+str(end - start)+' sec'+'\n'
+        f.write(write_line)
     cv2.destroyAllWindows()
     video.release()
+    f.close()
 
     return
 

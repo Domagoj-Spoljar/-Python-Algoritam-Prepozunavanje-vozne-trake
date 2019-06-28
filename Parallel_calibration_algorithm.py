@@ -5,7 +5,7 @@ import sys
 import function_parameters as FP
 import copy
 import pickle
-# import operator
+import time
 
 import OLD_calibrate_ipf
 import Process_image
@@ -70,6 +70,8 @@ calibration_leaderboard_yellow_scores =[[0,[0,0,0,0,0],[0,0,0,0,0],[0.1,0.1,0.1,
 [0,[0,0,0,0,0],[0,0,0,0,0],[0.1,0.1,0.1,0.1,0.1],0,[0,0,0,0,0]],
 [0,[0,0,0,0,0],[0,0,0,0,0],[0.1,0.1,0.1,0.1,0.1],0,[0,0,0,0,0]],
 [0,[0,0,0,0,0],[0,0,0,0,0],[0.1,0.1,0.1,0.1,0.1],0,[0,0,0,0,0]]]
+
+
 
 
 image_width=1280
@@ -242,6 +244,8 @@ def update_leaderboards(white_filters,yellow_filters):
 
 
 
+
+
 def update_leaderboards_first_time(white_filters,yellow_filters):
     global calibration_leaderboard_white,calibration_leaderboard_white_scores,total_pixel_num
 
@@ -362,7 +366,10 @@ def algorithm_function():
     # global frame_number
     # while True:
     # Test_with_function_noKeys.main()
+    start = time.time()
     frames_to_video_dynamic.main()
+    end = time.time()
+    print('frames_to_video_dynamic time= '+str(end - start)+'sec')
     # global algotirthm_running
     outfile2 = open(filename2,'wb')
     value=False

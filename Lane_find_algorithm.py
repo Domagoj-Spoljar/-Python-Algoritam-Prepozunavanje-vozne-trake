@@ -228,7 +228,7 @@ def main():
 
         if str(option2)=='1':
             FP.dashcam_image_path='/home/profesor/Documents/Datasets/challnege_video/'
-            FP.video_tip= 'challenge video'
+            FP.video_tip= 'challenge_video'
         elif str(option2)=='2':
             FP.dashcam_image_path = '/home/profesor/Documents/Datasets/project_video/'
             FP.video_tip= 'project_video'

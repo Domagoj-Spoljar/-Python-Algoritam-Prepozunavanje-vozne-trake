@@ -192,6 +192,9 @@ def find_histogram_peaks(histogram,histogram_image, image=False):
         #custom values for 640x360
         width=100
         range=20
+    else:
+        width=100
+        range=20
 
 
     while index <= len(peak_indices)-1:
@@ -746,6 +749,8 @@ def draw_lane_custom(original_img, binary_img, l_fit, Minv):
     # Create an image to draw the lines on
     warp_zero = np.zeros_like(binary_img).astype(np.uint8)
     color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
+    color_warp2 = np.dstack((warp_zero, warp_zero, warp_zero))
+    combined = np.dstack((warp_zero, warp_zero, warp_zero))
 
     # h,w,_ = original_img.shape
     h,w = binary_img.shape
@@ -759,11 +764,12 @@ def draw_lane_custom(original_img, binary_img, l_fit, Minv):
     pts_left = np.array([np.transpose(np.vstack([left_fitx, ploty]))])
     #pts = np.hstack((pts_left, pts_right))
 
+    # create_validate_image(binary_img, l_fit,l_fit,l_fit,l_fit, Minv)
+
     # Draw the lane onto the warped blank image
     #cv2.fillPoly(color_warp, np.int_([pts]), (0,255, 0))
     # cv2.polylines(color_warp, np.int32([pts_left]), isClosed=False, color=(0,255,255), thickness=5)
     cv2.polylines(color_warp, np.int32([pts_left]), isClosed=False, color=(0,255,255), thickness=15)
-
 
     # Warp the blank back to original image space using inverse perspective matrix (Minv)
     newwarp = cv2.warpPerspective(color_warp, Minv, (w, h))
@@ -771,6 +777,156 @@ def draw_lane_custom(original_img, binary_img, l_fit, Minv):
     result = cv2.addWeighted(new_img, 1, newwarp, 2, 0)
     #result = cv2.add(new_img,newwarp)
     return result
+
+def create_validate_image(binary_img, fit_indices, Minv,compare_image_path):
+
+
+    # Create an image to draw the lines on
+    warp_zero = np.zeros_like(binary_img).astype(np.uint8)
+    height,width = warp_zero.shape
+    # color_warp1 = np.dstack((warp_zero, warp_zero, warp_zero))
+    color_warp2 = np.dstack((warp_zero, warp_zero, warp_zero))
+    # color_warp3 = np.dstack((warp_zero, warp_zero, warp_zero))
+    # color_warp4 = np.dstack((warp_zero, warp_zero, warp_zero))
+    combined = np.dstack((warp_zero, warp_zero, warp_zero))
+    h,w = binary_img.shape
+    inversed_fits=[]
+    for x,element in enumerate(fit_indices):
+        if element is not None:
+
+            color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
+            ploty = np.linspace(0, h-1, num=h)# to cover same y-range as image
+            # for 2nd order polynominal
+            left_fitx = element[0]*ploty**2 + element[1]*ploty + element[2]
+
+        # Recast the x and y points into usable format for cv2.fillPoly()
+            pts_left = np.array([np.transpose(np.vstack([left_fitx, ploty]))])
+        #pts = np.hstack((pts_left, pts_right))
+
+        # Draw the lane onto the warped blank image
+        #cv2.fillPoly(color_warp, np.int_([pts]), (0,255, 0))
+        # cv2.polylines(color_warp, np.int32([pts_left]), isClosed=False, color=(0,255,255), thickness=5)
+            cv2.polylines(color_warp, np.int32([pts_left]), isClosed=False, color=(0,255,255), thickness=15)
+
+        # Warp the blank back to original image space using inverse perspective matrix (Minv)
+            newwarp = cv2.warpPerspective(color_warp, Minv, (w, h))
+            # cv2.imwrite('newwarp'+str(x)+'.png',newwarp)
+
+            lanex=[]
+            laney=[]
+            for i in range(0, height):
+                for j in range(0, width):
+                    # print('['+str(i)+']'+'['+str(j)+']= '+str(color_warp[i,j,0])+','+str(color_warp[i,j,1])+','+str(color_warp[i,j,2])+',')
+                    # print(color_warp[i,j,1])
+                    if newwarp[i,j,1] == 255:
+                        # counter+=1
+                        lanex.append(j)
+                        laney.append(i)
+                        # lane_inds.append(good_left_inds)
+            lane_fit  = None
+            # Fit a second order polynomial to each
+            if len(lanex) != 0:
+                lane_fit = np.polyfit(laney, lanex, 1)
+                # print('lane_fit====='+str(lane_fit))
+
+            ploty = np.linspace(0, height-1, height)
+            # for 2nd order polynominal
+            plotx = lane_fit[0]*ploty + lane_fit[1]
+            # plotx = lane_fit[0]*ploty**2 + lane_fit[1]*ploty + lane_fit[2]
+            pts = np.array([np.transpose(np.vstack([plotx, ploty]))])
+            cv2.polylines(color_warp2, np.int32([pts]), isClosed=False, color=(x+1,x+1,x+1), thickness=15)
+            # cv2.polylines(color_warp2, np.int32([pts]), isClosed=False, color=(255,255,255), thickness=15)
+            inversed_fits.append(lane_fit)
+
+
+    new_img2=cv2.imread(compare_image_path)
+
+    image_by_rows=np.sum(new_img2, axis=1)
+    y_coordinate=0
+    print(image_by_rows)
+    for i,element in enumerate(image_by_rows):
+        if element[0] != 0:
+            y_coordinate=i
+            break
+    print('y coordinate: '+str(y_coordinate))
+
+    color_warp2[0:y_coordinate,:,:]=0
+
+    # cv2.imwrite('kombinirano.png',combined)
+    combined=cv2.addWeighted(new_img2, 1, color_warp2, 2, 0)
+
+    # cv2.imwrite('lanes_inv_transformed.png',color_warp2)
+
+    return color_warp2,combined
+# -------------------------------------------------------------
+# def create_validate_image(binary_img, fit_indices, Minv):
+#
+#
+#     # Create an image to draw the lines on
+#     warp_zero = np.zeros_like(binary_img).astype(np.uint8)
+#     height,width = warp_zero.shape
+#     color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
+#     color_warp1 = np.dstack((warp_zero, warp_zero, warp_zero))
+#     color_warp2 = np.dstack((warp_zero, warp_zero, warp_zero))
+#     color_warp3 = np.dstack((warp_zero, warp_zero, warp_zero))
+#     color_warp4 = np.dstack((warp_zero, warp_zero, warp_zero))
+#     combined = np.dstack((warp_zero, warp_zero, warp_zero))
+#     h,w = binary_img.shape
+#
+#     for x,element in enumerate(fit_indices):
+#     if l_fit is not None:
+#
+#         ploty = np.linspace(0, h-1, num=h)# to cover same y-range as image
+#         # for 2nd order polynominal
+#         left_fitx = l_fit[0]*ploty**2 + l_fit[1]*ploty + l_fit[2]
+#
+#     # Recast the x and y points into usable format for cv2.fillPoly()
+#         pts_left = np.array([np.transpose(np.vstack([left_fitx, ploty]))])
+#     #pts = np.hstack((pts_left, pts_right))
+#
+#     # Draw the lane onto the warped blank image
+#     #cv2.fillPoly(color_warp, np.int_([pts]), (0,255, 0))
+#     # cv2.polylines(color_warp, np.int32([pts_left]), isClosed=False, color=(0,255,255), thickness=5)
+#         cv2.polylines(color_warp, np.int32([pts_left]), isClosed=False, color=(0,255,255), thickness=15)
+#
+#     # Warp the blank back to original image space using inverse perspective matrix (Minv)
+#         newwarp = cv2.warpPerspective(color_warp, Minv, (w, h))
+#     # cv2.imwrite('newwarp.png',newwarp)
+#
+#         lanex=[]
+#         laney=[]
+#         for i in range(0, height):
+#             for j in range(0, width):
+#                 # print('['+str(i)+']'+'['+str(j)+']= '+str(color_warp[i,j,0])+','+str(color_warp[i,j,1])+','+str(color_warp[i,j,2])+',')
+#                 # print(color_warp[i,j,1])
+#                 if newwarp[i,j,1] == 255:
+#                     # counter+=1
+#                     lanex.append(j)
+#                     laney.append(i)
+#                     # lane_inds.append(good_left_inds)
+#         lane_fit  = None
+#         # Fit a second order polynomial to each
+#         if len(lanex) != 0:
+#             lane_fit = np.polyfit(laney, lanex, 1)
+#             print('lane_fit====='+str(lane_fit))
+#
+#         ploty = np.linspace(0, height-1, height)
+#         # for 2nd order polynominal
+#         plotx = lane_fit[0]*ploty + lane_fit[1]
+#         # plotx = lane_fit[0]*ploty**2 + lane_fit[1]*ploty + lane_fit[2]
+#         pts = np.array([np.transpose(np.vstack([plotx, ploty]))])
+#         cv2.polylines(color_warp2, np.int32([pts]), isClosed=False, color=(255,255,255), thickness=8)
+#
+#
+#
+#     new_img2=cv2.imread("01350.png")
+#     combined=cv2.addWeighted(new_img2, 1, color_warp2, 2, 0)
+#     cv2.imwrite('kombinirano.png',combined)
+#
+#     cv2.imwrite('lanes_inv_transformed.png',color_warp2)
+# # -------------------------------------------------------------
+
+
 
 def draw_data(original_img, curv_rad, center_dist):
     new_img = np.copy(original_img)
@@ -1465,6 +1621,8 @@ def update_lanes(img_bin,rectangle_img,four_lanes):
 
 
     # lanelisttt=(lane_list[0].best_fit[2],lane_list[1].best_fit[2],lane_list[2].best_fit[2],lane_list[3].best_fit[2])
+
+# otkomentirati
     invalid_lane_order=check_lane_order()
     if invalid_lane_order is True:
         lane_list[0].reset_lane()
@@ -1652,6 +1810,128 @@ def process_image_4lanes(imgOriginal,fullscreen=False):
         final_image=img_out1
 
     return final_image
+
+def process_image_for_validation(imgOriginal,save_folder_path,compare_image_path,fullscreen=False):
+
+    #processing image and returning binary image
+    h,w = imgOriginal.shape[:2]
+    new_img = np.copy(imgOriginal)
+
+    if w==1280:
+        font_size=1
+        thickness=2
+        position1=40
+        position2=160
+        inc=80
+    elif w==640:
+        font_size=0.5
+        thickness=1
+        position1=20
+        position2=140
+        inc=40
+    else:
+        font_size=1
+        thickness=2
+        position1=40
+        position2=160
+        inc=80
+    #img_bin, Minv, img_unwarped = Lff.pipeline(new_img, diagnostic_images=True)
+    img_bin, Minv, img_unwarped = IPF.pipeline(new_img)
+    #peaks,histogram_image=find_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
+
+    #peaks,histogram_image=find_4_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
+
+    peaks,histogram_image=find_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
+    #peaks,histogram_image=find_histogram_peaks((np.sum(img_bin[:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
+    # print('___________________________________')
+    # print('calculated peaks')
+    # print(peaks)
+
+    cv2.line(histogram_image,(int(w*0.25),0),(int(w*0.25),h),(255,255,0),2)
+    cv2.line(histogram_image,(int(w*0.5),0),(int(w*0.5),h),(255,255,0),2)
+    cv2.line(histogram_image,(int(w*0.75),0),(int(w*0.75),h),(255,255,0),2)
+    cv2.line(histogram_image,(w,0),(w,h),(255,255,0),2)
+
+    # peaks,histogram_image=find_44_histogram_peaks(peaks,histogram_image,(np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)))
+    # print(peaks)
+    # print('')
+#--------------------------------------------------------------------------------
+    rectangle_img = np.uint8(np.dstack((img_bin, img_bin, img_bin))*255)
+
+    four_lanes, lane_change = allocate_peaks_to_4lanes(peaks)
+
+    # print('sorted peaks')
+    # print(four_lanes)
+    # print('___________________________________')
+
+    cv2.putText(histogram_image, 'Calculated peaks: '+str(peaks), (40,80), cv2.FONT_HERSHEY_DUPLEX, float(w/1028), (0,0,255), int(w/640), cv2.LINE_AA)
+    cv2.putText(histogram_image, 'Sorted peaks: '+str(four_lanes), (40,115), cv2.FONT_HERSHEY_DUPLEX, float(w/1028), (0,0,255), int(w/640), cv2.LINE_AA)
+
+    rectangle_img=update_lanes(img_bin,rectangle_img,four_lanes)
+
+    img_out1=np.copy(imgOriginal)
+    img_out2=np.copy(img_bin)
+    img_out2= np.dstack((img_bin*255, img_bin*255, img_bin*255))
+
+    # print('LINIJE')
+    # print(lane_list[0].best_fit)
+    # print(lane_list[1].best_fit)
+    # print(lane_list[2].best_fit)
+    # print(lane_list[3].best_fit)
+    # print('LINIJE')
+
+    # natpis=False
+    # correctionIndex=0
+
+    natpis,correctionIndex=correct_false_lines_abcoef()
+    if natpis is True:
+        cv2.putText(img_out2,'B_corrected'+str(correctionIndex+1)+': '+str(lane_list[correctionIndex].best_fit[0])+' '+str(lane_list[correctionIndex].best_fit[1])+' '+str(lane_list[correctionIndex].best_fit[2])+' ', (100,700), cv2.FONT_HERSHEY_DUPLEX, font_size, (255,0,200), thickness, cv2.LINE_AA)
+        # #cv2.putText(img_out2,'A_corrected'+str(correctionIndex)+': '+str(lane_list[correctionIndex].best_fit[0])+' '+str(lane_list[correctionIndex].best_fit[1])+' '+str(lane_list[correctionIndex].best_fit[2])+' ', (100,620), cv2.FONT_HERSHEY_DUPLEX, font_size, (255,0,200), thickness, cv2.LINE_AA)
+
+
+
+    #print('_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*')
+
+
+    for i, elements in enumerate(lane_list):
+        if lane_list[i].best_fit is not None:
+            img_out1 = draw_lane_custom(img_out1, img_bin, lane_list[i].best_fit, Minv)
+            img_out2 = draw_all_curves_custom(img_out2, lane_list[i])
+    for i, elements in enumerate(lane_list):
+        if lane_list[i].best_fit is not None:
+            cv2.putText(img_out2,str(i+1)+'. '+ str(lane_list[i].best_fit[0])+' '+str(lane_list[i].best_fit[1])+' '+str(lane_list[i].best_fit[2])+' ', (position1,position2+i*inc), cv2.FONT_HERSHEY_DUPLEX, font_size, (0,0,255), thickness, cv2.LINE_AA)
+
+    pic_for_validation,combined_pic=create_validate_image(img_bin, (lane_list[0].best_fit,lane_list[1].best_fit,lane_list[2].best_fit,lane_list[3].best_fit), Minv, compare_image_path)
+    # new_save_folder_path = save_folder_path.replace(".jpg", ".png")
+    cv2.imwrite(save_folder_path,pic_for_validation)
+    cv2.imwrite(save_folder_path+'_combined',combined_pic)
+    # print(str(lane_list[0].best_fit))
+    # print('__________________________')
+    # print(str(lane_list[1].best_fit))
+    # print('__________________________')
+    # print(str(lane_list[2].best_fit))
+    # print('__________________________')
+    # print(str(lane_list[3].best_fit))
+    # print('__________________________')
+    # print('__________________________')
+    img_out1=highlight_road(img_out1, img_bin, [lane_list[0].best_fit,lane_list[1].best_fit,lane_list[2].best_fit,lane_list[3].best_fit], Minv)
+    #
+    cv2.putText(img_out1, 'Confidence:', (800,40), cv2.FONT_HERSHEY_DUPLEX, 1, (0,255,0), 2, cv2.LINE_AA)
+    cv2.putText(img_out1, 'Line0  Line1  Line2  Line3', (800,80), cv2.FONT_HERSHEY_DUPLEX, 1, (0,255,0), 2, cv2.LINE_AA)
+    cv2.putText(img_out1, str(lane_list[0].confidence)+'%    '+str(lane_list[1].confidence)+'%    '+str(lane_list[2].confidence)+'%   '+str(lane_list[3].confidence)+'%', (800,120), cv2.FONT_HERSHEY_DUPLEX, 1, (0,0,255), 2, cv2.LINE_AA)
+    # cv2.putText(img_out1, 'Line1 confidence: '+str(lane_list[1].confidence)+'%', (880,80), cv2.FONT_HERSHEY_DUPLEX, 1, (0,255,0), 2, cv2.LINE_AA)
+    # cv2.putText(img_out1, 'Line2 confidence: '+str(lane_list[2].confidence)+'%', (880,120), cv2.FONT_HERSHEY_DUPLEX, 1, (0,255,0), 2, cv2.LINE_AA)
+    # cv2.putText(img_out1, 'Line3 confidence: '+str(lane_list[3].confidence)+'%', (880,160), cv2.FONT_HERSHEY_DUPLEX, 1, (0,255,0), 2, cv2.LINE_AA)
+    counter=[0,0,0,0]
+    for i,lane in enumerate(lane_list):
+        if lane_list[i].best_fit is not None:
+            counter[i]=1
+    print('number of lane lanes: '+str(counter))
+#-------------------------------------------------------------------------------------
+    #processed_image=np.copy(imgOriginal)
+
+
+    return pic_for_validation,counter
 
 def draw_all_curves(img_bin, l_line, r_line):
     img_bin_fit = np.copy(img_bin)

@@ -37,8 +37,8 @@ dashcam_image_path = '/home/profesor/Documents/Datasets/night/'
 # dashcam_image_path = '/home/profesor/Documents/Datasets/harder_video2/'
 # dashcam_image_path = '/home/profesor/Documents/Datasets/Grand Canyon/'
 # dashcam_image_path = '/home/profesor/Documents/Datasets/toronto_highway_driving/'
-# frame=1
-frame=643
+frame=0
+# frame=643
 calibration_frame=0
 image_folder = dashcam_image_path
 
@@ -62,7 +62,11 @@ def unwarp_points(h,w):
     if dashcam_image_path == '/home/profesor/Documents/Datasets/challnege_video/':
         # src = np.float32([(499,466),(781,466),(343,692),(937,692)])
         # src = np.float32([(575,464),(707,464),(258,682),(1049,682)])
+
         src = np.float32([(573, 513), (789, 513), (335, 677), (1065, 677)])
+        # src = np.float32([(693, 311), (840, 311), (561, 414), (997, 414)])
+        # src = np.float32([(714, 292), (796, 292), (523, 419), (956, 419)])
+
 
     elif dashcam_image_path == '/home/profesor/Documents/Datasets/project_video/':
         # src = np.float32([(575,464),(707,464),(258,682),(1049,682)])
@@ -161,15 +165,18 @@ def unwarp_points(h,w):
         #                   (350,232),
         #                   (124,341),
         #                   (520,341)])
-        src = np.float32([(int(w*0.45),int(h*0.6)),
-                              (int(w*0.57),int(h*0.6)),
-                              (int(w*0.16),int(h*0.86)),
-                              (int(w*0.84),int(h*0.86))])
+        src = np.float32([(693, 311), (840, 311), (561, 414), (997, 414)])
+        # src = np.float32([(int(w*0.45),int(h*0.6)),
+        #                       (int(w*0.57),int(h*0.6)),
+        #                       (int(w*0.16),int(h*0.86)),
+        #                       (int(w*0.84),int(h*0.86))])
         # src = np.float32([(int(w*0.43),int(h*0.6)),
         #                       (int(w*0.57),int(h*0.6)),
         #                       (int(w*0.16),int(h*0.86)),
         #                       (int(w*0.84),int(h*0.86))])
 
+    if h==590:
+        src = np.float32([(714, 292), (796, 292), (523, 419), (956, 419)])
 
     dst = np.float32([(int(w*0.35),0),
                           (int(w-w*0.35),0),
