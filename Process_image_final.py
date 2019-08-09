@@ -61,7 +61,7 @@ def main():
     ax[0,1].plot(x, y, color='#ff0000', alpha=0.4, linewidth=3, solid_capstyle='round', zorder=2)
     ax[0,1].axis('off')
     ax[0,1].set_title('Undistorted Image with ROI', fontsize=15)
-
+    print(exampleImg_unwarp.shape)
     ax[0,2].imshow(exampleImg_unwarp)
     ax[0,2].axis('off')
     ax[0,2].set_title('Unwarped Image', fontsize=15)
@@ -330,7 +330,7 @@ def main():
 
 
     ff, cxx = plt.subplots(4, 3, figsize=(20,10))
-    ff.subplots_adjust(hspace = .1, wspace=0.01)
+    ff.subplots_adjust(hspace = .15, wspace=0.01)
 
     lista_all=['rgb_r','hls_s','hls_l','lab_l','hsv_white','white_tight','white_loose','lab_b','hsv_yellow','yellow','yellow_2','yellow_3','yellow_4','yellow_5','sobel_mag','sobel_abs','sobel_dir','edge_pos','edge_neg','hls_sobel']
     stacked_binary_image_all,all_binary_images=IPF.make_binary_stack_custom(img_unwarp,lista_all)
@@ -340,13 +340,13 @@ def main():
 
 
 
-    cxx[0,0].imshow(stacked_binary_image_all,cmap='gray')
-    cxx[0,0].axis('off')
-    cxx[0,0].set_title('all filters stacked', fontsize=12)
+    cxx[0,1].imshow(stacked_binary_image_all,cmap='gray')
+    cxx[0,1].axis('off')
+    cxx[0,1].set_title('sve binarne slike filtara\nspojeni u jednu binarnu sliku', fontsize=12)
 
-    cxx[3,2].imshow(thresholded_binary_image,cmap='gray')
-    cxx[3,2].axis('off')
-    cxx[3,2].set_title('all filters AUTO thresholded: '+str(threshold_value), fontsize=12)
+    cxx[0,2].imshow(thresholded_binary_image,cmap='gray')
+    cxx[0,2].axis('off')
+    cxx[0,2].set_title('sve binarne slike filtara\nspojeni u jednu binarnu sliku\nizračunata vrijednost praga: '+str(threshold_value), fontsize=12)
 
     threshold_value_custom1=1
     thresholded_binary_image_custom1=IPF.threshold_binary_stack(stacked_binary_image_all,threshold_value_custom1)
@@ -370,45 +370,47 @@ def main():
     thresholded_binary_image_custom10=IPF.threshold_binary_stack(stacked_binary_image_all,threshold_value_custom10)
 
 
-    cxx[0,1].imshow(thresholded_binary_image_custom1,cmap='gray')
-    cxx[0,1].axis('off')
-    cxx[0,1].set_title('all filters thresholded: '+str(threshold_value_custom1), fontsize=12)
+    cxx[0,0].imshow(exampleImg_unwarp,cmap='gray')
+    cxx[0,0].axis('off')
+    cxx[0,0].set_title('transformacija perspektive\nizvorne slike: ', fontsize=12)
 
-    cxx[0,2].imshow(thresholded_binary_image_custom2,cmap='gray')
-    cxx[0,2].axis('off')
-    cxx[0,2].set_title('all filters thresholded: '+str(threshold_value_custom2), fontsize=12)
-
-    cxx[1,0].imshow(thresholded_binary_image_custom3,cmap='gray')
+    cxx[1,0].imshow(thresholded_binary_image_custom1,cmap='gray')
     cxx[1,0].axis('off')
-    cxx[1,0].set_title('all filters thresholded: '+str(threshold_value_custom3), fontsize=12)
+    cxx[1,0].set_title('all filters thresholded: '+str(threshold_value_custom1), fontsize=12)
 
-    cxx[1,1].imshow(thresholded_binary_image_custom4,cmap='gray')
+    cxx[1,1].imshow(thresholded_binary_image_custom2,cmap='gray')
     cxx[1,1].axis('off')
-    cxx[1,1].set_title('all filters thresholded: '+str(threshold_value_custom4), fontsize=12)
+    cxx[1,1].set_title('all filters thresholded: '+str(threshold_value_custom2), fontsize=12)
 
-    cxx[1,2].imshow(thresholded_binary_image_custom5,cmap='gray')
+    cxx[1,2].imshow(thresholded_binary_image_custom3,cmap='gray')
     cxx[1,2].axis('off')
-    cxx[1,2].set_title('all filters thresholded: '+str(threshold_value_custom5), fontsize=12)
+    cxx[1,2].set_title('all filters thresholded: '+str(threshold_value_custom3), fontsize=12)
 
-    cxx[2,0].imshow(thresholded_binary_image_custom6,cmap='gray')
+    cxx[2,0].imshow(thresholded_binary_image_custom4,cmap='gray')
     cxx[2,0].axis('off')
-    cxx[2,0].set_title('all filters thresholded: '+str(threshold_value_custom6), fontsize=12)
+    cxx[2,0].set_title('all filters thresholded: '+str(threshold_value_custom4), fontsize=12)
 
-    cxx[2,1].imshow(thresholded_binary_image_custom7,cmap='gray')
+    cxx[2,1].imshow(thresholded_binary_image_custom5,cmap='gray')
     cxx[2,1].axis('off')
-    cxx[2,1].set_title('all filters thresholded: '+str(threshold_value_custom7), fontsize=12)
+    cxx[2,1].set_title('all filters thresholded: '+str(threshold_value_custom5), fontsize=12)
 
-    cxx[2,2].imshow(thresholded_binary_image_custom8,cmap='gray')
+    cxx[2,2].imshow(thresholded_binary_image_custom6,cmap='gray')
     cxx[2,2].axis('off')
-    cxx[2,2].set_title('all filters thresholded: '+str(threshold_value_custom8), fontsize=12)
+    cxx[2,2].set_title('all filters thresholded: '+str(threshold_value_custom6), fontsize=12)
 
-    cxx[3,0].imshow(thresholded_binary_image_custom9,cmap='gray')
+    cxx[3,0].imshow(thresholded_binary_image_custom7,cmap='gray')
     cxx[3,0].axis('off')
-    cxx[3,0].set_title('all filters thresholded: '+str(threshold_value_custom9), fontsize=12)
+    cxx[3,0].set_title('all filters thresholded: '+str(threshold_value_custom7), fontsize=12)
 
-    cxx[3,1].imshow(thresholded_binary_image_custom10,cmap='gray')
+    cxx[3,1].imshow(thresholded_binary_image_custom8,cmap='gray')
     cxx[3,1].axis('off')
-    cxx[3,1].set_title('all filters thresholded: '+str(threshold_value_custom10), fontsize=12)
+    cxx[3,1].set_title('all filters thresholded: '+str(threshold_value_custom8), fontsize=12)
+
+    cxx[3,2].imshow(thresholded_binary_image_custom9,cmap='gray')
+    cxx[3,2].axis('off')
+    cxx[3,2].set_title('all filters thresholded: '+str(threshold_value_custom9), fontsize=12)
+
+
     #
     # cxx[0,1].imshow(thresh_binary_image,cmap='gray')
     # cxx[0,1].axis('off')
@@ -452,8 +454,123 @@ def main():
     # cxx[2,2].axis('off')
     # cxx[2,2].set_title('YELLOW + SOBEL  calc thresholded: '+str(threshold_value3), fontsize=12)
 
+
+    fff, xxx = plt.subplots(8, 3, figsize=(20,20))
+    # fff, xxx = plt.subplots(8, 3, figsize=(20,10))
+    fff.subplots_adjust(hspace = .3, wspace=0.05)
+
+    xxx[0,0].imshow(exampleImg_undistort)
+    x = [src[0][0],src[2][0],src[3][0],src[1][0],src[0][0]]
+    y = [src[0][1],src[2][1],src[3][1],src[1][1],src[0][1]]
+    xxx[0,0].plot(x, y, color='#ff0000', alpha=0.4, linewidth=3, solid_capstyle='round', zorder=2)
+    xxx[0,0].axis('off')
+    xxx[0,0].set_title('Izvorna slika s\noznačenim ROI-om', fontsize=12)
+
+    xxx[0,1].imshow(exampleImg_unwarp)
+    xxx[0,1].axis('off')
+    xxx[0,1].set_title('Transformacija\nperspektive', fontsize=12)
+
+    xxx[0,2].imshow(all_binary_images_white[0],cmap='gray')
+    xxx[0,2].axis('off')
+    xxx[0,2].set_title('rgb_r', fontsize=12)
+
+    #------------------------------------------------------------------
+
+    xxx[1,0].imshow(all_binary_images_white[1],cmap='gray')
+    xxx[1,0].axis('off')
+    xxx[1,0].set_title('hls_s', fontsize=12)
+
+    #------------------------------------------------------------------
+    xxx[1,1].imshow(all_binary_images_white[2],cmap='gray')
+    xxx[1,1].axis('off')
+    xxx[1,1].set_title('hls_l', fontsize=12)
+
+    #-------------------------------------------------------------------
+    xxx[1,2].imshow(all_binary_images_white[3],cmap='gray')
+    xxx[1,2].axis('off')
+    xxx[1,2].set_title('lab_l', fontsize=12)
+    #-------------------------------------------------------------------
+
+    xxx[2,0].imshow(all_binary_images_white[4],cmap='gray')
+    xxx[2,0].axis('off')
+    xxx[2,0].set_title('hsv white', fontsize=12)
+
+    #-------------------------------------------------------------------
+    xxx[2,1].imshow(all_binary_images_white[5],cmap='gray')
+    xxx[2,1].axis('off')
+    xxx[2,1].set_title('white_tight', fontsize=12)
+    # # #-------------------------------------------------------------------
+    xxx[2,2].imshow(all_binary_images_white[6],cmap='gray')
+    xxx[2,2].axis('off')
+    xxx[2,2].set_title('white_loose', fontsize=12)
+
+    xxx[3,0].imshow(all_binary_images_yellow[0],cmap='gray')
+    xxx[3,0].axis('off')
+    xxx[3,0].set_title('lab_b', fontsize=12)
+    # #------------------------------------------------------------------
+    xxx[3,1].imshow(all_binary_images_yellow[1],cmap='gray')
+    xxx[3,1].axis('off')
+    xxx[3,1].set_title('hsv_yellow', fontsize=12)
+    #----------------------------------------------------------
+    xxx[3,2].imshow(all_binary_images_yellow[2],cmap='gray')
+    xxx[3,2].axis('off')
+    xxx[3,2].set_title('yellow', fontsize=12)
+
+    xxx[4,0].imshow(all_binary_images_yellow[3],cmap='gray')
+    xxx[4,0].axis('off')
+    xxx[4,0].set_title('yellow_2', fontsize=12)
+
+    xxx[4,1].imshow(all_binary_images_yellow[4],cmap='gray')
+    xxx[4,1].axis('off')
+    xxx[4,1].set_title('yellow_3', fontsize=12)
+
+    xxx[4,2].imshow(all_binary_images_yellow[5],cmap='gray')
+    xxx[4,2].axis('off')
+    xxx[4,2].set_title('yellow_4', fontsize=12)
+
+    xxx[5,0].imshow(all_binary_images_yellow[6],cmap='gray')
+    xxx[5,0].axis('off')
+    xxx[5,0].set_title('yellow_5', fontsize=12)
+
+    xxx[5,1].imshow(all_binary_images_sobel[0],cmap='gray')
+    xxx[5,1].axis('off')
+    xxx[5,1].set_title('sobel_mag', fontsize=12)
+    #-------------------------------------------------------------------
+    xxx[5,2].imshow(all_binary_images_sobel[1],cmap='gray')
+    xxx[5,2].axis('off')
+    xxx[5,2].set_title('sobel_abs', fontsize=12)
+    #--------------------------------------------------------------
+
+    xxx[6,0].imshow(all_binary_images_sobel[2],cmap='gray')
+    xxx[6,0].axis('off')
+    xxx[6,0].set_title('sobel_dir', fontsize=12)
+
+
+    xxx[6,1].imshow(all_binary_images_sobel[3],cmap='gray')
+    xxx[6,1].axis('off')
+    xxx[6,1].set_title('edge_pos', fontsize=12)
+    #-------------------------------------------------------------------
+    xxx[6,2].imshow(all_binary_images_sobel[4],cmap='gray')
+    xxx[6,2].axis('off')
+    xxx[6,2].set_title('edge_neg', fontsize=12)
+    #-------------------------------------------------------------------
+    xxx[7,0].imshow(all_binary_images_sobel[5],cmap='gray')
+    xxx[7,0].axis('off')
+    xxx[7,0].set_title('hls_sobel', fontsize=12)
+    #-------------------------------------------------------------------
+    xxx[7,1].imshow(all_binary_images_sobel[6],cmap='gray')
+    xxx[7,1].axis('off')
+    xxx[7,1].set_title('yellow_edge_pos', fontsize=12)
+
+    xxx[7,2].imshow(all_binary_images_sobel[7],cmap='gray')
+    xxx[7,2].axis('off')
+    xxx[7,2].set_title('yellow_edge_neg', fontsize=12)
+
     #------------------------------------------------------
     plt.show()
+
+
+
 
     return
 

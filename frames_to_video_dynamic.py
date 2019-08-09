@@ -53,7 +53,11 @@ def main():
         pickle.dump(count,outfile)
         outfile.close()
 
-        image = cv2.imread(image_folder+"frame%d.jpg" % count)     # save frame as JPEG file
+        org_image = cv2.imread(image_folder+"frame%d.jpg" % count)
+        image=org_image
+        # image = cv2.resize(org_image,(360,640))
+        # image = cv2.resize(org_image,(180,320))
+        # save frame as JPEG file
         #if image is None or count > 300:                             # if image was not read successfully
         if image is None:                             # if image was not read successfully
             print ("error: image not read from file \n\n")        # print error message to std out

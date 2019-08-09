@@ -152,7 +152,7 @@ def find_histogram_peaks(histogram,histogram_image, image=False):
         thickness=2
         position=(40,40)
 
-    cv2.putText(out_image, "4. Histogram image with peaks", position, cv2.FONT_HERSHEY_DUPLEX, font_size, (0,255,0), thickness, cv2.LINE_AA)
+    # cv2.putText(out_image, "4. Histogram image with peaks", position, cv2.FONT_HERSHEY_DUPLEX, font_size, (0,255,0), thickness, cv2.LINE_AA)
 
     noise_count=0
     peak_indices=[]
@@ -737,6 +737,8 @@ def highlight_road(original_img, binary_img, four_fits, Minv):
     # Warp the blank back to original image space using inverse perspective matrix (Minv)
     newwarp = cv2.warpPerspective(color_warp, Minv, (w, h))
     # Combine the result with the original image
+    print(new_img.shape)
+    print(newwarp.shape)
     result = cv2.addWeighted(new_img, 1, newwarp, 2, 0)
     #result = cv2.add(new_img,newwarp)
     return result
@@ -1695,7 +1697,8 @@ def process_image_4lanes(imgOriginal,fullscreen=False):
     #processing image and returning binary image
     h,w = imgOriginal.shape[:2]
     new_img = np.copy(imgOriginal)
-
+    # new_img = cv2.resize(imgOriginal,(360,640))
+    # new_img = cv2.resize(imgOriginal,(180,320))
     if w==1280:
         font_size=1
         thickness=2
@@ -1807,6 +1810,7 @@ def process_image_4lanes(imgOriginal,fullscreen=False):
         final_image = combine_images_smaller(img_out1,img_unwarped,img_bin,histogram_image,rectangle_img,img_out2)
     else:
     #output image is result only
+        img_out1=write_alert(img_out1)
         final_image=img_out1
 
     return final_image
@@ -2206,6 +2210,30 @@ def combine_images(img_original,img_unwarp,img_bin,histogram_image,curves_images
 #----------------------------------------------------------------------------------------------------------
     return combined_image
 
+def write_alert(img_original):
+    lower_margin=540
+    higher_margin=740
+    position=(300,300)
+    font_size=2
+    thickness=2
+
+    font_scale = 5
+
+    # set the rectangle background to white
+    rectangle_bgr = (0, 0, 0)
+    font = cv2.FONT_HERSHEY_PLAIN
+    text="Alert! Lane departure!"
+    (text_width, text_height) = cv2.getTextSize(text, font, fontScale=font_scale, thickness=1)[0]
+    text_offset_x = 210
+    text_offset_y = img_original.shape[0] - 350
+    box_coords = ((text_offset_x, text_offset_y), (text_offset_x + text_width - 2, text_offset_y - text_height - 2))
+
+    if lower_margin <= lane_list[0].peak <= higher_margin or lower_margin <= lane_list[1].peak <= higher_margin or lower_margin <= lane_list[2].peak <= higher_margin or  lower_margin <= lane_list[3].peak <= higher_margin:
+        cv2.rectangle(img_original, box_coords[0], box_coords[1], rectangle_bgr, cv2.FILLED)
+        cv2.putText(img_original, text, (text_offset_x, text_offset_y), font, color=(0,0,255), thickness=3, fontScale=font_scale)
+        # cv2.putText(img_original, text, position, font, font_size, (0,0,255), thickness, cv2.LINE_AA)
+        print('departure true, writing on image')
+    return img_original
 
 def combine_images_smaller(img_original,img_unwarp,img_bin,histogram_image,curves_images,all_curves_image):
     combined_image = np.zeros((960,1280,3), dtype=np.uint8)
@@ -2228,7 +2256,9 @@ def combine_images_smaller(img_original,img_unwarp,img_bin,histogram_image,curve
         position=(40,80)
         position2=(40,140)
 #---------------------------------------------------------------------------------------
+
     # original output (top left)
+    img_original=write_alert(img_original)
     cv2.putText(img_original, "1. Original image", position, cv2.FONT_HERSHEY_DUPLEX, font_size, (0,255,0), thickness, cv2.LINE_AA)
     combined_image[0:int(height/3),0:int(width/2)] =cv2.resize(img_original,(int(width/2),int(height/3)))
 

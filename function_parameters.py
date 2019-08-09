@@ -45,8 +45,11 @@ image_folder = dashcam_image_path
 
 #binary_combinations=('hls_s','hls_l','lab_b','lab_l','sobel_abs','sobel_mag','sobel_dir',)
 # binary_combinations=('hsv_white')
-# binary_combinations=('rgb_r')
-binary_combinations=('white_loose','hls_l ')
+
+# binary_combinations=('rgb_r','yellow_4')
+binary_combinations=('white_loose','white_tight')
+# binary_combinations=('yellow_2','rgb_r')
+
 # binary_combinations=('hls_s','lab_b','hls_l ')
 #binary_combinations=('hls_l')
 # binary_combinations=('rgb-r')

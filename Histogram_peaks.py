@@ -47,16 +47,27 @@ def main():
         # histogram_image=np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)
         #peaks,out_image=find_histogram_peaks(histogram,histogram_image,image=True)
 
+        # peaks,histogram_image=Lff.find_histogram_peaks((np.sum(img_bin[:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
         peaks,histogram_image=Lff.find_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
         #peaks,histogram_image=Lff.find_4_histogram_peaks((np.sum(img_bin[img_bin.shape[0]//2:,:], axis=0)),(np.zeros((img_bin.shape[0]//2,img_bin.shape[1]),dtype=int)),image=True)
-        cv2.putText(histogram_image, str(peaks), (40,100), cv2.FONT_HERSHEY_DUPLEX, 1, (255,255,0), 2, cv2.LINE_AA)
-        combined_image = np.zeros((960,1280,3), dtype=np.uint8)
-        height,width,_=combined_image.shape
+
+        cv2.putText(histogram_image, str(peaks), (40,120), cv2.FONT_HERSHEY_DUPLEX, 1, (255,255,0), 2, cv2.LINE_AA)
+        cv2.putText(histogram_image, 'Found peaks:', (40,80), cv2.FONT_HERSHEY_DUPLEX, 1, (255,255,0), 2, cv2.LINE_AA)
+
+        # combined_image = np.zeros((960,1280,3), dtype=np.uint8)
+        combined_image = np.zeros((970,1280,3), dtype=np.uint8)
+        height=960
+        width =1280
+        # height,width,_=combined_image.shape
+        hh, ww =img_bin.shape
+
         smaller_img_out2=  cv2.resize(histogram_image,(int(width),int(height/2)))
         img_bin = np.uint8(np.dstack((img_bin, img_bin, img_bin))*255)
+        cv2.line(img_bin,(0,hh//2),(ww,hh//2),(0,0,255),1)
         smaller_img_out1=  cv2.resize(img_bin,(int(width),int(height/2)))
-        combined_image[int(height/2):int(height),:] =smaller_img_out2
+        combined_image[int(height/2+10):int(height+10),:] =smaller_img_out2
         combined_image[0:int(height/2),:] =smaller_img_out1
+        cv2.line(combined_image,(0,height//2),(width,height//2),(255,255,255),4)
         # print(peaks)
 #------------------------------------------------------------------------------------------------------------------------------
 
